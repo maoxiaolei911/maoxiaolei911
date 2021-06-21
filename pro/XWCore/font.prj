@@ -1,0 +1,87 @@
+HEADERS += $${FONTDIR}/UTF8.h \
+		   $${FONTDIR}/NameToMacTable.h \
+		   $${FONTDIR}/CaseTable.h \
+		   $${FONTDIR}/cffstdstr.h \
+		   $${FONTDIR}/cidbasefont.h \           
+           $${FONTDIR}/NameToUnicodeTable.h \
+           $${FONTDIR}/FontEncodingTables.h \
+           $${FONTDIR}/LigKern.h \
+           $${FONTDIR}/TexEncoding.h \ 
+           $${FONTDIR}/BuiltinFont.h \
+           $${FONTDIR}/BuiltinFontTables.h \
+           $${FONTDIR}/XWNameToCharCode.h \
+		   $${FONTDIR}/XWPSTokenizer.h \ 
+		   $${FONTDIR}/XWCharCodeToUnicode.h \
+		   $${FONTDIR}/XWFontEncoding.h \
+		   $${FONTDIR}/XWPFBParser.h \
+		   $${FONTDIR}/XWCMap.h \
+		   $${FONTDIR}/XWSubfont.h \
+           $${FONTDIR}/XWEncoding.h \
+           $${FONTDIR}/XWTexFontMap.h \
+		   $${FONTDIR}/XWFontFile.h \
+		   $${FONTDIR}/XWFontFileID.h \
+		   $${FONTDIR}/XWFontFileTrueType.h \
+		   $${FONTDIR}/XWFontFileType1.h \
+		   $${FONTDIR}/XWFontFileType1C.h \
+		   $${FONTDIR}/XWFontFileFT.h \
+		   $${FONTDIR}/XWFontFilePK.h \
+		   $${FONTDIR}/XWFontFileCFF.h \
+		   $${FONTDIR}/XWFontFileSFNT.h \
+		   $${FONTDIR}/XWCFFType.h \
+		   $${FONTDIR}/XWSFNTType.h \
+		   $${FONTDIR}/XWT1Type.h \
+		   $${FONTDIR}/XWUnicodeMap.h \
+		   $${FONTDIR}/UnicodeMapTables.h \
+		   $${FONTDIR}/XWTFMCreator.h \
+		   $${FONTDIR}/XWTFMFile.h \
+		   $${FONTDIR}/XWAdobeGlyphList.h \
+		   $${FONTDIR}/XWFontSetting.h \
+		   $${FONTDIR}/XWCIDFont.h \
+		   $${FONTDIR}/XWType0Font.h \
+		   $${FONTDIR}/XWTexFont.h \
+		   $${FONTDIR}/XWFTFont.h \ 
+		   $${FONTDIR}/XWFTFontFile.h \
+		   $${FONTDIR}/XWFTFontEngine.h \
+		   $${FONTDIR}/XWFontCache.h
+		   
+		   
+
+SOURCES += $${FONTDIR}/FontEncodingTables.cpp \
+		   $${FONTDIR}/LigKern.cpp \
+		   $${FONTDIR}/TexEncoding.cpp \ 
+           $${FONTDIR}/BuiltinFont.cpp \
+		   $${FONTDIR}/BuiltinFontTables.cpp \
+           $${FONTDIR}/XWNameToCharCode.cpp \
+           $${FONTDIR}/XWPSTokenizer.cpp \ 
+           $${FONTDIR}/XWCharCodeToUnicode.cpp \
+           $${FONTDIR}/XWFontEncoding.cpp \
+           $${FONTDIR}/XWPFBParser.cpp \           
+           $${FONTDIR}/XWCMap.cpp \     
+           $${FONTDIR}/XWSubfont.cpp \
+           $${FONTDIR}/XWEncoding.cpp \      
+           $${FONTDIR}/XWTexFontMap.cpp \
+		   $${FONTDIR}/XWFontFile.cpp \
+		   $${FONTDIR}/XWFontFileID.cpp \
+		   $${FONTDIR}/XWFontFileTrueType.cpp \
+		   $${FONTDIR}/XWFontFileType1.cpp \
+		   $${FONTDIR}/XWFontFileType1C.cpp \
+		   $${FONTDIR}/XWFontFileFT.cpp \
+		   $${FONTDIR}/XWFontFilePK.cpp \
+		   $${FONTDIR}/XWFontFileCFF.cpp \
+		   $${FONTDIR}/XWFontFileSFNT.cpp \
+		   $${FONTDIR}/XWCFFType.cpp \
+		   $${FONTDIR}/XWSFNTType.cpp \
+		   $${FONTDIR}/XWT1Type.cpp \
+		   $${FONTDIR}/XWUnicodeMap.cpp \
+		   $${FONTDIR}/XWTFMCreator.cpp \
+		   $${FONTDIR}/XWTFMFile.cpp \
+		   $${FONTDIR}/XWAdobeGlyphList.cpp \
+		   $${FONTDIR}/XWFontSetting.cpp \
+		   $${FONTDIR}/XWCIDFont.cpp \
+		   $${FONTDIR}/XWType0Font.cpp \
+		   $${FONTDIR}/XWTexFont.cpp \
+		   $${FONTDIR}/XWFTFont.cpp \
+		   $${FONTDIR}/XWFTFontFile.cpp \
+		   $${FONTDIR}/XWFTFontEngine.cpp \
+		   $${FONTDIR}/XWFontCache.cpp
+

@@ -1,0 +1,62 @@
+HEADERS += $${UTILDIR}/XWGlobal.h \
+           $${UTILDIR}/XWConst.h \
+           $${UTILDIR}/XWType.h \
+           $${UTILDIR}/XWString.h \
+           $${UTILDIR}/XWList.h \
+           $${UTILDIR}/XWHash.h \
+           $${UTILDIR}/XWUtil.h \
+           $${UTILDIR}/XWStringUtil.h \
+           $${UTILDIR}/XWNumberUtil.h \
+           $${UTILDIR}/XWAes.h \
+           $${UTILDIR}/XWBase64.h \
+           $${UTILDIR}/XWBlowFish.h \
+           $${UTILDIR}/XWDes.h \
+           $${UTILDIR}/XWDBConnection.h \
+           $${UTILDIR}/XWDeviceInfo.h \
+           $${UTILDIR}/XWCodec.h \
+           $${UTILDIR}/XWFileName.h \
+           $${UTILDIR}/XWPaper.h \
+           $${UTILDIR}/XWApplication.h \
+           $${UTILDIR}/XWOptionParser.h \
+           $${UTILDIR}/XWFileDB.h \
+           $${UTILDIR}/XWCnf.h \
+           $${UTILDIR}/XWVariable.h \
+           $${UTILDIR}/XWPathSea.h \
+           $${UTILDIR}/XWDocSea.h \
+           $${UTILDIR}/XWFontSea.h \
+           $${UTILDIR}/XWHelpSea.h \
+           $${UTILDIR}/XWMailSea.h \
+           $${UTILDIR}/XWMediaSea.h \
+           $${UTILDIR}/XWPictureSea.h \
+           $${UTILDIR}/XWTexSea.h \
+           $${UTILDIR}/XWLexer.h
+
+SOURCES += $${UTILDIR}/XWString.cpp \		   
+           $${UTILDIR}/XWList.cpp \
+           $${UTILDIR}/XWHash.cpp \
+           $${UTILDIR}/XWUtil.cpp \
+           $${UTILDIR}/XWStringUtil.cpp \
+           $${UTILDIR}/XWNumberUtil.cpp \
+           $${UTILDIR}/XWAes.cpp \
+           $${UTILDIR}/XWBase64.cpp \
+           $${UTILDIR}/XWBlowFish.cpp \
+           $${UTILDIR}/XWDes.cpp \
+           $${UTILDIR}/XWDBConnection.cpp \
+           $${UTILDIR}/XWDeviceInfo.cpp \
+           $${UTILDIR}/XWCodec.cpp \
+           $${UTILDIR}/XWFileName.cpp \
+           $${UTILDIR}/XWPaper.cpp \
+           $${UTILDIR}/XWApplication.cpp \
+           $${UTILDIR}/XWOptionParser.cpp \
+           $${UTILDIR}/XWFileDB.cpp \
+           $${UTILDIR}/XWCnf.cpp \
+           $${UTILDIR}/XWVariable.cpp \
+           $${UTILDIR}/XWPathSea.cpp \
+           $${UTILDIR}/XWDocSea.cpp \
+           $${UTILDIR}/XWFontSea.cpp \
+           $${UTILDIR}/XWHelpSea.cpp \
+           $${UTILDIR}/XWMailSea.cpp \
+           $${UTILDIR}/XWMediaSea.cpp \
+           $${UTILDIR}/XWPictureSea.cpp \
+           $${UTILDIR}/XWTexSea.cpp \
+           $${UTILDIR}/XWLexer.cpp

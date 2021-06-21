@@ -1,0 +1,27 @@
+HEADERS += $${RASTERDIR}/XWRasterType.h \
+		   $${RASTERDIR}/XWBitmap.h \
+		   $${RASTERDIR}/XWScreen.h \
+		   $${RASTERDIR}/XWRasterPattern.h \
+		   $${RASTERDIR}/XWRasterPath.h \
+		   $${RASTERDIR}/XWRasterXPath.h \
+		   $${RASTERDIR}/XWRasterXPathScanner.h \
+		   $${RASTERDIR}/XWRasterClip.h \
+		   $${RASTERDIR}/XWRasterState.h \
+		   $${RASTERDIR}/XWRasterFontFile.h \
+		   $${RASTERDIR}/XWRasterFontEngine.h \
+		   $${RASTERDIR}/XWRasterFont.h \
+		   $${RASTERDIR}/XWRaster.h
+		   
+
+SOURCES += $${RASTERDIR}/XWBitmap.cpp \
+		   $${RASTERDIR}/XWScreen.cpp \
+		   $${RASTERDIR}/XWRasterPattern.cpp \
+		   $${RASTERDIR}/XWRasterPath.cpp \
+		   $${RASTERDIR}/XWRasterXPath.cpp \
+		   $${RASTERDIR}/XWRasterXPathScanner.cpp \
+		   $${RASTERDIR}/XWRasterClip.cpp \
+		   $${RASTERDIR}/XWRasterState.cpp \
+		   $${RASTERDIR}/XWRasterFontFile.cpp \
+		   $${RASTERDIR}/XWRasterFontEngine.cpp \
+		   $${RASTERDIR}/XWRasterFont.cpp \
+		   $${RASTERDIR}/XWRaster.cpp

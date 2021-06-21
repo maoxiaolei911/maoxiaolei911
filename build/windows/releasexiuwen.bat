@@ -1,0 +1,32 @@
+del /q ../../../xwrelease/xiuwen/bin/XWCore.*
+del /q ../../../xwrelease/xiuwen/bin/XWGuiCore.*
+del /q ../../../xwrelease/xiuwen/bin/XWTeX.*
+del /q ../../../xwrelease/xiuwen/bin/XWTeXGui.*
+del /q ../../../xwrelease/xiuwen/bin/XWTikz.*
+del /q ../../../xwrelease/xiuwen/bin/XWTeXDocEditorCore.*
+del /q ../../../xwrelease/xiuwen/bin/bibtex.*
+del /q ../../../xwrelease/xiuwen/bin/extractbb.*
+del /q ../../../xwrelease/xiuwen/bin/makeindex.*
+del /q ../../../xwrelease/xiuwen/bin/xwdvitype.*
+del /q ../../../xwrelease/xiuwen/bin/xwlatexeditor.*
+del /q ../../../xwrelease/xiuwen/bin/xwtexeditor.*
+del /q ../../../xwrelease/xiuwen/bin/xwtexfmteditor.*
+del /q ../../../xwrelease/xiuwen/bin/xwtexreader.*
+
+copy ../../../bin/XWCore.dll ../../../xwrelease/xiuwen/bin/XWCore.dll
+copy ../../../bin/XWGuiCore.dll ../../../xwrelease/xiuwen/bin/XWGuiCore.dll
+copy ../../../bin/XWTeX.dll ../../../xwrelease/xiuwen/bin/XWTeX.dll
+copy ../../../bin/XWTeXGui.dll ../../../xwrelease/xiuwen/bin/XWTeXGui.dll
+copy ../../../bin/XWTikz.dll ../../../xwrelease/xiuwen/bin/XWTikz.dll
+copy ../../../bin/XWTeXDocEditorCore.dll ../../../xwrelease/xiuwen/bin/XWTeXDocEditorCore.dll
+copy ../../../bin/bibtex.exe ../../../xwrelease/xiuwen/bin/bibtex.exe
+copy ../../../bin/extractbb.exe ../../../xwrelease/xiuwen/bin/extractbb.exe
+copy ../../../bin/makeindex.exe ../../../xwrelease/xiuwen/bin/makeindex.exe
+copy ../../../bin/xwdvitype.exe ../../../xwrelease/xiuwen/bin/xwdvitype.exe
+copy ../../../bin/xwlatexeditor.exe ../../../xwrelease/xiuwen/bin/xwlatexeditor.exe
+copy ../../../bin/xwtexeditor.exe ../../../xwrelease/xiuwen/bin/xwtexeditor.exe
+copy ../../../bin/xwtexfmteditor.exe ../../../xwrelease/xiuwen/bin/xwtexfmteditor.exe
+copy ../../../bin/xwtexreader.exe ../../../xwrelease/xiuwen/bin/xwtexreader.exe
+
+del /q ../../../xwrelease/xiuwen/xwtex/pool/*.pool
+copy ../../pool/*.pool ../../../xwrelease/xiuwen/xwtex/pool/*.pool

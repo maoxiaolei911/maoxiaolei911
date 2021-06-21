@@ -1,0 +1,1873 @@
+usetikzlibrary
+usepgflibrary
+usepgfmodule
+tikzexternalize
+pgfrealjobname
+pgfpagesuselayout
+pgfpagesdeclarelayout
+pgfpagesphysicalpageoptions
+pgfpageslogicalpageoptions
+pgfpagesshipoutlogicalpage
+pgfpagescurrentpagewillbelogicalpage
+tikzdeclarecoordinatesystem
+tikzaliascoordinatesystem
+pgfdeclarelindenmayersystem
+pgfdeclaredecoration
+pgfdeclaremetadecorate
+pgfarrowsdeclare
+pgfarrowsdeclarealias
+pgfarrowsdeclarereversed
+pgfarrowsdeclarecombine
+pgfarrowsdeclaredouble
+pgfarrowsdeclaretriple
+pgfdeclareplotmark
+pgfdeclareshape
+pgfdeclarepatternformonly
+pgfdeclarepatterninherentlycolored
+pgfdeclareimage
+pgfaliasimage
+pgfdeclaremask
+pgfdeclarelayer
+pgfdeclarehorizontalshading
+pgfdeclareverticalshading
+pgfdeclareradialshading
+pgfdeclarefunctionalshading
+pgfdeclarefading
+tikzfading
+symbol
+rule
+pgflsystemcurrentstep
+pgflsystemcurrentleftangle
+pgflsystemcurrentrightangle
+pgflsystemrandomizestep
+pgflsystemrandomizeleftangle
+pgflsystemrandomizerightangle
+pgflsystemdrawforward
+pgflsystemmoveforward
+pgflsystemturnleft
+pgflsystemturnright
+pgflsystemsavestate
+pgflsystemrestorestate
+state
+pgfdecoratedpathlength
+pgfdecoratedinputsegmentlength
+pgfpointdecoratedpathlast
+pgfpointdecoratedinputsegmentlast
+pgfdecoratedangle
+pgfdecoratedremainingdistance
+pgfdecoratedcompleteddistance
+pgfdecoratedinputsegmentremainingdistance
+pgfdecoratedinputsegmentcompleteddistance
+decoration
+beforedecoration
+afterdecoration
+pgfpointmetadecoratedpathfirst
+pgfpointmetadecoratedpathlast
+pgfmetadecoratedpathlength
+pgfmetadecoratedcompleteddistance
+pgfmetadecoratedremainingdistance
+pgfmetadecoratedinputsegmentcompleteddistance
+pgfmetadecoratedinputsegmentremainingdistance
+nodeparts
+savedanchor
+saveddimen
+savedmacro
+anchor
+deferredanchor
+anchorborder
+backgroundpath
+foregroundpath
+behindbackgroundpath
+beforebackgroundpath
+behindforegroundpath
+beforeforegroundpath
+inheritsavedanchors
+inheritbehindbackgroundpath
+inheritbackgroundpath
+inheritbeforebackgroundpath
+inheritbehindforegroundpath
+inheritforegroundpath
+inheritbeforeforegroundpath
+inheritanchor
+inheritanchorborder
+tikzsetexternalprefix
+tikzsetnextfilename
+tikzsetfigurename
+tikzappendtofigurename
+tikzpicturedependsonfile
+tikzexternalfiledependsonfile
+tikzexternaldisable
+tikzexternalenable
+tikzifexternalizing
+tikzifexternalizingnext
+pgflibraryfpuifactive
+pgfmathfloatparsenumber
+pgfmathfloatqparsenumber
+pgfmathfloattofixed
+pgfmathfloattoint
+pgfmathfloattosci
+pgfmathfloatvalueof
+pgfmathfloatcreate
+pgfmathfloatifflags
+pgfmathfloattomacro
+pgfmathfloattoregisters
+pgfmathfloattoregisterstok
+pgfmathfloatgetflags
+pgfmathfloatgetflagstomacro
+pgfmathfloatgetmantissa
+pgfmathfloatgetmantissatok
+pgfmathfloatgetexponent
+pgfmathroundto
+pgfmathroundtozerofill
+pgfmathfloatround
+pgfmathfloatroundzerofill
+pgfmathfloat
+pgfmathfloattoextentedprecision
+pgfmathfloatsetextprecision
+pgfmathfloatlessthan
+pgfmathfloatmultiplyfixed
+pgfmathfloatifapproxequalrel
+pgfmathfloatshift
+pgfmathfloatabserror
+pgfmathfloatrelerror
+pgfmathfloatint
+pgfmathlog
+pgfkeyssetvalue
+pgfkeyslet
+pgfkeysgetvalue
+pgfkeysvalueof
+pgfkeysifdefined
+pgfkeys
+pgfqkeys
+pgfkeysalso
+pgfqkeysalso
+pgfkeysdef
+pgfkeysedef
+pgfkeysdefnargs
+pgfkeysedefnargs
+pgfkeysdefargs
+pgfkeysedefargs
+pgfkeysfiltered
+pgfqkeysfiltered
+pgfkeysalsofrom
+pgfkeysalsofiltered
+pgfkeysalsofilteredfrom
+pgfkeysactivatefamiliesandfilteroptions
+pgfqkeysactivatefamiliesandfilteroptions
+pgfkeysactivatesinglefamilyandfilteroptions
+pgfqkeysactivatesinglefamilyandfilteroptions
+pgfkeysevalkeyfilterwith
+pgfmathparse
+pgfmathqparse
+pgfmathpostparse
+pgfmathsetlength
+pgfmathaddtolength
+pgfmathsetcount
+pgfmathaddtocount
+pgfmathsetcounter
+pgfmathaddtocounter
+pgfmathsetmacro
+pgfmathsetlengthmacro
+pgfmathtruncatemacro
+pgfmathadd
+pgfmathsubtract
+pgfmathneg
+pgfmathmultiply
+pgfmathdivide
+pgfmathdiv
+pgfmathfactorial
+pgfmathsqrt
+pgfmathpow
+pgfmathe
+pgfmathexp
+pgfmathln
+pgfmathlogten
+pgfmathlogtwo
+pgfmathabs
+pgfmathmod
+pgfmathMod
+pgfmathround
+pgfmathfloor
+pgfmathceil
+pgfmathint
+pgfmathfrac
+pgfmathreal
+pgfmathpi
+pgfmathrad
+pgfmathdeg
+pgfmathsin
+pgfmathcos
+pgfmathtan
+pgfmathsec
+pgfmathcosec
+pgfmathcot
+pgfmathasin
+pgfmathacos
+pgfmathatan
+pgfmathatantwo
+pgfmathequal
+pgfmathgreater
+pgfmathless
+pgfmathnotequal
+pgfmathnotgreater
+pgfmathnotless
+pgfmathand
+pgfmathor
+pgfmathnot
+pgfmathifthenelse
+pgfmathtrue
+pgfmathfalse
+pgfmathrnd
+pgfmathrand
+pgfmathrandom
+pgfmathhex
+pgfmathHex
+pgfmathoct
+pgfmathbin
+pgfmathmin
+pgfmathmax
+pgfmathveclen
+pgfmatharray
+pgfmathsinh
+pgfmathcosh
+pgfmathtanh
+pgfmathwidth
+pgfmathheight
+pgfmathdepth
+pgfmathreciprocal
+pgfmathapproxequalto
+pgfmathgeneratepseudorandomnumber
+pgfmathrandominteger
+pgfmathdeclarerandomlist
+pgfmathrandomitem
+pgfmathsetseed
+pgfmathbasetodec
+pgfmathdectobase
+pgfmathdectoBase
+pgfmathbasetobase
+pgfmathbasetoBase
+pgfmathsetbasenumberlength
+pgfmathdeclarefunction
+pgfmathredeclarefunction
+pgfmathprintnumber
+pgfmathprintnumberto
+pgfmathifisint
+pgfooclass
+pgfoonew
+pgfoogc
+method
+pgfoothis
+attribute
+pgfooset
+pgfoolet
+pgfoovalueof
+pgfooget
+pgfooobj
+pgfpointdecoratedpathfirst
+pgfdecorateexistingpath
+pgfdecoratedpath
+pgfdecorationpath
+pgfpointdecorationpathlast
+pgfdecoratepath
+pgfdecoratecurrentpath
+pgfdecoratebeforecode
+pgfdecorateaftercode
+pgfsetdecorationsegmenttransformation
+tikzset
+tikzstyle
+pgfsetbaseline
+pgfsetbaselinepointnow
+pgfsetbaselinepointlater
+pgfsetlinewidth
+pgflinewidth
+pgfsetbuttcap
+pgfsetroundcap
+pgfsetrectcap
+pgfsetroundjoin
+pgfsetbeveljoin
+pgfsetmiterjoin
+pgfsetmiterlimit
+pgfsetdash
+pgfsetinnerlinewidth
+pgfseteorule
+pgfsetnonzerorule
+pgfsetstrokecolor
+pgfsetcolor
+pgfsetinnerstrokecolor
+pgfsetfillcolor
+pgfsetfillpattern
+pgfsetlayers
+pgfshadecolortorgb
+pgfuseshading
+pgfshadepath
+pgfsetadditionalshadetransform
+pgfsetstrokeopacity
+pgfsetfillopacity
+pgfsetfading
+pgfsetfadingforcurrentpath
+pgfsetarrowsstart
+pgfsetarrowsend
+pgfsetarrows
+pgfsetshortenstart
+pgfsetshortenend
+pgfsetarrowoptions
+pgfgetarrowoptions
+pgfsetmatrixcolumnsep
+pgfsetmatrixrowsep
+pgftransformshift
+pgftransformxshift
+pgftransformyshift
+pgftransformscale
+pgftransformxscale
+pgftransformyscale
+pgftransformxslant
+pgftransformyslant
+pgftransformrotate
+pgftransformtriangle
+pgftransformcm
+pgftransformarrow
+pgftransformlineattime
+pgftransformcurveattime
+pgftransformreset
+pgftransformresetnontranslations
+pgftransforminvert
+pgfgettransform
+pgfsettransform
+pgfgettransformentries
+pgfsettransformentries
+ifpgfslopedattime
+ifpgfallowupsidedowattime
+ifpgfresetnontranslationsattime
+beginpgfgraphicnamed
+endpgfgraphicnamed
+tikzpicture
+pgfpicture
+tikzfadingfrompicture
+endtikzpicture
+endpgfpicture
+endtikzfadingfrompicture
+starttikzpicture
+startpgfpicture
+starttikzfadingfrompicture
+stoptikzpicture
+stoppgfpicture
+stoptikzfadingfrompicture
+foreach
+breakforeach
+colorcurrentmixin
+scope
+pgfscope
+pgfinterruptpath
+pgfinterruptpicture
+pgfinterruptboundingbox
+pgflowlevelscope
+pgfdecoration
+pgfmetadecoration
+pgfonlayer
+pgftransparencygroup
+endscope
+endpgfscope
+endpgfinterruptpath
+endpgfinterruptpicture
+endpgfinterruptboundingbox
+endpgflowlevelscope
+endpgfdecoration
+endpgfmetadecoration
+endpgfonlayer
+endpgftransparencygroup
+startscope
+startpgfscope
+startpgfinterruptpath
+startpgfinterruptpicture
+startpgfinterruptboundingbox
+startpgflowlevelscope
+startpgfdecoration
+startpgfmetadecoration
+startpgfonlayer
+startpgftransparencygroup
+stopscope
+stoppgfscope
+stoppgfinterruptpath
+stoppgfinterruptpicture
+stoppgfinterruptboundingbox
+stoppgflowlevelscope
+stoppgfdecoration
+stoppgfmetadecoration
+stoppgfonlayer
+stoppgftransparencygroup
+arrow
+arrowreversed
+nodepart
+tikz
+begin
+end
+pgfextra
+endpgfextra
+path
+draw
+fill
+filldraw
+pattern
+shade
+shadedraw
+clip
+useasboundingbox
+node
+coordinate
+matrix
+pic
+calendar
+chainin
+spy
+pgflindenmayersystem
+tikzfoldingdodecahedron
+pgfpathsvg
+pgftext
+pgfplothandlercurveto
+pgfsetplottension
+pgfplothandlerclosedcurve
+pgfplothandlerconstantlineto
+pgfplothandlerconstantlinetomarkright
+pgfplothandlerjumpmarkleft
+pgfplothandlerjumpmarkright
+pgfplothandlerxcomb
+pgfplothandlerycomb
+pgfplothandlerpolarcomb
+pgfplotxzerolevelstreamconstant
+pgfplotyzerolevelstreamconstant
+pgfplothandlerybar
+pgfplothandlerxbar
+pgfplotbarwidth
+pgfplothandlerybarinterval
+pgfplothandlerxbarinterval
+pgfplothandlermark
+pgfsetplotmarkrepeat
+pgfsetplotmarkphase
+pgfplothandlermarklisted
+pgfuseplotmark
+pgfsetplotmarksize
+pgfplotmarksize
+pgfcalendardatetojulian
+pgfcalendarjuliantodate
+pgfcalendarjuliantoweekday
+pgfcalendarifdate
+pgfcalendarweekdayname
+pgfcalendarweekdayshortname
+pgfcalendarmonthname
+pgfcalendarmonthshortname
+pgfcalendar
+ifdate
+pgfcalendarshorthand
+pgfcalendarsuggestedname
+pgfpoint
+pgfpointorigin
+pgfpointpolar
+pgfpointxy
+pgfsetxvec
+pgfsetyvec
+pgfpointpolarxy
+pgfpointxyz
+pgfsetzvec
+pgfpointcylindrical
+pgfpointspherical
+pgfpointadd
+pgfpointscale
+pgfpointdiff
+pgfpointnormalised
+pgfpointlineattime
+pgfpointlineatdistance
+pgfpointcurveattime
+pgfpointborderrectangle
+pgfpointborderellipse
+pgfpointintersectionoflines
+pgfpointintersectionofcircles
+pgfintersectionofpaths
+pgfintersectionsolutions
+pgfpointintersectionsolution
+pgfintersectionsortbyfirstpath
+pgfintersectionsortbysecondpath
+pgfextractx
+pgfextracty
+pgfgetlastxy
+pgfpathmoveto
+pgfpathlineto
+pgfpathcurveto
+pgfpathquadraticcurveto
+pgfpathcurvebetweentime
+pgfpathcurvebetweentimecontinue
+pgfpathclose
+pgfpatharc
+pgfpatharcaxes
+pgfpatharcto
+pgfpatharctoprecomputed
+pgfpatharctomaxstepsize
+pgfpathellipse
+pgfpathcircle
+pgfpathrectangle
+pgfpathrectanglecorners
+pgfpathgrid
+pgfpathparabola
+pgfpathsine
+pgfpathcosine
+pgfsetcornersarced
+pgfresetboundingbox
+pgfusepath
+pgfnode
+pgfmultipartnode
+pgfcoordinate
+pgfnodealias
+pgfnoderename
+pgfpositionnodelater
+pgfpositionnodelaterbox
+pgfpositionnodelatername
+pgfpositionnodelaterminx
+pgfpositionnodelaterminy
+pgfpositionnodelatermaxx
+pgfpositionnodelatermaxy
+pgfpositionnodenow
+pgfpointanchor
+pgfpointshapeborder
+pgfmatrix
+pgfmatrixnextcell
+pgfmatrixendrow
+pgfmatrixemptycode
+pgfmatrixbegincode
+pgfmatrixendcode
+pgfmatrixcurrentrow
+pgfmatrixcurrentcolumn
+pgflowlevelsynccm
+pgflowlevel
+pgflowlevelobj
+pgfuseimage
+pgfalternateextension
+pgfimage
+pgfplotstreamstart
+pgfplotstreampoint
+pgfplotstreamend
+pgfplotxyfile
+pgfplotxyzfile
+pgfplotfunction
+pgfplotgnuplot
+pgfplothandlerlineto
+pgfsetmovetofirstplotpoint
+pgfsetlinetofirstplotpoint
+pgfplothandlerpolygon
+pgfplothandlerdiscard
+pgfplothandlerrecord
+pgfqpoint
+pgfqpointxy
+pgfqpointxyz
+pgfqpointscale
+pgfpathqmoveto
+pgfpathqlineto
+pgfpathqcurveto
+pgfpathqcircle
+pgfusepathqstroke
+pgfusepathqfill
+pgfusepathqfillstroke
+pgfusepathqclip
+pgfqbox
+pgfqboxsynced
+execute at begin picture
+execute at end picture
+execute at begin scope
+execute at end scope
+execute at begin to
+execute at end to
+execute at begin cell
+execute at end cell
+execute at empty cell
+execute before day scope
+execute at begin day scope
+execute at end day scope
+execute after day scope
+every picture
+every scope
+every path
+every circle
+every to /.style
+every node /.style
+every rectangle node /.style
+every circle node /.style
+every label /.style
+every pin /.style
+every pin edge /.style
+every edge /.style
+every matrix /.style
+every cell /.style
+every odd column /.style
+every even column /.style
+every odd row /.style
+every even row /.style
+every child /.style
+every child node /.style
+every plot
+every mark /.style
+every state
+every initial by arrow
+every accepting by arrow
+every calendar
+every day
+every month
+every year
+every on chain
+every join
+every circuit symbol
+every info
+every circuit logic
+every circuit ee
+every circuit annotation
+every light emitting
+every entity
+every relationship
+every attribute
+every fit
+every delimiter
+every left delimiter
+every right delimiter
+every above delimiter
+every below delimiter
+every mindmap /.style
+every concept /.style
+every extra concept /.style
+every circle connection bar /.style
+every annotation /.style
+every cut
+every fold
+every place
+every transition
+every token
+every shadow
+every spy in node /.style
+every spy on node /.style
+every loop
+every decoration
+canvas
+xyz
+canvas polar
+xyz polar
+xy polar
+barycentric
+tangent
+perpendicular
+angle
+point
+solution
+horizontal line through
+vertical line through
++
+++
+--
+-|
+|-
+.. controls
+ and 
+..
+-- cycle
+rectangle
+circle
+ellipse
+arc
+grid
+parabola
+ bend 
+sin
+cos
+svg
+""
+to
+let
+edge
+child
+edge from parent ./style
+plot
+coordinates
+file
+function
+decorate
+lindenmayer system
+l-system
+baseline
+color
+arrows
+>
+stealth
+to reversed
+latex
+bar
+space
+shorten >
+shorten <
+radius
+x radius
+y radius
+start angle
+end angle
+delta angle
+step
+xstep
+ystep
+bend
+bend pos
+parabola height
+bend at start
+bend at end
+use as bounding box
+path fading
+fit fading
+fading transform
+fading angle
+scope fading
+transparency group
+preactions
+postaction
+trim left
+trim right
+trim lowlevel
+help lines
+name path
+name path global
+name intersections
+insert path
+append after command
+prefix after command
+rounded corners
+sharp corners
+of
+total
+by
+sort by
+black
+blue
+brown
+cyan
+darkgray
+gray
+green
+lightgray
+lime
+magenta
+olive
+orange
+pink
+purple
+red
+teal
+violet
+white
+yellow
+light steel blue
+dark light steel blue
+line width
+ultra thin
+very thin
+thin
+semithick
+thick
+very thick
+ultra thick
+line cap
+round
+rect
+butt
+line join
+bevel
+miter
+cap
+miter limit
+dash pattern
+dash phase
+solid
+dotted
+densely dotted
+loosely dotted
+dashed
+densely dashed
+loosely dashed
+dashdotted
+densely dashdotted
+loosely dashdotted
+dashdotdotted
+densely dashdotdotted
+loosely dashdotdotted
+double
+double distance
+double distance between line centers
+double equal sign distance
+pattern color
+nonzero rule
+even odd rule
+draw opacity
+opacity
+transparent
+ultra nearly transparent
+very nearly transparent
+nearly transparent
+semitransparent
+nearly opaque
+very nearly opaque
+ultra nearly opaque
+opaque
+fill opacity
+text opacity
+path picture
+shading
+shading angle
+axis
+ball
+radial
+color wheel white center
+color wheel black center
+color wheel
+bilinear interpolation
+Mandelbrot set
+top color
+bottom color
+middle color
+left color
+right color
+ball color
+lower left
+upper left
+upper right
+lower right
+inner color
+outer color
+horizontal lines
+vertical lines
+north east lines
+north west lines
+crosshatch
+dots
+crosshatch dots
+fivepointed stars
+sixpointed stars
+bricks
+checkerboard
+checkerboard light gray
+horizontal lines light gray
+horizontal lines gray
+horizontal lines dark gray
+horizontal lines light blue
+horizontal lines dark blue
+crosshatch dots gray
+crosshatch dots light steel blue
+circle with fuzzy edge 10 percent
+circle with fuzzy edge 15 percent
+circle with fuzzy edge 20 percent
+fuzzy ring 15 percent
+node contents
+name prefix
+name suffix
+behind path
+in front of path
+name
+alias
+at
+shape
+inner sep
+inner xsep
+inner ysep
+outer sep
+outer xsep
+outer ysep
+minimum height
+minimum width
+minimum size
+shape aspect
+shape border uses incircle
+shape border rotate
+text
+text width
+align
+node halign header
+text height
+text depth
+font
+above
+below
+left
+right
+above left
+above right
+below left
+below right
+on grid
+node distance
+base left
+base right
+mid left
+mid right
+transform shape
+pos
+auto
+swap
+sloped
+allow upside down
+midway
+near start
+near end
+very near start
+very near end
+at start
+at end
+label
+label position
+absolute
+label distance
+pin
+pin distance
+pin position
+pin edge
+remember picture
+overlay
+late options
+column sep
+row sep
+cells
+nodes
+column
+row
+row column
+matrix anchor
+ampersand replacement
+matrix of nodes
+matrix of math nodes
+nodes in empty cells
+left delimiter
+right delimiter
+above delimiter
+below delimiter
+level/.style
+level 1/.style
+level 2/.style
+level 3/.style
+level 4/.style
+level distance
+sibling distance
+grow
+grow'
+missing
+growth parent anchor
+growth function
+edge from parent path
+child anchor
+parent anchor
+grow via three points
+grow cyclic
+sibling angle
+clockwise from
+counterclockwise from
+edge from parent fork down
+edge from parent fork right
+edge from parent fork left
+edge from parent fork up
+variable
+samples
+domain
+samples at
+parametric
+id
+prefix
+raw gnuplot
+mark
+mark repeat
+mark phase
+mark indices
+mark size
+mark options
+no marks
+no markers
+sharp plot
+smooth
+tension
+smooth cycle
+const plot
+const plot mark left
+const plot mark right
+jump mark left
+jump mark right
+ycomb
+xcomb
+polar comb
+ybar
+xbar
+ybar interval
+xbar interval
+only marks
+bar width
+bar shift
+bar interval shift
+bar interval width
+mark color
+text mark
+text mark style
+text mark as node
+raise
+mirror
+transform
+pre
+pre length
+post
+post length
+amplitude
+meta-amplitude
+segment length
+meta-segment length
+aspect
+start radius
+end radius
+path has corners
+moveto code
+lineto code
+curveto code
+closepath code
+/pgf/decoration/mark info/sequence number
+/pgf/decoration/mark info/distance from start
+reset marks
+mark connection node
+between positions and step width
+at position width
+foot length
+stride length
+foot sep
+foot angle
+foot of
+shape width
+shape height
+shape size
+shape sep
+shape evenly spread
+shape sloped
+shape scaled
+shape start width
+shape start height
+shape start size
+shape end width
+shape end height
+shape end size
+text format delimiters
+text color
+reverse path
+text align
+left indent
+right indent
+fit to path
+fit to path stretching spaces
+x
+y
+z
+shift
+shift only
+xshift
+yshift
+scale
+scale around
+xscale
+yscale
+xslant
+yslant
+rotate
+rotate around
+cm
+reset cm
+transform canvas
+current point is local
+state without output
+state with output
+initial
+initial by arrow
+initial text
+initial where
+intial distance
+initial above
+initial below
+initial left
+initial right
+initial by diamond
+accepting
+accepting by double
+accepting by arrow
+accepting text
+accepting where
+accepting above
+accepting below
+accepting left
+accepting right
+on background layer
+show background rectangle
+inner frame xsep
+inner frame ysep
+inner frame sep
+tight background
+loose background
+background rectangle
+framed
+show background grid
+background grid
+gridded
+show background top
+outer frame xsep
+outer frame ysep
+outer frame sep
+background top
+show background bottom
+show background left
+show background right
+dates
+day xshift
+day yshift
+month xshift
+month yshift
+day code
+day text
+month code
+month text
+year code
+year text
+day list downward
+day list upward
+day list right
+day list left
+week list
+month list
+month label left
+month label left vertical
+month label right
+month label right vertical
+month label above left
+month label above centered
+month label above right
+month label below left
+month label below centered
+if
+else
+start chain
+chain default direction
+continue chain
+on chain
+join
+start branch
+continue branch
+circuits
+circuit symbol unit
+huge circuit symbols
+large circuit symbols
+medium circuit symbols
+small circuit symbols
+tiny circuit symbols
+circuit symbol size
+circuit declare symbol
+circuit handle symbol
+point up
+point down
+point left
+point right
+info
+info'
+info sloped
+info' sloped
+circuit declare unit
+circuit declare annotation
+annotation arrow
+circuit symbol open
+circuit symbol filled
+circuit symbol lines
+circuit symbol wires
+circuit logic
+circuit logic IEC
+circuit logic US
+circuit logic CDH
+inputs
+logic gate inputs
+and gate
+nand gate
+or gate
+nor gate
+xor gate
+xnor gate
+not gate
+buffer gate
+logic gate inverted radius
+logic gate input sep
+logic gate anchors use bounding box
+and gate IEC symbol
+nand gate IEC symbol
+or gate IEC symbol
+nor gate IEC symbol
+xor gate IEC symbol
+xnor gate IEC symbol
+not gate IEC symbol
+buffer gate IEC symbol
+logic gate IEC symbol align
+logic gate IEC symbol color
+circuit ee
+circuit ee IEC
+current direction
+current direction'
+resistor
+inductor
+capacitor
+battery
+bulb
+current source
+voltage source
+ground
+diode
+Zener diode
+Schottky diode
+tunnel diode
+backward diode
+breakdown diode
+contact
+make contact
+break contact
+ampere
+volt
+ohm
+ohm'
+ohm sloped
+ohm' sloped
+siemens
+henry
+farad
+coulomb
+voltampere
+watt
+hertz
+light emitting
+light emitting'
+light dependent
+direction info
+adjustable
+direction ee arrow
+/pgf/generic circle IEC/before background
+/pgf/generic diode IEC/before background
+entity
+relationship
+key attribute
+external/system call
+external/shell escape
+external/prefix
+external/figure name
+external/force remake
+external/remake next
+external/export next
+external/export
+figure list
+mode
+external/verbose IO
+external/verbose optimize
+external/verbose
+external/optimize
+external/optimize command away
+external/optimize/install
+external/optimize/restore
+external/only named
+/pgf/images/include external
+/pgf/images/external info
+fit
+rotate fit
+fixed point arithmetic
+scale results
+scale file plot x
+scale file plot y
+scale file plot z
+/pgf/fpu
+/pgf/fpu/output format
+/pgf/fpu/scale results
+/pgf/fpu/scale file plot x
+/pgf/fpu/scale file plot y
+/pgf/fpu/scale file plot z
+/pgf/fpu/handlers/empty number
+/pgf/fpu/handlers/invalid number
+/pgf/fpu/handlers/wrong lowlevel format
+/pgf/fpu/rel thresh
+randomize step percent
+left angle
+right angle
+randomize angle percent
+axiom
+order
+rule set
+mindmap
+small mindmap
+large mindmap
+huge mindmap
+concept
+concept color
+extra concept /.style
+root concept /.style
+root concept /.append style
+level 1 concept /.style
+level 1 concept /.append style
+level 2 concept /.style
+level 2 concept /.append style
+level 3 concept /.style
+level 3 concept /.append style
+level 4 concept /.style
+level 4 concept /.append style
+concept connection
+circle connection bar
+circle connection bar switch color
+annotation
+folding line length
+face
+face 1
+face 2
+face 3
+face 12
+place
+transition
+pre and post
+token
+children are tokens
+token distance
+tokens
+colored tokens
+structured tokens
+general shadow
+shadow scale
+shadow xshift
+shadow yshift
+drop shadow
+copy shadow
+double copy shadow
+circular drop shadow
+circular glow
+trapezium left angle
+trapezium right angle
+trapezium angle
+trapezium stretches
+trapezium stretches body
+regular polygon sides
+star points
+star point height
+star point ratio
+isosceles triangle apex angle
+isosceles triangle stretches
+kite upper vertex angle
+kite lower vertex angle
+kite vertex angles
+dart tip angle
+dart tail angle
+circular sector angle
+cylinder uses custom fill
+cylinder end fill
+cylinder body fill
+magnifying glass handle angle fill
+magnifying glass handle angle aspect
+cloud puffs
+cloud puff arc
+cloud ignores aspect
+starburst points
+starburst point height
+random starburst
+signal pointer angle
+signal from
+signal to
+tape bend top
+tape bend bottom
+tape bend height
+magnetic tape tail extend
+magnetic tape tail
+single arrow tip angle
+single arrow head extend
+single arrow head indent
+double arrow tip angle
+double arrow head extend
+double arrow head indent
+arrow box tip angle
+arrow box head extend
+arrow box head indent
+arrow box shaft width
+arrow box north arrow
+arrow box south arrow
+arrow box east arrow
+arrow box west arrow
+arrow box arrows
+rectangle split allocate boxes
+rectangle split parts
+rectangle split horizontal
+rectangle split ignore empty parts
+rectangle split empty part width
+rectangle split empty part height
+rectangle split empty part depth
+rectangle split part align
+rectangle split draw splits
+rectangle split use custom fill
+rectangle split part fill
+callout relative pointer
+callout absolute pointer
+callout pointer shorten
+callout pointer width
+callout pointer arc
+callout pointer start size
+callout pointer end size
+callout pointer segments
+rounded rectangle arc length
+rounded rectangle west arc
+rounded rectangle left arc
+rounded rectangle east arc
+rounded rectangle right arc
+chamfered rectangle angle
+chamfered rectangle xsep
+chamfered rectangle ysep
+chamfered rectangle sep
+chamfered rectangle corners
+diamond
+trapezium
+semicircle
+regular polygon
+star
+isosceles triangle
+kite
+dart
+circular sector
+cylinder
+forbidden sign
+correct forbidden sign
+magnifying glass
+magnetic tape
+cloud
+starburst
+signal
+tape
+single arrow
+double arrow
+arrow box
+circle split
+circle solidus
+ellipse split
+rectangle split
+rectangle callout
+ellipse callout
+cloud callout
+cross out
+strike out
+rounded rectangle
+chamfered rectangle
+and gate US
+and gate CDH
+nand gate US
+nand gate CDH
+or gate US
+nor gate US
+xor gate US
+xnor gate US
+not gate US
+buffer gate US
+and gate IEC
+nand gate IEC
+or gate IEC
+nor gate IEC
+xor gate IEC
+xnor gate IEC
+not gate IEC
+buffer gate IEC
+rectangle ee
+circle ee
+direction ee
+generic circle IEC
+generic diode IEC
+breakdown diode IEC
+var resistor IEC
+inductor IEC
+capacitor IEC
+battery IEC
+ground IEC
+make contact IEC
+var make contact IEC
+break contact IEC
+spy scope
+size
+height
+width
+lens
+magnification
+spy connection path
+spy using outlines
+spy using overlays
+connect spies
+circle through
+to path
+line to
+move to
+curve to
+out
+in
+relative
+bend left
+bend right
+bend angle
+looseness
+out looseness
+in looseness
+min distance
+max distance
+out min distance
+out max distance
+in min distance
+in max distance
+distance
+out distance
+in distance
+out control
+in control
+controls
+loop
+loop above
+loop below
+loop left
+loop right
+turtle
+home
+forward
+how
+fd
+back
+bk
+lt
+rt
+var
+evaluate
+remember
+count
+/handler config
+/handler config/only existing/add exception
+/utils/exec
+/errors/value required
+/errors/value forbidden
+/errors/boolean expected
+/errors/unknown choice value
+/errors/unknown key
+/pgf/key filter handlers/append filtered to
+/pgf/key filter handlers/ignore
+/pgf/key filter handlers/log
+/pgf/key filters/active families
+/pgf/key filters/active families or no family
+/pgf/key filters/active families or no family DEBUG
+/pgf/key filters/active families and known
+/pgf/key filters/active families or descendants of
+/pgf/key filters/is descendant of
+/pgf/key filters/equals
+/pgf/key filters/not
+/pgf/key filters/and
+/pgf/key filters/or
+/pgf/key filters/true
+/pgf/key filters/false
+/pgf/key filters/defined
+resize to
+2 on 1
+4 on 1
+8 on 1
+16 on 1
+two screens with lagging second
+two screens with optional second
+physical paper height
+physical paper width
+a0paper
+a1paper
+a2paper
+a3paper
+a4paper
+a5paper
+a6paper
+letterpaper
+legalpaper
+executivepaper
+landscape
+border shrink
+odd numbered pages right
+corner width
+second right
+second left
+second bottom
+second top
+logical pages
+first logical shipout
+last logical shipout
+current logical shipout
+physical height
+physical width
+center
+resized width
+resized height
+original width
+original height
+rotation
+copy from
+border code
+declare function
+/pgf/number format
+fixed
+fixed zerofill
+sci
+sci zerofill
+zerofill
+std
+int detect
+int trunc
+/pgf/number format/frac
+frac
+frac TeX
+frac denom
+frac whole
+frac shift
+precision
+sci precision
+set decimal separator
+dec sep
+set thousands separator
+1000 sep
+min exponent for 1000 sep
+use period
+use comma
+skip 0.
+showpos
+print sign
+sci 10e
+sci 10^e
+sci e
+sci E
+sci subscript
+sci superscript
+sci generic
+mantissa sep
+exponent
+@dec sep mark
+@sci exponent mark
+assume math mode
+verbatim
+top
+bottom
+base
+mid
+north
+south
+west
+mid west
+base west
+north west
+south west
+east
+mid east
+base east
+north east
+south east
+tail east
+tail south east
+tail north east
+bottom left corner
+top left corner
+top right corner
+bottom right corner
+left side
+right side
+top side
+bottom side
+apex
+arc start
+arc end
+chord center
+left corner
+right corner
+lower side
+upper vertex
+lower vertex
+left vertex
+right vertex
+upper left side
+lower left side
+upper right side
+lower right side
+tip
+left tail
+right tail
+tail center
+sector center
+arc center
+shape center
+before top
+after top
+before bottom
+after bottom
+pointer
+before head
+before tip
+after tip
+after head
+before tail
+after tail
+tail
+before head 1
+before tip 1
+tip 1
+after tip 1
+after head 1
+before head 2
+before tip 2
+tip 2
+after tip 2
+after head 2
+before east arrow
+before east arrow head
+before east arrow tip
+east arrow tip
+after east arrow tip
+after east arrow head
+after east arrow
+before west arrow
+before west arrow head
+before west arrow tip
+west arrow tip
+after west arrow tip
+after west arrow head
+after west arrow
+before north arrow
+before north arrow head
+before north arrow tip
+north arrow tip
+after north arrow tip
+after north arrow head
+after north arrow
+before south arrow
+before south arrow head
+before south arrow tip
+south arrow tip
+after south arrow tip
+after south arrow head
+after south arrow
+before north east
+after north east
+before north west
+after north west
+before south west
+after south west
+before south east
+after south east
+chamfer all
+chamfer none
+lower
+nowhere
+none
+in and out
+out and in
+concave
+convex
+up
+down
+stepx
+stepy
+/pgf/decoration automaton
+switch if less than
+switch if input segment less than
+repeat state
+next state
+if input segment is closepath
+auto end on length
+auto corner on length
+persistent precomputation
+persistent postcomputation
+local bounding box
+page
+interpolate
+colormixin
+.cd
+.is family
+.search also
+.default
+.value required
+.value forbidden
+.code
+.ecode
+.code 2 args
+.ecode 2 args
+.code n args
+.ecode n args
+.code args
+.ecode args
+.add code
+.prefix code
+.append code
+.style
+.estyle
+.style 2 args
+.estyle 2 args
+.style args
+.estyle args
+.style n args
+.add style
+.prefix style
+.append style
+.initial
+.get
+.add
+.prefix
+.append
+.link
+.store in
+.estore in
+.is if
+.is choice
+.expand once
+.expand twice
+.expanded
+.list
+.try
+.retry
+.lastretry
+.show value
+.show code
+.install key filter
+.install key filter handler
+.activate family
+.deactivate family
+.belongs to family
+lineto
+straight zigzag
+random steps
+saw
+zigzag
+bent
+bumps
+coil
+curveto
+snake
+border
+brace
+expanding waves
+moveto
+ticks
+waves
+show path construction
+markings
+footprints
+crosses
+triangles
+shape backgrounds
+text along path
+Koch curve type 1
+Koch curve type 2
+Koch snowflake
+Cantor set
+coord
+every
+options
+nodetext
+childpath
+optionparam
+lsysspec
+states
+shapespec
+pointgroup
+keylist
+oomethod
+ooobjmethod
+foreachvariables
+foreachvalues
+matrixcolumn
+matrixrow
+matrixgroup
+spyon
+spyinnode

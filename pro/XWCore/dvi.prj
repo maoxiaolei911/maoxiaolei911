@@ -1,0 +1,68 @@
+HEADERS += $${DVIDIR}/XWDVIType.h \
+           $${DVIDIR}/XWDVICore.h \
+           $${DVIDIR}/XWDVIRef.h \
+           $${DVIDIR}/XWDVIDev.h \
+           $${DVIDIR}/XWDVICrypt.h \
+           $${DVIDIR}/XWDVIEncrypt.h \
+           $${DVIDIR}/XWDVIParser.h \
+           $${DVIDIR}/XWDVIEncoding.h \
+           $${DVIDIR}/XWDVIResources.h \
+           $${DVIDIR}/XWOTLConf.h \
+		   $${DVIDIR}/XWDVIFonts.h \
+		   $${DVIDIR}/XWFontFileVF.h \
+			 $${DVIDIR}/XWICCP.h \
+		   $${DVIDIR}/XWDVIColorSpaces.h \
+		   $${DVIDIR}/XWDVIImage.h \
+		   $${DVIDIR}/XWBMPImage.h \
+		   $${DVIDIR}/XWEPDFImage.h \
+			 $${DVIDIR}/XWJPG.h \
+		   $${DVIDIR}/XWJPGImage.h \
+		   $${DVIDIR}/XWMPost.h \
+			 $${DVIDIR}/XWPNG.h \
+		   $${DVIDIR}/XWPNGImage.h \
+		   $${DVIDIR}/XWPDFNames.h \
+		   $${DVIDIR}/XWPDFFile.h \
+		   $${DVIDIR}/XWDVISpecial.h \
+		   $${DVIDIR}/XWColorSpecial.h \
+		   $${DVIDIR}/XWHTMLSpecial.h \
+		   $${DVIDIR}/XWMISCSpecial.h \
+		   $${DVIDIR}/XWPDFSpecial.h \
+		   $${DVIDIR}/XWPSSpecial.h \
+		   $${DVIDIR}/XWTPICSpecial.h \
+		   $${DVIDIR}/XWDVIDoc.h 
+
+SOURCES += $${DVIDIR}/XWDVIType.cpp \
+		   $${DVIDIR}/XWDVICore.cpp \
+		   $${DVIDIR}/XWDVIRef.cpp \
+		   $${DVIDIR}/XWDVIDev.cpp \
+		   $${DVIDIR}/XWDVICrypt.cpp \
+		   $${DVIDIR}/XWDVIEncrypt.cpp \
+		   $${DVIDIR}/XWDVIParser.cpp \
+		   $${DVIDIR}/XWDVIEncoding.cpp \
+		   $${DVIDIR}/XWDVIResources.cpp \
+		   $${DVIDIR}/XWDVIFonts.cpp \
+		   $${DVIDIR}/XWFontFileVF.cpp \
+		   $${DVIDIR}/XWOTLConf.cpp \
+			 $${DVIDIR}/XWICCP.cpp \
+		   $${DVIDIR}/XWDVIColorSpaces.cpp \
+		   $${DVIDIR}/XWDVIImage.cpp \
+		   $${DVIDIR}/XWBMPImage.cpp \
+		   $${DVIDIR}/XWEPDFImage.cpp \
+			 $${DVIDIR}/XWJPG.cpp \
+		   $${DVIDIR}/XWJPGImage.cpp \
+		   $${DVIDIR}/XWMPost.cpp \
+			 $${DVIDIR}/XWPNG.cpp \
+		   $${DVIDIR}/XWPNGImage.cpp \
+		   $${DVIDIR}/XWPDFNames.cpp \
+		   $${DVIDIR}/XWPDFFile.cpp \
+		   $${DVIDIR}/XWDVISpecial.cpp \
+		   $${DVIDIR}/XWColorSpecial.cpp \
+		   $${DVIDIR}/XWHTMLSpecial.cpp \
+		   $${DVIDIR}/XWMISCSpecial.cpp \
+		   $${DVIDIR}/XWPDFSpecial.cpp \
+		   $${DVIDIR}/XWPSSpecial.cpp \
+		   $${DVIDIR}/XWTPICSpecial.cpp \
+		   $${DVIDIR}/XWDVIDoc.cpp 
+		   
+           
+

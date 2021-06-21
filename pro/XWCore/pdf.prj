@@ -1,0 +1,6 @@
+HEADERS += $${PDFDIR}/XWPDFXRef.h \
+           $${PDFDIR}/XWPDFDoc.h 
+		   
+
+SOURCES += $${PDFDIR}/XWPDFXRef.cpp \
+           $${PDFDIR}/XWPDFDoc.cpp 

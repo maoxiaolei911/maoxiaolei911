@@ -1,0 +1,42 @@
+DESTDIR = ../../../../bin
+TMPDIR = ../../../../tmp
+
+LIBS += -L$${DESTDIR}
+
+XWCORESRCDIR = ../../src/lib/core
+XWGUICORESRCDIR = ../../src/lib/gui
+XWTEXSRCDIR = ../../src/lib/tex
+XWTEXGUISRCDIR = ../../src/lib/texgui
+XWTIKZSRCDIR = ../../src/lib/tikz
+XWTEXDOCEDITORSRCDIR = ../../src/lib/texdoceditor
+XWWRITE18SRCDIR = ../../src/write18
+XWRESDIR = ../../res
+
+UTILDIR = $${XWCORESRCDIR}/util
+FONTDIR = $${XWCORESRCDIR}/font
+COREDIR = $${XWCORESRCDIR}/core
+RASTERDIR = $${XWCORESRCDIR}/raster
+PSDIR = $${XWCORESRCDIR}/ps
+DVIDIR = $${XWCORESRCDIR}/dvi
+PDFDIR = $${XWCORESRCDIR}/pdf
+
+INCLUDEPATH += ../../include/freetype
+INCLUDEPATH += ../../include/zlib
+INCLUDEPATH += ../../include/jpeg
+INCLUDEPATH += ../../include/png
+
+INCLUDEPATH += $${UTILDIR}
+INCLUDEPATH += $${FONTDIR}
+INCLUDEPATH += $${COREDIR}
+INCLUDEPATH += $${RASTERDIR}
+INCLUDEPATH += $${PSDIR}
+INCLUDEPATH += $${DVIDIR}
+INCLUDEPATH += $${PDFDIR}
+
+INCLUDEPATH += $${XWGUICORESRCDIR}
+INCLUDEPATH += $${XWTEXSRCDIR}
+INCLUDEPATH += $${XWTEXGUISRCDIR}
+INCLUDEPATH += $${XWTIKZSRCDIR}
+INCLUDEPATH += $${XWTEXDOCEDITORSRCDIR}
+
+CONFIG += qt dll warn_on debug_and_release

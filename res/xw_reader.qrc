@@ -1,0 +1,38 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+	<file>images/back.png</file>
+	<file>images/continuepages.png</file>
+	<file>images/copy.png</file>
+	<file>images/filepdf.png</file>
+	<file>images/filepng.png</file>
+	<file>images/fileps.png</file>
+	<file>images/filetxt.png</file>
+	<file>images/find.png</file>
+	<file>images/fitpage.png</file>
+	<file>images/fitwidth.png</file>
+	<file>images/forward.png</file>
+	<file>images/fullscreen.png</file>
+	<file>images/gotofirst.png</file>
+	<file>images/gotolast.png</file>
+	<file>images/gotonext.png</file>
+	<file>images/gotoprev.png</file>
+	<file>images/mark.png</file>
+	<file>images/noreading.png</file>
+	<file>images/open.png</file>
+	<file>images/opennet.png</file>
+	<file>images/openrecent.png</file>
+	<file>images/openurl.png</file>
+	<file>images/play.png</file>
+	<file>images/printer.png</file>
+	<file>images/reading.png</file>
+	<file>images/rotate.png</file>
+	<file>images/saveas.png</file>
+	<file>images/doublepage.png</file>
+	<file>images/singlepage.png</file>
+	<file>images/xiuwen24.png</file>
+	<file>images/xiuwen64.png</file>
+	<file>images/zoomin.png</file>
+	<file>images/zoomout.png</file>
+</qresource>
+</RCC>
+
