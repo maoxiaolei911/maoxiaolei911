@@ -33,8 +33,7 @@ public:
   XWTikzOperation(XWTikzGraphic * graphicA, int idA, int subk, QObject * parent = 0);
   virtual ~XWTikzOperation();
 
-  virtual bool addAction(QMenu & menu);
-  virtual void addPoint(XWTikzState * state);
+  virtual bool addAction(QMenu & menu, XWTikzState * state);
 
   virtual bool back(XWTikzState * state);
 
@@ -47,9 +46,9 @@ public:
   virtual void dragTo(XWTikzState * state);
   virtual bool dropTo(XWTikzState * state);
 
-  virtual QPointF getAnchor(int a, XWTikzState * stateA, XWTikzState * state);
+  virtual QPointF getAnchor(int a, XWTikzState * state);
   virtual int getAnchorPosition();
-  virtual QPointF getAngle(double a, XWTikzState * stateA, XWTikzState * state);
+  virtual QPointF getAngle(double a, XWTikzState * state);
   virtual XWTikzCoord * getCurrentPoint();
   virtual int getCursorPosition();
   virtual QString getCurrentText();
@@ -154,8 +153,7 @@ class XWTikzLineTo : public XWTikzOperation
 public:
   XWTikzLineTo(XWTikzGraphic * graphicA, QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
-  void addPoint(XWTikzState * state);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
@@ -183,8 +181,7 @@ class XWTikzHVLinesTo : public XWTikzOperation
 public:
   XWTikzHVLinesTo(XWTikzGraphic * graphicA, QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
-  void addPoint(XWTikzState * state);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
@@ -212,8 +209,7 @@ class XWTikzVHLinesTo : public XWTikzOperation
 public:
   XWTikzVHLinesTo(XWTikzGraphic * graphicA, QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
-  void addPoint(XWTikzState * state);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
@@ -241,8 +237,7 @@ class XWTikzCurveTo : public XWTikzOperation
 public:
   XWTikzCurveTo(XWTikzGraphic * graphicA, QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
-  void addPoint(XWTikzState * state);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
@@ -294,8 +289,7 @@ class XWTikzRectangle : public XWTikzOperation
 public:
   XWTikzRectangle(XWTikzGraphic * graphicA, QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
-  void addPoint(XWTikzState * state);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
@@ -323,7 +317,7 @@ class XWTikzEllipse : public XWTikzOperation
 public:
   XWTikzEllipse(XWTikzGraphic * graphicA, int idA, QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
@@ -356,7 +350,7 @@ class XWTikzArc : public XWTikzOperation
 public:
   XWTikzArc(XWTikzGraphic * graphicA, QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
@@ -385,8 +379,7 @@ class XWTikzGrid : public XWTikzOperation
 public:
   XWTikzGrid(XWTikzGraphic * graphicA, QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
-  void addPoint(XWTikzState * state);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
@@ -417,8 +410,7 @@ class XWTikzParabola : public XWTikzOperation
 public:
   XWTikzParabola(XWTikzGraphic * graphicA, QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
-  void addPoint(XWTikzState * state);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
@@ -454,8 +446,7 @@ class XWTikzSine : public XWTikzOperation
 public:
   XWTikzSine(XWTikzGraphic * graphicA, QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
-  void addPoint(XWTikzState * state);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
@@ -483,8 +474,7 @@ class XWTikzCosine : public XWTikzOperation
 public:
   XWTikzCosine(XWTikzGraphic * graphicA, QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
-  void addPoint(XWTikzState * state);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
@@ -513,7 +503,7 @@ public:
   XWTikzPlotCoordinates(XWTikzGraphic * graphicA, QObject * parent = 0);
   XWTikzPlotCoordinates(XWTikzGraphic * graphicA, bool c,XWTIKZOptions * opt,QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
   bool dropTo(XWTikzState * state);
@@ -544,7 +534,7 @@ public:
   XWTikzPlotFile(XWTikzGraphic * graphicA, QObject * parent = 0);
   XWTikzPlotFile(XWTikzGraphic * graphicA, bool c,XWTIKZOptions * opt,QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
 
@@ -567,7 +557,7 @@ public:
   XWTikzPlotFunction(XWTikzGraphic * graphicA, QObject * parent = 0);
   XWTikzPlotFunction(XWTikzGraphic * graphicA, bool c,XWTIKZOptions * opt,QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
+  bool addAction(QMenu & menu, XWTikzState * state);
   
   void doPath(XWTikzState * state, bool showpoint = false);
 
@@ -641,7 +631,7 @@ class XWTikzDecorate : public XWTikzOperation
 public:
   XWTikzDecorate(XWTikzGraphic * graphicA, QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   bool back(XWTikzState * state);
 

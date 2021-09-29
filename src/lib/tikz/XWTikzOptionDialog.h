@@ -211,4 +211,24 @@ private:
   QDialogButtonBox *buttonBox;
 };
 
+class XWTikzLabelDialog : public QDialog
+{
+  Q_OBJECT
+	
+public:       
+  XWTikzLabelDialog(const QString & title,QWidget * parent = 0);
+
+  QString getLabel();
+
+private:
+  QLabel * aLabel;
+  QLineEdit * aEdit;
+  QLabel * bLabel;
+  QLineEdit * bEdit;
+  QLabel * cLabel;
+  QLineEdit * cEdit;
+
+  QDialogButtonBox *buttonBox;
+};
+
 #endif XWTIKZOPTIONDIALOG_H

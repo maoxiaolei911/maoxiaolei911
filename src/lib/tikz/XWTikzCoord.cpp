@@ -43,16 +43,12 @@ XWTikzCoord::~XWTikzCoord()
   }
 }
 
-bool XWTikzCoord::addAction(QMenu & menu)
+bool XWTikzCoord::addAction(QMenu & menu, XWTikzState * state)
 {
+  options->doPath(state,false);
   QAction * a = menu.addAction(tr("move to"));
   connect(a, SIGNAL(triggered()), this, SLOT(setCoord()));
   return true;
-}
-
-void XWTikzCoord::addPoint(XWTikzState * state)
-{
-  state->addPoint(this);
 }
 
 void XWTikzCoord::doPath(XWTikzState * state, bool showpoint)
@@ -408,7 +404,7 @@ QVector3D XWTikzCoord::getRelPoint3D(XWTikzState * state)
       {
         QString n = csc.nodeEx.node->getText();
         int a = csc.nodeEx.a->getResult(state);        
-        QPointF np = graphic->getNodeAnchor(n,a,state);
+        QPointF np = graphic->getNodeAnchor(n,a);
         p.setX(np.x());
         p.setY(np.y());
       }
@@ -418,7 +414,7 @@ QVector3D XWTikzCoord::getRelPoint3D(XWTikzState * state)
       {
         QString n = csc.nodeEx.node->getText();
         double a = csc.nodeEx.a->getResult(state);        
-        QPointF np = graphic->getNodeAngle(n,a,state);
+        QPointF np = graphic->getNodeAngle(n,a);
         p.setX(np.x());
         p.setY(np.y());
       }
@@ -427,8 +423,8 @@ QVector3D XWTikzCoord::getRelPoint3D(XWTikzState * state)
     case XW_TIKZ_CS_TANGENT:
       {
         QString n = csc.tangent.node->getText();
-        QPointF nc = graphic->getNodeAnchor(n,PGFcenter,state);
-        QPointF ne = graphic->getNodeAnchor(n,PGFeast,state);
+        QPointF nc = graphic->getNodeAnchor(n,PGFcenter);
+        QPointF ne = graphic->getNodeAnchor(n,PGFeast);
         p = csc.tangent.point->getResult(state);
         QPointF pp(p.x(),p.y());
         int s = (int)(csc.tangent.solution->getResult(state));
@@ -475,7 +471,7 @@ QVector3D XWTikzCoord::getRelPoint3D(XWTikzState * state)
       if (csc.coordEx.coord)
       {
         QString n = csc.coordEx.coord->getText();
-        p = graphic->getPoint3D(n,state);
+        p = graphic->getPoint3D(n);
       }
       break;
 

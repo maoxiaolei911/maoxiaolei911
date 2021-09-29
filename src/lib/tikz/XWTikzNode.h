@@ -16,6 +16,7 @@ class XWTikzCommand;
 class XWTIKZOptions;
 class XWTeXBox;
 class XWTikzMatrix;
+class XWTikzAnnotationArrow;
 
 class XWTikzCoordinate : public XWTikzOperation
 {
@@ -36,9 +37,10 @@ public:
 
   QString getName() {return name;}
 
-  virtual QPointF getAnchor(int a, XWTikzState * stateA, XWTikzState * state);
+  virtual QPointF getAnchor(int a, XWTikzState * state);
   virtual int     getAnchorPosition();
-  virtual QPointF getAngle(double a, XWTikzState * stateA, XWTikzState * state);
+  virtual QPointF getAngle(double a, XWTikzState * state);
+  XWTeXBox * getBox() {return box;}
   virtual int     getCursorPosition();
   virtual QString getCurrentText();
   virtual QPointF getPoint(XWTikzState * state);
@@ -99,7 +101,7 @@ class XWTikzNode : public XWTikzCoordinate
 public:
   XWTikzNode(XWTikzGraphic * graphicA, QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
@@ -133,7 +135,7 @@ class XWTikzEdge : public XWTikzOperation
 public:
   XWTikzEdge(XWTikzGraphic * graphicA, QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   bool back(XWTikzState * state);
 
@@ -179,11 +181,14 @@ private:
   QList<XWTikzCoordinate*> nodes;
 };
 
+#define XW_TIKZ_LABEL_NOANGLE -1
+
 class XWTikzLabel : public XWTikzOperation
 {
   Q_OBJECT
 
 public:
+  XWTikzLabel(XWTikzGraphic * graphicA, int idA, QObject * parent = 0);
   XWTikzLabel(XWTikzGraphic * graphicA, QObject * parent = 0);
 
   bool back(XWTikzState * state);
@@ -214,7 +219,7 @@ public:
 
   bool paste(XWTikzState * state);
 
-  void scan(const QString & str, int & len, int & pos);
+  virtual void scan(const QString & str, int & len, int & pos);
   void setAngle(const QString & str);
   void setText(const QString & str);
 
@@ -232,8 +237,6 @@ public:
   XWTikzPin(XWTikzGraphic * graphicA, QObject * parent = 0);
 
   void doPath(XWTikzState * state, bool showpoint = false);
-
-  QString getText();
 };
 
 class XWTikzChild : public XWTikzCoordinate
@@ -243,7 +246,7 @@ class XWTikzChild : public XWTikzCoordinate
 public:
   XWTikzChild(XWTikzGraphic * graphicA, QObject * parent = 0);
 
-  bool addAction(QMenu & menu);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
   bool dropTo(XWTikzState * state);
@@ -330,6 +333,68 @@ public:
 
 private:
   QString text;
+};
+
+class XWTikzInfo : public XWTikzLabel
+{
+  Q_OBJECT
+
+public:
+  XWTikzInfo(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+};
+
+class XWTikzInfoMissingAngle : public XWTikzLabel
+{
+  Q_OBJECT
+
+public:
+  XWTikzInfoMissingAngle(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+};
+
+class XWTikzInfoSloped : public XWTikzLabel
+{
+  Q_OBJECT
+
+public:
+  XWTikzInfoSloped(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+};
+
+class XWTikzInfoSlopedMissingAngle : public XWTikzLabel
+{
+  Q_OBJECT
+
+public:
+  XWTikzInfoSlopedMissingAngle(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+};
+
+class XWTikzUnit : public XWTikzLabel
+{
+  Q_OBJECT
+
+public:
+  XWTikzUnit(XWTikzGraphic * graphicA, 
+             const QString & nameA,
+             QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+  void    getUnit(QString & nameA, QString & valueA);
+
+  void scan(const QString & str, int & len, int & pos);
+  void setUnit(const QString & nameA,const QString & valueA);
+
+private:
+  QString name;
+  QString value;
 };
 
 #endif //XWTIKZNODE_H

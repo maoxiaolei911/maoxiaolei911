@@ -117,7 +117,7 @@ class XWTikzColor : public XWTikzOperation
 public:
   XWTikzColor(XWTikzGraphic * graphicA, int idA, QObject * parent = 0);
 
-  void doPath(XWTikzState * state, bool showpoint = false);
+  virtual void doPath(XWTikzState * state, bool showpoint = false);
 
   QColor  getColor();
   void    getColor(int & c1A,double & pA,int & c2A);
@@ -150,6 +150,112 @@ private:
   QVector<qreal> pattern;
 };
 
+class XWTikzArrowKey : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzArrowKey(XWTikzGraphic * graphicA, int idA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzArrowValue : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzArrowValue(XWTikzGraphic * graphicA, int idA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+
+  void scan(const QString & str, int & len, int & pos);
+
+private:
+  union _Value
+  {
+    XWTikzExpress * expv;
+    XWTikzCoord * coordv;
+  }v;
+};
+
+class XWTikzArrowColor : public XWTikzColor
+{
+  Q_OBJECT
+
+public:
+  XWTikzArrowColor(XWTikzGraphic * graphicA, int idA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+};
+
+class XWTikzArrowDependent : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzArrowDependent(XWTikzGraphic * graphicA, int idA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+
+  void scan(const QString & str, int & len, int & pos);
+
+private:
+  XWTikzExpress * angle;
+  XWTikzExpress * dimension;
+  XWTikzExpress * firstFactor;
+  XWTikzExpress * lastFactor;
+};
+
+class XWTikzArrowTipSpecification : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzArrowTipSpecification(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  int     getArrow() {return arrow;}
+  QString getText();
+
+  void scan(const QString & str, int & len, int & pos);
+  static XWTikzOperation * scanOption(const QString & str, int & len, int & pos,XWTikzOperation * parent);
+  void setArrow(int a) {arrow=a;}
+  void setup(XWTikzState * state);
+
+private:
+  int arrow;
+  QList<XWTikzOperation*> ops;
+};
+
+class XWTikzArrowSpecification : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzArrowSpecification(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  int     getArrow();
+  QString getText();
+
+  void scan(const QString & str, int & len, int & pos);
+  void setArrow(int a);
+  void setup(XWTikzState * state);
+
+private:
+  QList<XWTikzOperation*> ops;
+  QList<XWTikzArrowTipSpecification*> tips;
+};
+
 class XWTikzArrows : public XWTikzOperation
 {
   Q_OBJECT
@@ -158,18 +264,48 @@ public:
   XWTikzArrows(XWTikzGraphic * graphicA, QObject * parent = 0);
 
   void doPath(XWTikzState * state, bool showpoint = false);
-  void dragTo(XWTikzState * state);
 
-  int getEndArrow() {return earrow;}
-  int getStartArrow() {return sarrow;}
+  int getEndArrow();
+  int getStartArrow();
   QString getText();
 
   void scan(const QString & str, int & len, int & pos);
-  void setEndArrow(int a) {earrow=a;}
-  void setStartArrow(int a) {sarrow=a;}
+  void setEndArrow(int a);
+  void setStartArrow(int a);
 
 private:
-  int sarrow,earrow;
+  XWTikzArrowSpecification * startArrow;
+  XWTikzArrowSpecification * endArrow;
+};
+
+class XWTikzAnnotationArrow : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzAnnotationArrow(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+
+private:
+  XWTikzArrowSpecification * endArrow;
+};
+
+class XWTikzCurrentDirectionArrow : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzCurrentDirectionArrow(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+
+private:
+  XWTikzArrowSpecification * endArrow;
 };
 
 class XWTikzAround : public XWTikzOperation
@@ -397,6 +533,42 @@ public:
 
 private:
   XWTikzCodes * mark;
+};
+
+class XWTikzSize : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzSize(XWTikzGraphic * graphicA, int id, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  void    getSize(QString & w, QString & h);
+  QString getText();
+
+  void scan(const QString & str, int & len, int & pos);
+  void setSize(const QString & w, const QString & h);
+
+private:
+  XWTikzExpress * width;
+  XWTikzExpress * height;
+};
+
+class XWTikzCircuitDeclareUnit : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzCircuitDeclareUnit(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  QString getText();
+
+  void scan(const QString & str, int & len, int & pos);
+
+private:
+  QString name;
+  QString unit;
 };
 
 #endif //XWTIKZOPTION_H

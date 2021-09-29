@@ -672,3 +672,55 @@ void XWTikzDomainDialog::setStart(const QString & str)
 {
   bEdit->setText(str);
 }
+
+XWTikzLabelDialog::XWTikzLabelDialog(const QString & title,QWidget * parent)
+:QDialog(parent)
+{
+  setWindowTitle(title);
+  setWindowIcon(QIcon(":/images/xiuwen24.png"));
+
+  aLabel = new QLabel(tr("options:"),this);
+  aEdit = new QLineEdit(this);
+
+  bLabel = new QLabel(tr("angle:"),this);
+  bEdit = new QLineEdit(this);
+
+  cLabel = new QLabel(tr("text:"),this);
+  cEdit = new QLineEdit(this);
+
+  QGridLayout * toplayout = new QGridLayout;
+  toplayout->addWidget(aLabel,0,0);
+  toplayout->addWidget(aEdit,0,1);
+  toplayout->addWidget(bLabel,1,0);
+  toplayout->addWidget(bEdit,1,1);
+  toplayout->addWidget(cLabel,2,0);
+  toplayout->addWidget(cEdit,2,1);
+
+  buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                      | QDialogButtonBox::Cancel);
+	connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+  connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+  QVBoxLayout * layout = new QVBoxLayout;
+  layout->addLayout(toplayout);
+  layout->addWidget(buttonBox);
+
+  setLayout(layout);
+}
+
+QString XWTikzLabelDialog::getLabel()
+{
+  QString a = aEdit->text();
+  if (!a.isEmpty())
+    a = QString("[%1]").arg(a);
+  QString ret = a;
+  QString b = bEdit->text();
+  if (!b.isEmpty())
+  {
+    ret += b;
+    ret += ":";
+  }
+  QString c = cEdit->text();
+  ret += c;
+  return ret; 
+}

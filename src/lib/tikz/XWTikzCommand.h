@@ -21,17 +21,18 @@ class XWTIKZOptions;
 class XWTikzCoordinate;
 class XWTikzNode;
 class XWTikzMatrix;
+class XWTikzScope;
 
 #define XW_TIKZ_GROUP -2
 
-XWTikzCommand * createPGFObject(XWTikzGraphic * graphicA,int id,QObject * parent);
+XWTikzCommand * createPGFObject(XWTikzGraphic * graphicA,XWTikzScope *scopeA,int id,QObject * parent);
 
 class XWTikzCommand : public QObject
 {
   Q_OBJECT
 
 public:
-  XWTikzCommand(XWTikzGraphic * graphicA, int idA,QObject * parent = 0);
+  XWTikzCommand(XWTikzGraphic * graphicA, XWTikzScope *scopeA,int idA,QObject * parent = 0);
   virtual ~XWTikzCommand();
 
   virtual void addArc();
@@ -47,9 +48,9 @@ public:
   virtual void addLineTo();
   virtual void addMoveTo();
   virtual void addNode();
-  virtual bool addOperationAction(QMenu & menu);
+  virtual bool addOperationAction(QMenu & menu, XWTikzState * state);
   virtual void addParabola();
-  virtual void addPathAction(QMenu & menu);
+  virtual void addPathAction(QMenu & menu, XWTikzState * state);
   virtual void addPlotCoordinates();
   virtual void addPlotFile();
   virtual void addPlotFunction();
@@ -70,8 +71,11 @@ public:
   virtual void doEdgeFromParentPath(XWTikzState * state);
   virtual void doEveryChild(XWTikzState * state);
   virtual void doEveryChildNode(XWTikzState * state);
+  virtual void doEveryCircuitAnnotation(XWTikzState * state);
+  virtual void doEveryCircuitSymbol(XWTikzState * state);
   virtual void doEveryConcept(XWTikzState * state);
   virtual void doEveryEdge(XWTikzState * state);
+  virtual void doEveryInfo(XWTikzState * state);
   virtual void doEveryLabel(XWTikzState * state);
   virtual void doEveryMark(XWTikzState * state);
   virtual void doEveryMatrix(XWTikzState * state);
@@ -93,9 +97,9 @@ public:
   virtual void dragTo(XWTikzState * state);
   virtual bool dropTo(XWTikzState * state);
 
-  virtual QPointF getAnchor(const QString & nameA,int a,XWTikzState * stateA, XWTikzState * state);
+  virtual QPointF getAnchor(const QString & nameA,int a,XWTikzState * state);
   virtual int getAnchorPosition();
-  virtual QPointF getAngle(const QString & nameA,double a,XWTikzState * stateA, XWTikzState * state);
+  virtual QPointF getAngle(const QString & nameA,double a,XWTikzState * state);
   virtual XWTikzOperation * getCurrentOperation();
   virtual XWTikzCoord * getCurrentPoint();
   virtual int getCursorPosition();
@@ -107,9 +111,9 @@ public:
   virtual void    getPath(QList<int> & operationsA,
                           QList<QPointF> & pointsA,
                           XWTikzState * state);
-  virtual QPointF getPoint(const QString & nameA,XWTikzState * stateA, XWTikzState * state);
+  virtual QPointF getPoint(const QString & nameA,XWTikzState * state);
   virtual QPointF getPoint(XWTikzState * stateA);
-  virtual QVector3D getPoint3D(const QString & nameA,XWTikzState * stateA, XWTikzState * state);
+  virtual QVector3D getPoint3D(const QString & nameA,XWTikzState * state);
   virtual QString getSelectedText();
   virtual QString getText();
   virtual QString getTips(XWTikzState * state);
@@ -140,7 +144,8 @@ public:
 
 protected:
   XWTikzGraphic * graphic;
-  int keyWord;
+  XWTikzScope * scope;
+  int keyWord;  
   XWTIKZOptions * options;
 };
 
@@ -150,7 +155,7 @@ class XWTikzPath : public XWTikzCommand
   Q_OBJECT
 
 public:
-  XWTikzPath(XWTikzGraphic * graphicA,int idA,QObject * parent = 0);
+  XWTikzPath(XWTikzGraphic * graphicA,XWTikzScope *scopeA,int idA,QObject * parent = 0);
   virtual ~XWTikzPath();
 
   void addArc();
@@ -166,9 +171,9 @@ public:
   void addLineTo();
   void addMoveTo();
   void addNode();
-  bool addOperationAction(QMenu & menu);
+  bool addOperationAction(QMenu & menu, XWTikzState * state);
   void addParabola();
-  void addPathAction(QMenu & menu);
+  void addPathAction(QMenu & menu, XWTikzState * state);
   void addPlotCoordinates();
   void addPlotFile();
   void addPlotFunction();
@@ -187,9 +192,9 @@ public:
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
 
-  QPointF getAnchor(const QString & nameA,int a,XWTikzState * stateA, XWTikzState * state);
+  QPointF getAnchor(const QString & nameA,int a,XWTikzState * state);
   int getAnchorPosition();
-  QPointF getAngle(const QString & nameA,double a,XWTikzState * stateA, XWTikzState * state);
+  QPointF getAngle(const QString & nameA,double a,XWTikzState * state);
   XWTikzOperation * getCurrentOperation();
   XWTikzCoord * getCurrentPoint();
   int getCursorPosition();
@@ -200,8 +205,8 @@ public:
   void    getPath(QList<int> & operationsA,
                   QList<QPointF> & pointsA,
                   XWTikzState * state);
-  QPointF getPoint(const QString & nameA,XWTikzState * stateA, XWTikzState * state);
-  QVector3D getPoint3D(const QString & nameA,XWTikzState * stateA, XWTikzState * state);
+  QPointF getPoint(const QString & nameA,XWTikzState * state);
+  QVector3D getPoint3D(const QString & nameA,XWTikzState * state);
   QString getSelectedText();
   QString getText();
   QString getTips(XWTikzState * state);
@@ -242,7 +247,7 @@ class XWTikzScope : public XWTikzCommand
   Q_OBJECT
 
 public:
-  XWTikzScope(XWTikzGraphic * graphicA,int idA,QObject * parent = 0);
+  XWTikzScope(XWTikzGraphic * graphicA,XWTikzScope *scopeA,int idA,QObject * parent = 0);
   ~XWTikzScope();
 
   void addArc();
@@ -267,7 +272,7 @@ public:
   void addPlotFunction();
   void addRectangle();
   void addScope();
-  void addScopeAction(QMenu & menu);
+  void addScopeAction(QMenu & menu, XWTikzState * state);
   void addSine();
   void addSplit(const QString & key);
   void addSpy();
@@ -285,8 +290,11 @@ public:
   void doEdgeFromParentPath(XWTikzState * state);
   void doEveryChild(XWTikzState * state);
   void doEveryChildNode(XWTikzState * state);
+  void doEveryCircuitAnnotation(XWTikzState * state);
+  void doEveryCircuitSymbol(XWTikzState * state);
   void doEveryConcept(XWTikzState * state);
   void doEveryEdge(XWTikzState * state);
+  void doEveryInfo(XWTikzState * state);
   void doEveryLabel(XWTikzState * state);
   void doEveryMark(XWTikzState * state);
   void doEveryMatrix(XWTikzState * state);
@@ -309,9 +317,9 @@ public:
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
 
-  QPointF getAnchor(const QString & nameA,int a, XWTikzState * stateA, XWTikzState * state);
+  QPointF getAnchor(const QString & nameA,int a, XWTikzState * state);
   int getAnchorPosition();
-  QPointF getAngle(const QString & nameA,double a, XWTikzState * stateA, XWTikzState * state);
+  QPointF getAngle(const QString & nameA,double a, XWTikzState * state);
   XWTikzOperation * getCurrentOperation();
   XWTikzCoord * getCurrentPoint();
   int getCursorPosition();
@@ -323,8 +331,8 @@ public:
   void    getPath(QList<int> & operationsA,
                   QList<QPointF> & pointsA,
                   XWTikzState * state);
-  QPointF getPoint(const QString & nameA,XWTikzState * stateA, XWTikzState * state);
-  QVector3D getPoint3D(const QString & nameA,XWTikzState * stateA, XWTikzState * state);
+  QPointF getPoint(const QString & nameA,XWTikzState * state);
+  QVector3D getPoint3D(const QString & nameA,XWTikzState * state);
   QString getSelectedText();
   QString getText();
   QString getTips(XWTikzState * state);
@@ -374,7 +382,7 @@ class XWTikzForeach : public XWTikzCommand
   Q_OBJECT
 
 public:
-  XWTikzForeach(XWTikzGraphic * graphicA,QObject * parent = 0);
+  XWTikzForeach(XWTikzGraphic * graphicA,XWTikzScope *scopeA,QObject * parent = 0);
 
   bool back(XWTikzState * state);
 
@@ -431,10 +439,10 @@ class XWTikzCoordinatePath : public XWTikzCommand
   Q_OBJECT
 
 public:
-  XWTikzCoordinatePath(XWTikzGraphic * graphicA,QObject * parent = 0);
-  XWTikzCoordinatePath(XWTikzGraphic * graphicA,int idA,QObject * parent = 0);
+  XWTikzCoordinatePath(XWTikzGraphic * graphicA,XWTikzScope *scopeA,QObject * parent = 0);
+  XWTikzCoordinatePath(XWTikzGraphic * graphicA,XWTikzScope *scopeA,int idA,QObject * parent = 0);
 
-  virtual void addPathAction(QMenu & menu);
+  virtual void addPathAction(QMenu & menu, XWTikzState * state);
 
   virtual bool back(XWTikzState * state);
 
@@ -446,16 +454,16 @@ public:
   virtual void dragTo(XWTikzState * state);
   virtual bool dropTo(XWTikzState * state);
 
-  virtual QPointF getAnchor(const QString & nameA,int a, XWTikzState * stateA, XWTikzState * state);
+  virtual QPointF getAnchor(const QString & nameA,int a, XWTikzState * state);
   virtual int getAnchorPosition();
-  virtual QPointF getAngle(const QString & nameA,double a, XWTikzState * stateA, XWTikzState * state);
+  virtual QPointF getAngle(const QString & nameA,double a, XWTikzState * state);
   XWTikzOperation * getCurrentOperation();
   XWTikzCoord * getCurrentPoint();
   virtual QString getCurrentText();
   virtual int getCursorPosition();
   virtual QPointF getPoint(XWTikzState * stateA);
-  virtual QPointF getPoint(const QString & nameA,XWTikzState * stateA, XWTikzState * state);
-  virtual QVector3D getPoint3D(const QString & nameA,XWTikzState * stateA, XWTikzState * state);
+  virtual QPointF getPoint(const QString & nameA,XWTikzState * state);
+  virtual QVector3D getPoint3D(const QString & nameA,XWTikzState * state);
   virtual QString getSelectedText();
   virtual QString getText();
   virtual QString getTips(XWTikzState * state);
@@ -494,9 +502,9 @@ class XWTikzNodePath : public XWTikzCoordinatePath
   Q_OBJECT
 
 public:
-  XWTikzNodePath(XWTikzGraphic * graphicA,QObject * parent = 0);
+  XWTikzNodePath(XWTikzGraphic * graphicA,XWTikzScope *scopeA,QObject * parent = 0);
 
-  bool addOperationAction(QMenu & menu);
+  bool addOperationAction(QMenu & menu, XWTikzState * state);
 
   QString getText();
   QString getTips(XWTikzState * state);
@@ -510,7 +518,7 @@ class XWTikzMatrixCommand : public XWTikzCommand
   Q_OBJECT
 
 public:
-  XWTikzMatrixCommand(XWTikzGraphic * graphicA,QObject * parent = 0);
+  XWTikzMatrixCommand(XWTikzGraphic * graphicA,XWTikzScope *scopeA,QObject * parent = 0);
 
   bool back(XWTikzState * state);
 
@@ -552,9 +560,9 @@ class XWTikzSpy : public XWTikzCommand
   Q_OBJECT
 
 public:
-  XWTikzSpy(XWTikzGraphic * graphicA,QObject * parent = 0);
+  XWTikzSpy(XWTikzGraphic * graphicA,XWTikzScope *scopeA,QObject * parent = 0);
 
-  void addPathAction(QMenu & menu);
+  void addPathAction(QMenu & menu, XWTikzState * state);
 
   void doCopy(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
@@ -582,13 +590,13 @@ class XWTikzArrowMarking : public XWTikzCommand
   Q_OBJECT
 
 public:
-  XWTikzArrowMarking(XWTikzGraphic * graphicA,QObject * parent = 0);
+  XWTikzArrowMarking(XWTikzGraphic * graphicA,XWTikzScope *scopeA,QObject * parent = 0);
 
-   void doPath(XWTikzState * state, bool showpoint = false);
+  void doPath(XWTikzState * state, bool showpoint = false);
 
-   QString getText();
+  QString getText();
 
-   void scan(const QString & str, int & len, int & pos);
+  void scan(const QString & str, int & len, int & pos);
 
 private:
   int arrowTip;

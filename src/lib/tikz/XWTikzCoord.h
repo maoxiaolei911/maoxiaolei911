@@ -23,8 +23,7 @@ public:
   XWTikzCoord(XWTikzGraphic * graphicA, const QString & str, QObject * parent = 0);
   ~XWTikzCoord();
 
-  bool addAction(QMenu & menu);
-  void addPoint(XWTikzState * state);
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   void doPath(XWTikzState * state, bool showpoint = false);
   void draw(XWTikzState * state);

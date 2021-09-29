@@ -119,7 +119,6 @@ void XWTikzState::addCosine(const QPointF & p)
 
 void XWTikzState::addEdge(XWTikzCoord * p)
 {
-  isTarget = true;
   coords << p;
   QPointF p1 = p->getPoint(this);
   addEdge(p1);
@@ -127,8 +126,10 @@ void XWTikzState::addEdge(XWTikzCoord * p)
 
 void XWTikzState::addEdge(const QPointF & p)
 {
-  toTarget = transform.map(p);
-  graphic->doToPath(this);
+  toTarget = map(p);
+  XWTikzState * state = save(false);
+  graphic->doToPath(state);
+  state = restore();
 }
 
 void XWTikzState::addEllipse()
@@ -305,11 +306,6 @@ void XWTikzState::addPlotFunction(XWTikzCoord * exp)
   }
 }
 
-void XWTikzState::addPoint(XWTikzCoord * p)
-{
-  coords << p;
-}
-
 void XWTikzState::addRectangle(XWTikzCoord * p)
 {
   coords << p;
@@ -353,10 +349,22 @@ void XWTikzState::addSine(const QPointF & p)
   curveTo(c1,c2,p);
 }
 
-void XWTikzState::anchorMatrix()
+void XWTikzState::angleSetup(double a,
+                             double dimension, 
+                             double linewidthfactor,
+                             double outerfactor)
 {
-  if (isMatrixAnchorSet)
-    anchor = matrixAnchor;
+  double xc = lineWidthDependent(dimension,linewidthfactor,outerfactor);
+  double yc = 0.5 * a;
+  arrowLength = xc * cos(yc);
+  arrowWidth = 2 * xc * sin(yc);
+}
+
+void XWTikzState::angleSetupPrime(double a)
+{
+  double yc = 0.5 * a;
+  double mathresult = tan(yc);
+  arrowWidth = 2 * mathresult * arrowLength;
 }
 
 void XWTikzState::clearPath()
@@ -389,6 +397,12 @@ void XWTikzState::copy(XWTikzState * newstate,bool n)
   newstate->driver = driver;
   newstate->isPath = isPath;
   newstate->curLabel = curLabel++;
+  newstate->circuitsSizeUnit = circuitsSizeUnit;
+  newstate->pictureType = pictureType;
+  newstate->circuitType = circuitType;
+  newstate->circuitSymbolWidth = circuitSymbolWidth;
+  newstate->circuitSymbolHeight = circuitSymbolHeight;
+  newstate->annotation = annotation;
   if (driver)
   {
     newstate->roundedCorners = roundedCorners;
@@ -455,14 +469,38 @@ void XWTikzState::copy(XWTikzState * newstate,bool n)
     newstate->isUseAsBoundingBoxSet = isUseAsBoundingBoxSet;
     newstate->startArrow = startArrow;
     newstate->endArrow = endArrow;
-    newstate->leftExtend = leftExtend;
-    newstate->rightExtend = rightExtend;
-    newstate->shortenStartAdditional = shortenStartAdditional;
-    newstate->shortenEndAdditional = shortenEndAdditional;
+    newstate->isEnd = isEnd;
+    newstate->arrowLength = arrowLength;
+    newstate->arrowWidth = arrowWidth;
+    newstate->arrowInset = arrowInset;
+    newstate->arrowAngle = arrowAngle;
+    newstate->arrowLineWidth = arrowLineWidth;
+    newstate->arrowSep = arrowSep;
+    newstate->shorteningDistance = shorteningDistance;
+    newstate->arrowTotalLength = arrowTotalLength;
+    newstate->arrowScaleLength = arrowScaleLength;
+    newstate->arrowScaleWidth = arrowScaleLength;
+    newstate->arrowArc = arrowArc;
+    newstate->arrowSlant = arrowSlant;
+    newstate->arrowReversed = arrowReversed;
+    newstate->arrowHarpoon = arrowHarpoon;
+    newstate->arrowSwap = arrowSwap;
+    newstate->arrowDrawColor = arrowDrawColor;
+    newstate->arrowFillColor = arrowFillColor;
+    newstate->isArrowFillSet = isArrowFillSet;
+    newstate->isArrowDrawSet = isArrowDrawSet;
+    newstate->arrowLineCap = arrowLineCap;
+    newstate->arrowLineJoin = arrowLineJoin;
+    newstate->arrowFlex = arrowFlex;
+    newstate->arrowFlexMode = arrowFlexMode;
+    newstate->arrowBendMode = arrowBendMode;
+    newstate->preciseShortening = preciseShortening;
+    newstate->nextTip = nextTip;
 
     newstate->drawOpacity = drawOpacity;
     newstate->fillOpacity = fillOpacity;
 
+    newstate->matrix = matrix;
     newstate->isMatrixAnchorSet = isMatrixAnchorSet;
     newstate->matrixAnchor = matrixAnchor;
 
@@ -639,6 +677,7 @@ void XWTikzState::copy(XWTikzState * newstate,bool n)
   newstate->childAnchor = childAnchor;
   newstate->parentAnchor = parentAnchor;
   newstate->edgeFromParent = edgeFromParent;
+  newstate->isTransformChildSet = isTransformChildSet;
 
   newstate->xradius = xradius;
   newstate->yradius = yradius;
@@ -680,14 +719,21 @@ void XWTikzState::copy(XWTikzState * newstate,bool n)
   newstate->pathMaxX = pathMaxX;
   newstate->pathMaxY = pathMaxY;
 
-  newstate->pathType = pathType;
-
   newstate->mindmap = mindmap;
 
   newstate->tikzTimer = tikzTimer;
 
   newstate->transform = transform;
   newstate->transformShape = transformShape;
+
+  newstate->firstOnPath = firstOnPath;
+  newstate->secondOnPath = secondOnPath;
+  newstate->thirdOnPath = thirdOnPath;
+  newstate->fourthOnPath = fourthOnPath;
+  newstate->lastOnPath = lastOnPath;
+  newstate->secondLastOnPath = secondLastOnPath;
+  newstate->thirdLastOnPath = thirdLastOnPath;
+  newstate->fourthLastOnPath = fourthLastOnPath;
 
   newstate->toStart = toStart;
   newstate->toTarget = toTarget;
@@ -750,16 +796,27 @@ void XWTikzState::curveTo(XWTikzCoord * c1,XWTikzCoord * endpoint)
 
 void XWTikzState::curveTo(const QPointF & c1,const QPointF & c2,const QPointF & endpoint)
 {
-  QPointF p1 = transform.map(c1);
-  QPointF p2 = transform.map(c2);
-  QPointF p3 = transform.map(endpoint);
+  fourthLastOnPath = pathLast;
+  QPointF p1 = map(c1);
+  QPointF p2 = map(c2);
+  QPointF p3 = map(endpoint);
 
   operations << XW_TIKZ_CURVETO;
   points << p1;
   points << p2;
   points << p3;
   pathLast = p3;
-  toStart = pathLast;
+
+  if (points.size() < 4)
+  {
+    secondOnPath = p1;
+    thirdOnPath = p2;
+    fourthOnPath = p3;
+  }
+
+  thirdLastOnPath = p1;
+  secondLastOnPath = p2;
+  lastOnPath = pathLast;
 }
 
 void XWTikzState::cycle()
@@ -767,25 +824,13 @@ void XWTikzState::cycle()
   closePath();
 }
 
-QPointF XWTikzState::doAnchor(XWTikzState * stateA, XWTeXBox * box)
+QPointF XWTikzState::doAnchor(XWTeXBox * box)
 {
   XWTikzShape node(driver,box,this,XW_TIKZ_NODE);
   node.doShape(false);
-  QPointF ret = node.anchorPos;
-  if (stateA)
-  {
-    if (stateA->isTarget)
-    {
-      stateA->toTarget = ret;
-      stateA->endRadius = node.centerPos.x() - node.westPos.x();
-    }
-    else
-    {
-      stateA->toStart = ret;
-      stateA->startRadius = node.centerPos.x() - node.westPos.x();
-    }
-  }
-  return ret;
+  transformNode();
+  node.mapPos();
+  return node.anchorPos;
 }
 
 void XWTikzState::doEdgeFromParentForkDown()
@@ -814,6 +859,9 @@ void XWTikzState::doEdgeFromParentForkUp()
 
 void XWTikzState::doEdgeFromParentPath()
 {
+  if (!edgeFromParent)
+    return ;
+
   graphic->doEdgeFromParentPath(this);
 }
 
@@ -831,14 +879,113 @@ void XWTikzState::dragTo(XWTeXBox * box)
   }
 }
 
+void XWTikzState::drawArrow(int a)
+{
+  int n = operations.size();
+  if (n < 2)
+    return ;
+
+  int oldbm = arrowBendMode;
+  bool oldr = arrowReversed;
+
+  XWTikzArrow arrow(a);
+  arrow.setup(this);
+  computeShortening(&arrow);
+
+  XWTikzState * state = save(false);
+  if (isArrowDrawSet)
+    state->setDrawColor(arrowDrawColor);
+
+  if (isArrowFillSet)
+    state->setFillColor(arrowFillColor);
+
+  state->transform.reset();
+
+  if (isEnd)
+  {
+    if (operations[n-1] == XW_TIKZ_CURVETO && preciseShortening)
+      state->transformArrowCurved(&arrow,lastOnPath,secondLastOnPath,thirdLastOnPath,fourthLastOnPath);
+    else
+      state->transformArrowStraight(&arrow,secondLastOnPath,lastOnPath);
+  }
+  else
+  {
+    if (operations[1] == XW_TIKZ_CURVETO && preciseShortening)
+      state->transformArrowCurved(&arrow,firstOnPath,secondOnPath,thirdOnPath,fourthOnPath);
+    else
+      state->transformArrowStraight(&arrow,secondOnPath,firstOnPath);
+  }
+
+  state->addShift(nextTip,0);
+  state->slant(arrowSlant,arrowSlant);
+  if(arrowReversed)
+    state->scale(-1,1);  
+  if (arrowSwap)
+    state->scale(1,-1);
+
+  arrow.draw(state);
+
+  state->restore();
+
+  nextTip = arrow.tipEnd + arrowSep - arrow.backEnd;
+  arrowBendMode = oldbm;
+  arrowReversed = oldr;
+}
+
 void XWTikzState::flush()
 {
   if (driver && !operations.isEmpty() && !points.isEmpty())
   {
-    invokeDecorate();
+    if (isUseAsBoundingBoxSet)
+    {
+      double w,h;
+      getWidthAndHeight(w,h);
+
+      operations.clear();
+      points.clear();
+      transform.reset();
+      moveTo(pathMinX,pathMinY);
+      lineTo(pathMinX,pathMaxY);
+      lineTo(pathMaxX,pathMaxY);
+      lineTo(pathMaxX,pathMinY);
+      closePath();
+
+      constructPath();
+
+      switch (interiorRule)
+      {
+        case PGFnonzerorule:
+          driver->nonzeroClip();
+          break;
+
+        default:
+          driver->evenoddFill();
+          break;
+      }
+
+      return ;
+    }
+
+    QList<XWTikzShape*> behindnodes;
+    for (int i = 0; i < nodes.size(); i++)
+    {
+      if (nodes[i]->state->location == PGFbehindpath)
+      {
+        XWTikzShape * n = nodes.takeAt(i);
+        behindnodes << n;
+      }
+    }
+
+    if (behindnodes.size() > 0)
+    {
+      QList<XWTikzShape*> oldnodes = nodes;
+      nodes = behindnodes;
+      doNodes();
+      nodes = oldnodes;
+    }
+
     initPath();
-    if (edgeFromParent)
-      doEdgeFromParentPath();
+    invokeDecorate();
     constructPath();
 
     if (pathFading > -1)
@@ -911,12 +1058,6 @@ void XWTikzState::flush()
       }
     }
 
-    if (isPath)
-      drawArrows();
-
-    if (isFillText)
-      driver->fillText();
-
     if (mark > 0 && plotStream.size() > 0)
     {
       XWTikzPlotMark plotmark(mark);
@@ -941,14 +1082,55 @@ void XWTikzState::flush()
       }
     }
 
+    if (isPath)
+    {
+      isDrawSet = false;
+      isFillSet = false;
+      isFillText = false;
+      isClipSet = false;
+      isPatternSet = false;
+      isShadeSet = false;
+      isDecorateSet = false;
+      shorteningDistance = shortenStart;
+      arrowTotalLength = 0;
+      nextTip = 0;
+      if (startArrow)
+      {
+        isEnd = false;
+        startArrow->doPath(this);
+      }
+      
+      isEnd = true;
+      shorteningDistance = shortenEnd;
+      arrowTotalLength = 0;
+      nextTip = 0;
+      if (endArrow)
+        endArrow->doPath(this);
+    }
+
+    operations.clear();
+    points.clear();
+    plotStream.clear();
+
     doNodes();
+  }
+  else
+  {
+    operations.clear();
+    points.clear();
+    plotStream.clear();
   }
 
   dashPattern.clear();
-  operations.clear();
-  points.clear();
   coords.clear();
-  plotStream.clear();
+}
+
+double XWTikzState::getArrowTotalLength(int a)
+{
+  XWTikzArrow arrow(a);
+  arrow.setup(this);
+  computeShortening(&arrow);
+  return arrowTotalLength;
 }
 
 QPointF XWTikzState::getCenterPoint()
@@ -1245,6 +1427,7 @@ void XWTikzState::growCyclic()
   double x = levelDistance;
   double y = transform.dy();
   transform.translate(x,y);
+  isTransformChildSet = true;
 }
 
 void XWTikzState::growViaThreePoints(const QPointF & p1, 
@@ -1268,13 +1451,14 @@ void XWTikzState::growViaThreePoints(const QPointF & p1,
   ya += yb;
   ya += yc;
   shift(xa, ya);
+  isTransformChildSet = true;
 }
 
 bool XWTikzState::hitTestArc()
 {
   points.clear();
   QPointF p = coords.last()->getPoint(this);
-  pathLast = transform.map(p);
+  pathLast = map(p);
   points << pathLast;
   double sa = startAngle;
   double ea = endAngle;
@@ -1298,10 +1482,17 @@ bool XWTikzState::hitTestChild(XWTeXBox * box)
   shape = PGFcoordinate;
   XWTikzShape node(0,box,this,XW_TIKZ_CHILD);
   node.doShape(false);
+  node.mapPos();
   pathLast = node.anchorPos;
-  double x = qAbs(node.anchorPos.x() - mousePoint.x());
-  double y = qAbs(node.anchorPos.y() - mousePoint.y());
-  return (x <= XW_TIKZ_HIT_DIST) && (y <= XW_TIKZ_HIT_DIST);
+  if (mousePoint.x() >= node.westPos.x() && 
+      mousePoint.x() <= node.eastPos.x() && 
+      mousePoint.y() >= node.northPos.y() &&
+      mousePoint.y() <= node.southPos.y())
+  {
+    return true;
+  }
+
+  return false;
 }
 
 bool XWTikzState::hitTestCoordinate(XWTeXBox * box)
@@ -1311,10 +1502,17 @@ bool XWTikzState::hitTestCoordinate(XWTeXBox * box)
   shape = PGFcoordinate;
   XWTikzShape node(0,box,this,XW_TIKZ_NODE);
   node.doShape(false);
+  node.mapPos();
   pathLast = node.anchorPos;
-  double x = qAbs(node.anchorPos.x() - mousePoint.x());
-  double y = qAbs(node.anchorPos.y() - mousePoint.y());
-  return (x <= XW_TIKZ_HIT_DIST) && (y <= XW_TIKZ_HIT_DIST);
+  if (mousePoint.x() >= node.westPos.x() && 
+      mousePoint.x() <= node.eastPos.x() && 
+      mousePoint.y() >= node.northPos.y() &&
+      mousePoint.y() <= node.southPos.y())
+  {
+    return true;
+  }
+
+  return false;
 }
 
 bool XWTikzState::hitTestCosine(XWTikzCoord * p)
@@ -1322,7 +1520,7 @@ bool XWTikzState::hitTestCosine(XWTikzCoord * p)
   points.clear();
   coords << p;
   QPointF pp = coords.last()->getPoint(this);
-  pathLast = transform.map(pp);
+  pathLast = map(pp);
   points << pathLast;
   addCosine(pp);
   return hitTestLines();
@@ -1430,14 +1628,28 @@ bool XWTikzState::hitTestMatrix(XWTikzMatrix * box)
     return false;
   box->setState(this);
   QPointF p = getMousePoint();
-  return box->hitTest(p.x(),p.y()) ;
+  if (box->hitTest(p.x(),p.y()))
+    return true;
+
+  XWTikzShape node(driver,box,this,XW_TIKZ_NODE);
+  node.doShape(false);
+  node.mapPos();
+  if (mousePoint.x() >= node.westPos.x() && 
+      mousePoint.x() <= node.eastPos.x() && 
+      mousePoint.y() >= node.northPos.y() &&
+      mousePoint.y() <= node.southPos.y())
+  {
+    return true;
+  }
+
+  return false;
 }
 
 bool XWTikzState::hitTestParabola(XWTikzCoord * b, XWTikzCoord * e)
 {
   points.clear();
   QPointF p = coords.last()->getPoint(this);
-  pathLast = transform.map(p);
+  pathLast = map(p);
   points << pathLast;
   addParabola(b,e);
   return hitTestLines();
@@ -1479,7 +1691,7 @@ bool XWTikzState::hitTestSine(XWTikzCoord * p)
   points.clear();
   coords << p;
   QPointF pp = coords.last()->getPoint(this);
-  pathLast = transform.map(pp);
+  pathLast = map(pp);
   points << pathLast;
   addSine(pp);
   return hitTestLines();
@@ -1492,7 +1704,21 @@ bool XWTikzState::hitTestText(XWTikzTextBox * box)
     return false;
   box->setState(this);
   QPointF p = getMousePoint();
-  return box->hitTest(p.x(),p.y()) ;
+  if (box->hitTest(p.x(),p.y()))
+    return true;
+
+  XWTikzShape node(driver,box,this,XW_TIKZ_NODE);
+  node.doShape(false);
+  node.mapPos();
+  if (mousePoint.x() >= node.westPos.x() && 
+      mousePoint.x() <= node.eastPos.x() && 
+      mousePoint.y() >= node.northPos.y() &&
+      mousePoint.y() <= node.southPos.y())
+  {
+    return true;
+  }
+
+  return false;
 }
 
 bool XWTikzState::hitTestVHLine()
@@ -1519,6 +1745,14 @@ void XWTikzState::inverted()
   transform = transform.inverted();
 }
 
+double XWTikzState::lengthDependent(double dimension, 
+                                    double lengthfactor,
+                                    double linewidthfactor)
+{
+  double x = dimension + arrowLength * lengthfactor + lineWidth * linewidthfactor;
+  return x;
+}
+
 void XWTikzState::lineTo(XWTikzCoord * p)
 {
   coords << p;
@@ -1529,11 +1763,15 @@ void XWTikzState::lineTo(XWTikzCoord * p)
 
 void XWTikzState::lineTo(const QPointF & p)
 {
-  QPointF p1 = transform.map(p);
+  secondLastOnPath = pathLast;
+  QPointF p1 = map(p);
   pathLast = p1;
-  toStart = pathLast;
+  if (points.size() == 1)
+    secondOnPath = pathLast;
   operations << XW_TIKZ_LINETO;
   points << p1;
+
+  lastOnPath = p1;
 }
 
 void XWTikzState::lineTo(double xA, double yA)
@@ -1546,20 +1784,13 @@ void XWTikzState::lineToHV(XWTikzCoord * p)
 {
   coords << p;
   QPointF p2 = p->getPoint(this);
-  QPointF p0 = coords[coords.size() - 2]->getPoint(this);
-  QPointF p1;
-  p1.setX(p2.x());
-  p1.setY(p0.y());
-
-  lineTo(p1);
-  lineTo(p2);
-
-  tikzTimer = &XWTikzState::timerHVLine;
+  lineToHV(p2);
 }
 
 void XWTikzState::lineToHV(const QPointF & p)
 {
-  QPointF p2 = transform.map(p);
+  thirdLastOnPath = pathLast;
+  QPointF p2 = map(p);
   QPointF p0 = pathLast;
   QPointF p1;
   p1.setX(p2.x());
@@ -1569,9 +1800,17 @@ void XWTikzState::lineToHV(const QPointF & p)
   points << p1;
 
   pathLast = p2;
-  toStart = pathLast;
   operations << XW_TIKZ_LINETO;
   points << p2;
+
+  if (points.size() < 4)
+  {
+    secondOnPath = p1;
+    thirdOnPath = p2;
+  }
+    
+  secondLastOnPath = p1;
+  lastOnPath = p2;
 
   tikzTimer = &XWTikzState::timerHVLine;
 }
@@ -1580,19 +1819,13 @@ void XWTikzState::lineToVH(XWTikzCoord * p)
 {
   coords << p;
   QPointF p2 = p->getPoint(this);
-  QPointF p0 = coords[coords.size() - 2]->getPoint(this);
-  QPointF p1;
-  p1.setX(p0.x());
-  p1.setY(p2.y());
-
-  lineTo(p1);
-  lineTo(p2);
-  tikzTimer = &XWTikzState::timerVHLine;
+  lineToVH(p2);
 }
 
 void XWTikzState::lineToVH(const QPointF & p)
 {
-  QPointF p2 = transform.map(p);
+  thirdLastOnPath = pathLast;
+  QPointF p2 = map(p);
   QPointF p0 = pathLast;
   QPointF p1;
   p1.setX(p0.x());
@@ -1602,9 +1835,40 @@ void XWTikzState::lineToVH(const QPointF & p)
   points << p1;
 
   pathLast = p2;
-  toStart = pathLast;
   operations << XW_TIKZ_LINETO;
   points << p2;
+
+  if (points.size() < 4)
+  {
+    secondOnPath = p1;
+    thirdOnPath = p2;
+  }
+    
+  secondLastOnPath = p1;
+  lastOnPath = p2;
+}
+
+double  XWTikzState::lineWidthDependent(double dimension, 
+                          double linewidthfactor,
+                          double outerfactor)
+{
+  double x = dimension;
+  if (innerLineWidth > 0)
+  {
+    double xa = lineWidth;
+    double xb = -0.5 * lineWidth * outerfactor;
+    xa += xb;
+    xb = -0.5 * innerLineWidth * outerfactor;
+    xa += xb;
+    xa = xa * linewidthfactor;
+    x = x + xa;
+  }
+  else
+  {
+    x = x + lineWidth * linewidthfactor;
+  }
+
+  return x;
 }
 
 QRectF XWTikzState::map(const QRectF & rectA)
@@ -1614,13 +1878,27 @@ QRectF XWTikzState::map(const QRectF & rectA)
 
 QPointF XWTikzState::map(const QPointF & pA)
 {
-  return transform.map(pA);
+  double x = pA.x();
+  double y = pA.y();
+  if (nolinear_map != NULL)
+    (this->*(nolinear_map))(x,y);
+  QPointF p(x,y);
+  return transform.map(p);
+}
+
+QPointF XWTikzState::map(double x,double y)
+{
+  double xA = x;
+  double yA = y;
+  (this->*(nolinear_map))(xA,yA);
+  QPointF p(xA,yA);
+  return transform.map(p);
 }
 
 void XWTikzState::map(double x1,double y1, double * x2, double * y2)
 {
   QPointF p1(x1,y1);
-  QPointF p2 = transform.map(p1);
+  QPointF p2 = map(p1);
   *x2 = p2.x();
   *y2 = p2.y();
 }
@@ -1640,28 +1918,38 @@ bool XWTikzState::moveTest(XWTeXBox * box)
   return box->contains(p.x(),p.y());
 }
 
-void XWTikzState::moveTo(double xA, double yA, bool istarget)
+void XWTikzState::moveTo(double xA, double yA)
 {
   QPointF p(xA,yA);
-  moveTo(p,istarget);
+  moveTo(p);
 }
 
-void XWTikzState::moveTo(XWTikzCoord * p, bool istarget)
+void XWTikzState::moveTo(XWTikzCoord * p)
 {
   coords << p;
   QPointF p0 = p->getPoint(this);
-  moveTo(p0,istarget);
+  moveTo(p0);
 }
 
-void XWTikzState::moveTo(const QPointF & p, bool istarget)
+void XWTikzState::moveTo(const QPointF & p)
 {
-  QPointF p1 = transform.map(p);
+  QPointF p1 = map(p);
   pathLast = p1;
-  toTarget = pathLast;
-  if (!istarget)
-    toStart = pathLast;
   operations << XW_TIKZ_MOVETO;
   points << p1;
+  if (isTarget)
+  {
+    toTarget = p;
+    doToPath();
+  }
+  else
+  {
+    toStart = p;
+    if (points.size() == 0)
+      firstOnPath = p1;
+  }
+
+  lastOnPath = p1;
 }
 
 void XWTikzState::plotStreamEnd(bool c)
@@ -1693,7 +1981,8 @@ XWTikzState * XWTikzState::restore()
   if (driver)
   {
     flush();
-    driver->grestore();
+    if (!isClipSet)
+      driver->grestore();
   }
   
   XWTikzState * oldstate = this;
@@ -1709,8 +1998,9 @@ XWTikzState * XWTikzState::restore()
 
 XWTikzState * XWTikzState::save(bool ispathA)
 {
-  if (driver)
+  if (driver && !isClipSet)
     driver->gsave();
+    
   XWTikzState * newstate = new XWTikzState(ispathA);
   copy(newstate,false);
   newstate->saved = this;
@@ -1723,7 +2013,6 @@ XWTikzState * XWTikzState::saveNode(XWTeXBox * boxA,int nt)
   XWTikzState * newstate = new XWTikzState(false,this);
   copy(newstate,true);
   newstate->isPath = false;
-  newstate->currentChild = childrenNumber++;
   XWTikzShape * node = new XWTikzShape(driver,boxA,newstate,nt);
   newstate->myNode = node;
   newstate->myBox = boxA;
@@ -1732,31 +2021,36 @@ XWTikzState * XWTikzState::saveNode(XWTeXBox * boxA,int nt)
     default:
       graphic->doEveryNode(newstate);
       graphic->doEveryShape(newstate);
-      if (myNode)
-        graphic->doEveryChildNode(newstate);
       break;
 
     case XW_TIKZ_LABEL:      
       graphic->doEveryLabel(newstate);
-      newstate->setEdgeFromParent(false);
       break;
 
     case XW_TIKZ_PIN:
       graphic->doEveryPin(newstate);
-      graphic->doEveryPinEdge(newstate);
-      newstate->setEdgeFromParent(true);
       break;
 
     case XW_TIKZ_CHILD:
       newstate->level = level + 1; 
+      newstate->currentChild = childrenNumber++;
       graphic->doEveryChild(newstate);
       graphic->doEveryChildNode(newstate);
-      newstate->setEdgeFromParent(true);
       break;
 
     case XW_TIKZ_EDGE:
-      graphic->doEdgeFromParent(newstate);
-      newstate->setEdgeFromParent(true);
+      graphic->doEveryEdge(newstate);
+      break;
+
+    case XW_TIKZ_CIRCUIT_HANDLE_SYMBOL:
+      break;
+
+    case XW_TIKZ_INFO:
+      graphic->doEveryInfo(newstate);
+      break;
+
+    case XW_TIKZ_CIRCUIT_SYMBOL:
+      graphic->doEveryCircuitSymbol(newstate);
       break;
   }
 
@@ -1782,6 +2076,12 @@ void XWTikzState::setAlign(int a)
   }
 }
 
+void XWTikzState::setAnnotationArrow(XWTikzArrowSpecification * e)
+{
+  endArrow = e;
+  arrowLength = 0.4 * circuitsSizeUnit + 0.3 * lineWidth;
+}
+
 void XWTikzState::setAspect(double a)
 {
   aspect = a;
@@ -1805,6 +2105,21 @@ void XWTikzState::setChamferedRectangleCorners(const QList<int> & cs)
   chamferedRectangleCorners = cs;
 }
 
+void XWTikzState::setCircuitSizeUnit(double s)
+{
+  circuitsSizeUnit = s;
+  minWidth = circuitsSizeUnit * circuitSymbolWidth;
+  minHeight = circuitsSizeUnit * circuitSymbolHeight;
+}
+
+void XWTikzState::setCircuitSymbolSize(double w, double h)
+{
+  circuitSymbolWidth = w;
+  circuitSymbolHeight = h;
+  minWidth = circuitsSizeUnit * circuitSymbolWidth;
+  minHeight = circuitsSizeUnit * circuitSymbolHeight;
+}
+
 void XWTikzState::setCodes(const QList<XWTikzCommand*> & cmdsA)
 {
   cmds = cmdsA;
@@ -1818,6 +2133,12 @@ void XWTikzState::setColor(const QColor & c)
     driver->setStrokeColor(c);
     isFillText = true;
   }
+}
+
+void XWTikzState::setCurrentDirectionArrow(XWTikzArrowSpecification * e)
+{
+  endArrow = e;
+  arrowLength = 1.3065 * 0.5 * circuitsSizeUnit + 1.3065 * 0.3 * lineWidth;
 }
 
 void XWTikzState::setDash(int d)
@@ -2065,6 +2386,29 @@ void XWTikzState::setNodeContents(const QString & str)
     myBox->setContents(str);
 }
 
+void XWTikzState::setNodeType(int shapeA,int nt)
+{
+  if (myNode)
+  {
+    myNode->nodeType = nt;
+    switch (nt) 
+    {
+      default:
+        break;
+
+      case XW_TIKZ_CIRCUIT_SYMBOL:
+        graphic->doEveryCircuitSymbol(this);
+        shape = shapeA;
+        break;
+    }
+  }
+  else
+  {
+    XWTikzState * state = saveNode(0,nt);
+    state->shape = shapeA;
+  }
+}
+
 void XWTikzState::setOpacity(double v)
 {
   drawOpacity = v;
@@ -2081,6 +2425,21 @@ void XWTikzState::setPatternName(int n)
 {
   isPatternSet = true;
   patternName = n;
+}
+
+void XWTikzState::setPictureType(int t)
+{
+  pictureType = t;
+  switch (pictureType)
+  {
+    default:
+      break;
+
+    case PGFcircuit:
+      minWidth = circuitsSizeUnit * circuitSymbolWidth;
+      minHeight = circuitsSizeUnit * circuitSymbolHeight;
+      break;
+  }
 }
 
 void XWTikzState::setPos(double p)
@@ -2132,6 +2491,17 @@ void XWTikzState::setTextOpacity(double o)
 void XWTikzState::setTransform(const QTransform & transA)
 {
   transform = transA;
+}
+
+void XWTikzState::setupArrow(int a)
+{
+  int oldbm = arrowBendMode;
+  bool oldr = arrowReversed;
+  XWTikzArrow arrow(a);
+  arrow.setup(this);
+  computeShortening(&arrow);
+  arrowBendMode = oldbm;
+  arrowReversed = oldr;
 }
 
 void XWTikzState::setVariables(const QString & nameA,const QString & var)
@@ -2191,13 +2561,25 @@ void XWTikzState::slant(double sx,double sy)
   transform.shear(sx,sy);
 }
 
+void XWTikzState::spyAt(XWTikzCoord * p)
+{
+  if (p)
+    toTarget = p->getPoint(this);
+}
+
+void XWTikzState::spyOn(XWTikzCoord * p)
+{
+  if (p)
+    toStart = p->getPoint(this);
+}
+
 QPointF XWTikzState::tangent(const QPointF & nc, 
                   const QPointF & ne,
                   const QPointF & p, 
                   int s)
 {
-  QPointF nnc = transform.map(nc);
-  QPointF pp = transform.map(p);
+  QPointF nnc = map(nc);
+  QPointF pp = map(p);
 
   double xa = pp.x() - nnc.x();
   double ya = pp.y() - nnc.y();
@@ -2233,15 +2615,12 @@ QPointF XWTikzState::tangent(const QPointF & nc,
 void XWTikzState::toPath(XWTikzCoord * p)
 {
   isTarget = true;
-  if (!p)
-    toTarget = points[0];
-  else
+  if (p)
   {
-    QPointF pp = p->getPoint(this);
-    toTarget = transform.map(pp);
+    coords << p;
+    toTarget = p->getPoint(this);
+    graphic->doToPath(this);
   }
-
-  graphic->doToPath(this);
 }
 
 void XWTikzState::transformColumn()
@@ -2298,20 +2677,23 @@ void XWTikzState::addArc(double sa,double ea, double xr,double yr)
 
 void XWTikzState::addEllipse(const QPointF & c,const QPointF & a,const QPointF & b)
 {
-  QPointF p = transform.map(c);
+  QPointF p = map(c);
   double xc = p.x();
   double yc = p.y();
 
-  p = transform.map(a);
+  p = map(a);
   double xa = p.x() + xc;
   double ya = p.y() + yc;
   operations << XW_TIKZ_MOVETO;
   QPointF p1(xa,ya);
   points << p1;
 
+  if (points.size() == 0)
+    firstOnPath = p1;
+
   operations << XW_TIKZ_INSIDE;
 
-  p = transform.map(b);
+  p = map(b);
   double xb = p.x();
   double yb = p.y();
 
@@ -2331,6 +2713,13 @@ void XWTikzState::addEllipse(const QPointF & c,const QPointF & a,const QPointF &
   points << p2;
   points << p3;
   points << p4;
+
+  if (points.size() < 4)
+  {
+    secondOnPath = p2;
+    thirdOnPath = p3;
+    fourthOnPath = p4;
+  }
 
   xa = -xa;
   ya = -ya;
@@ -2388,6 +2777,11 @@ void XWTikzState::addEllipse(const QPointF & c,const QPointF & a,const QPointF &
   points << p12;
   points << p13;
 
+  fourthLastOnPath = p10;
+  thirdLastOnPath = p11;
+  secondLastOnPath = p12;
+  lastOnPath = p13;
+
   operations << XW_TIKZ_CLOSE;
 
   operations << XW_TIKZ_MOVETO;
@@ -2410,12 +2804,12 @@ void XWTikzState::addGrid(const QPointF & ll,const QPointF & ur)
   {
     p.setX(ll.x());
     p.setY(y);
-    p = transform.map(p);
+    p = map(p);
     operations << XW_TIKZ_MOVETO;
     points << p;
     p.setX(ur.x());
     p.setY(y);
-    p = transform.map(p);
+    p = map(p);
     operations << XW_TIKZ_LINETO;
     points << p;
     y += ystep;
@@ -2426,12 +2820,12 @@ void XWTikzState::addGrid(const QPointF & ll,const QPointF & ur)
   {
     p.setX(ll.x());
     p.setY(y);
-    p = transform.map(p);
+    p = map(p);
     operations << XW_TIKZ_MOVETO;
     points << p;
     p.setX(ur.x());
     p.setY(y);
-    p = transform.map(p);
+    p = map(p);
     operations << XW_TIKZ_LINETO;
     points << p;
   }
@@ -2445,12 +2839,12 @@ void XWTikzState::addGrid(const QPointF & ll,const QPointF & ur)
   {
     p.setX(x);
     p.setY(ll.y());
-    p = transform.map(p);
+    p = map(p);
     operations << XW_TIKZ_MOVETO;
     points << p;
     p.setX(x);
     p.setY(ur.y());
-    p = transform.map(p);
+    p = map(p);
     operations << XW_TIKZ_LINETO;
     points << p;
     x += xstep;
@@ -2461,12 +2855,12 @@ void XWTikzState::addGrid(const QPointF & ll,const QPointF & ur)
   {
     p.setX(x);
     p.setY(ll.y());
-    p = transform.map(p);
+    p = map(p);
     operations << XW_TIKZ_MOVETO;
     points << p;
     p.setX(x);
     p.setY(ur.y());
-    p = transform.map(p);
+    p = map(p);
     operations << XW_TIKZ_LINETO;
     points << p;
     x += xstep;
@@ -2502,28 +2896,23 @@ void XWTikzState::addRoundedCorner(const QPointF & a,const QPointF & b,const QPo
 
 void XWTikzState::anchorChild()
 {
+  graphic->doChildAnchor(this);
   if (isChildAnchorSet)
     anchor = childAnchor;
 }
 
-void XWTikzState::anchorLabel()
-{
-  int counta = (int)(labelAngle);
-  if (counta == PGFcenter)
-    anchor = PGFcenter;
-  else
-  {
-    computeAngle();
-    angle = labelAngle;    
-    anchor = -1;
-  }
-}
-
 void XWTikzState::anchorNode()
 {
+  if (matrix)
+  {
+    if (isMatrixAnchorSet)
+      anchor = matrixAnchor;
+
+    return ;
+  }
   if (!isTimeSet)
     return ;
-
+  
   if (isSwapSet)
   {
     if (autoAnchor == PGFleft)
@@ -2541,70 +2930,13 @@ void XWTikzState::anchorNode()
 
     (this->*(tikzTimer))();
 
-    QVector2D v(transform.m11(),transform.m12());
-    v.normalize();
-
-    if (autoAnchor == PGFleft)
-    {
-      if (v.x() > 0.05)
-      {
-        if (v.y() > 0.05)
-          anchor = PGFsoutheast;
-        else if (v.y() < - 0.05)
-          anchor = PGFsouthwest;
-        else
-          anchor = PGFsouth;
-      }
-      else if (v.x() < -0.05)
-      {
-        if (v.y() > 0.05)
-          anchor = PGFnortheast;
-        else if (v.y() < - 0.05)
-          anchor = PGFnorthwest;
-        else
-          anchor = PGFnorth;
-      }
-      else
-      {
-        if (v.y() > 0)
-          anchor = PGFeast;
-        else
-          anchor = PGFwest;
-      }
-    }
-    else
-    {
-      if (v.x() > 0.05)
-      {
-        if (v.y() > 0.05)
-          anchor = PGFnorthwest;
-        else if (v.y() < - 0.05)
-          anchor = PGFnortheast;
-        else
-          anchor = PGFnorth;
-      }
-      else if (v.x() < -0.05)
-      {
-        if (v.y() > 0.05)
-          anchor = PGFsouthwest;
-        else if (v.y() < - 0.05)
-          anchor = PGFsoutheast;
-        else
-          anchor = PGFsouth;
-      }
-      else
-      {
-        if (v.y() > 0)
-          anchor = PGFwest;
-        else
-          anchor = PGFeast;
-      }
-    }
+    setAutoAnchor(transform.m11(),transform.m12());
   }
 }
 
 void XWTikzState::anchorParent()
 {
+  graphic->doParentAnchor(this);
   if (isParentAnchorSet)
     anchor = parentAnchor;
 }
@@ -2684,6 +3016,7 @@ void XWTikzState::arcOfEllipse(const QPointF & c,const QPointF & endpoint,
 
 void XWTikzState::arcTo(double la,double lb, double xr,double yr)
 {
+  fourthLastOnPath = pathLast;
   double xb = lb - la;
   if (lb < la)
     xb = la - lb;
@@ -2705,21 +3038,21 @@ void XWTikzState::arcTo(double la,double lb, double xr,double yr)
   p.setX(tmpa * cos(xa));
   p.setY(tmpb * sin(xa));
 
-  p = transform.map(p);
+  p = map(p);
 
   xa = pathLast.x() + p.x();
   double ya = pathLast.y() + p.y();
 
   p.setX(xr * cos(la));
   p.setY(yr * sin(la));
-  p = transform.map(p);
+  p = map(p);
 
   xb = pathLast.x() - p.x();
   double yb = pathLast.y() - p.y();
 
   p.setX(xr * cos(lb));
   p.setY(yr * sin(lb));
-  p = transform.map(p);
+  p = map(p);
   xb = xb + p.x();
   yb = yb + p.y();
 
@@ -2730,7 +3063,7 @@ void XWTikzState::arcTo(double la,double lb, double xr,double yr)
 
   p.setX(tmpa * cos(lb));
   p.setY(tmpb * sin(lb));
-  p = transform.map(p);
+  p = map(p);
 
   double xc = xb + p.x();
   double yc = yb + p.y();
@@ -2741,11 +3074,33 @@ void XWTikzState::arcTo(double la,double lb, double xr,double yr)
   QPointF p1(xa,ya);
   QPointF p2(xc,yc);
 
+  if (points.size() < 4)
+  {
+    secondOnPath = p1;
+    thirdOnPath = p2;
+    fourthOnPath = pathLast;
+  }
+
   operations << XW_TIKZ_CURVETO;
   points << p1;
   points << p2;
   points << pathLast;
   toStart = pathLast;
+
+  thirdLastOnPath = p1;
+  secondLastOnPath = p2;
+  lastOnPath = pathLast;
+}
+
+void XWTikzState::circuitHandleSymbol()
+{
+  isDecorateSet = true;
+  setDecoration(PGFmarkings);
+  setMarkNode("mark node");
+  QTransform oldtranform = transform;
+  transform.reset();
+  lineTo(toTarget);
+  transform = oldtranform;
 }
 
 void XWTikzState::computeAngle()
@@ -2790,74 +3145,42 @@ void XWTikzState::computeAngle()
   }
 }
 
-void XWTikzState::computeDirection(const QPointF & b,const QPointF & c)
+void XWTikzState::computeDirection()
 {
   int counta = (int)(labelAngle);
-  if (counta == PGFcenter)
-    return ;
+  if (counta < 0)
+    counta += 360;
+  if (counta > 359)
+    counta -= 360;
 
-  computeAngle();
-
-  if (absolute || transformShape || b == c)
-  {
-    if (counta < 0)
-      counta += 360;
-    if (counta > 359)
-      counta -= 360;
-
-    if (counta < 4)
-      anchor = PGFwest;
-    else if (counta < 87)
-      anchor = PGFsouthwest;
-    else if (counta < 94)
-      anchor = PGFsouth;
-    else if (counta < 177)
-      anchor = PGFsoutheast;
-    else if (counta < 184)
-      anchor = PGFeast;
-    else if (counta < 267)
-      anchor = PGFnortheast;
-    else if (counta < 274)
-      anchor = PGFnorth;
-    else if (counta < 357)
-      anchor = PGFnorthwest;
-    else
-      anchor = PGFwest;
-  }
+  if (counta < 4)
+    anchor = PGFwest;
+  else if (counta < 87)
+    anchor = PGFsouthwest;
+  else if (counta < 94)
+    anchor = PGFsouth;
+  else if (counta < 177)
+    anchor = PGFsoutheast;
+  else if (counta < 184)
+    anchor = PGFeast;
+  else if (counta < 267)
+    anchor = PGFnortheast;
+  else if (counta < 274)
+    anchor = PGFnorth;
+  else if (counta < 357)
+    anchor = PGFnorthwest;
   else
-  {
-    QVector2D v(c.x() - b.x(),c.y() - b.y());
-    v.normalize();
+    anchor = PGFwest;
+}
 
-    double x = v.y();
-    double y = -v.x();
-
-    if (x > 0.05)
-    {
-      if (y > 0.05)
-        anchor = PGFsoutheast;
-      else if (y < - 0.05)
-        anchor = PGFsouthwest;
-      else
-        anchor = PGFsouth;
-    }
-    else if (x < -0.05)
-    {
-      if (y > 0.05)
-        anchor = PGFnortheast;
-      else if (y < - 0.05)
-        anchor = PGFnorthwest;
-      else
-        anchor = PGFnorth;
-    }
-    else
-    {
-      if (y > 0)
-        anchor = PGFeast;
-      else
-        anchor = PGFwest;
-    }
-  }  
+void XWTikzState::computeShortening(XWTikzArrow * a)
+{
+  arrowTotalLength += a->tipEnd;
+  arrowTotalLength -= a->backEnd;
+  arrowTotalLength += arrowSep;
+  shorteningDistance += a->tipEnd;
+  shorteningDistance += arrowSep;
+  shorteningDistance -= a->backEnd;
 }
 
 void XWTikzState::constructPath()
@@ -2968,6 +3291,13 @@ QPointF XWTikzState::curveAtTime(double t,
   x = (1 - t) * x + t * xa;
   y = (1 - t) * y + t * ya;
 
+  curveXA = xa;
+  curveYA = ya;
+  curveXB = xb;
+  curveYB = yb;
+  curveXC = xc;
+  curveYC = yc;
+
   QPointF p(x,y);
   return p;
 }
@@ -3015,6 +3345,138 @@ void XWTikzState::curveBetweenTime(double t,double ts,double tt,
   }
 
   operations << XW_TIKZ_INSIDE;
+}
+
+double XWTikzState::curviLinearDistanceToTime(double d)
+{
+  double x = d;
+  if (x < curviLinearLengthC)
+  {
+    if (x < curviLinearLengthA)
+      x = x * curviLinearTimeA / curviLinearLengthA;
+    else if (x < curviLinearLengthB)
+    {
+      double y = curviLinearLengthB - curviLinearLengthA;
+      double mathresult = curviLinearTimeA / y;
+      double quotb = mathresult;
+      y = -mathresult * curviLinearLengthA + curviLinearTimeA;
+      double correctb = y;
+      x = quotb * x + correctb;
+    }
+    else
+    {
+      double y = 0.5 * (curviLinearLengthC - curviLinearLengthB);
+      double mathresult = curviLinearTimeA / y;
+      double quotc = mathresult;
+      y = -quotc * curviLinearLengthB + 2 * curviLinearTimeA;
+      double correctc = y;
+      x = quotc * x + correctc;
+    }
+  }
+  else if (x < curviLinearLengthD)
+  {
+    double y = 0.25 * (curviLinearLengthD - curviLinearLengthC);
+    double mathresult = curviLinearTimeA / y;
+    double quotd = mathresult;
+    y = -quotd * curviLinearLengthC + 4 * curviLinearTimeA;
+    double correctd = y;
+    x = quotd * x + correctd;
+  }
+  else
+  {
+    x = x * 8 * curviLinearTimeA / curviLinearLengthD;
+  }
+  return x;
+}
+
+void XWTikzState::curviLinearBezierOrthogonal(double & d,double & f)
+{
+  double x = curviLinearDistanceToTime(d);
+  QPointF p = curveAtTime(x,curviLinearLineA,curviLinearLineB,curviLinearLineC,curviLinearLineD);
+  double xc = p.x();
+  double yc = p.y();
+  double xb = curveXB - curveXA;
+  double yb = curveYB - curveYA;
+  if (xb < 0.0001)
+  {
+    if (xb > -0.0001)
+    {
+      if (yb < 0.0001)
+      {
+        if (yb > -0.0001)
+        {
+          double xa = curviLinearLineA.x();
+          double ya = curviLinearLineA.y();
+          curveXA = xa;
+          curveYA = ya;
+          xb = curviLinearLineC.x() - xa;
+          yb = curviLinearLineC.y() - ya;
+          if (xb < 0.0001)
+          {
+            if (xb > -0.0001)
+            {
+              if (yb < 0.0001)
+              {
+                if (yb > -0.0001)
+                {
+                  xb = curviLinearLineD.x() - xa;
+                  yb = curviLinearLineD.y() - ya;
+                }
+              }
+            }
+          }
+          xb = -xb;
+          yb = -yb;
+        }
+      }
+    }
+  }
+
+  x = yb;
+  double y = -xb;
+  QVector2D v(x,y);
+  v.normalize();
+
+  x = f * v.x() + xc;
+  y = f * v.y() + yc;
+  curveXB = xb;
+  curveYB = yb;
+  d = x;
+  f = y;
+}
+
+void XWTikzState::curviLinearBezierPolar(double & d,double & f)
+{
+  double tempdima = d;
+  double tempdimb = f;
+  QVector2D v(tempdima,tempdimb);
+  v.normalize();
+  double x = v.x();
+  double y = v.y();
+  if (tempdima == 0)
+  {
+    x = 1;
+    y = 0;
+  }
+  if (tempdima < 0)
+  {
+    x = -x;
+    y = -y;
+  }
+  double ya = -y;
+  QTransform trans(x,y,ya,x,0,0);
+  trans.translate(-curviLinearLineA.x(), -curviLinearLineA.y());
+
+  double mathresult = veclen(tempdima,tempdimb);
+  if (tempdima < 0)
+    mathresult = -mathresult;
+
+  x = curviLinearDistanceToTime(mathresult);
+  QPointF p = curveAtTime(x,curviLinearLineA,curviLinearLineB,curviLinearLineC,curviLinearLineD);
+  p = trans.map(p);
+  p = p + curviLinearLineA;
+  d = p.x();
+  f = p.y();
 }
 
 double XWTikzState::decorateCurveLength(const QPointF & c1,
@@ -3193,194 +3655,262 @@ void XWTikzState::defaultCode()
 
 void XWTikzState::doNodes()
 {
-  int tmpanchor = 0;
-  double tmpangle = 0;
   for (int i = 0; i < nodes.size(); i++)
   {
     XWTikzShape * node = nodes[i];
     node->setFontSize(fontSize);
+    node->init();
     switch (node->nodeType)
     {
       default:
         break;
 
       case XW_TIKZ_NODE:
+      case XW_TIKZ_CIRCUIT_SYMBOL:
+        if (myNode)
+          node->state->pathLast = toStart;
         node->state->anchorNode();
         node->state->transformNode();
         node->doShape(true);
+        node->state->doNodes();
         break;
 
       case XW_TIKZ_LABEL:
-        anchorLabel();
-        if (myNode)
-        {
-          myNode->doShape(false);
-          node->state->computeDirection(myNode->anchorPos,myNode->centerPos);
-          node->state->shift(myNode->anchorPos.x(),myNode->anchorPos.y());
-        }
-        node->state->transformLabel();
-        node->doShape(true);
-        break;
-
       case XW_TIKZ_PIN:
-        anchorLabel();
+      case XW_TIKZ_INFO:
         if (myNode)
         {
-          graphic->doParentAnchor(myNode->state);
-          myNode->doShape(false);
-          node->state->toStart = myNode->anchorPos;
-          node->state->startRadius = myNode->centerPos.x() - myNode->westPos.x();
-          node->state->computeDirection(myNode->anchorPos,myNode->centerPos);
-          node->state->shift(myNode->anchorPos.x(),myNode->anchorPos.y());
+          double x, y;
+          computeAngle();
+          int counta = (int)(labelAngle);
+          if (counta == PGFcenter)
+          {
+            anchor = PGFcenter;
+            myNode->doShape(false);
+            toStart = myNode->anchorPos;
+            x = myNode->anchorPos.x();
+            y = myNode->anchorPos.y();
+            node->state->anchor = anchor;
+          }            
+          else
+          {
+            if (absolute)
+            {
+              anchor = PGFcenter;            
+              angle = labelAngle;
+              myNode->doShape(false);
+              toStart = myNode->anchorPos;
+              x = myNode->centerPos.x() + labelDistance * cos(labelAngle);
+              y = myNode->centerPos.y() + labelDistance * sin(labelAngle);
+              computeDirection();
+              node->state->anchor = anchor;
+            }
+            else
+            {
+              anchor = (int)labelAngle;
+              angle = labelAngle;
+              myNode->doShape(false);
+              toStart = myNode->anchorPos;
+              x = myNode->anchorPos.x() + labelDistance * cos(labelAngle);
+              y = myNode->anchorPos.y() + labelDistance * sin(labelAngle);
+              if (myNode->anchorPos == myNode->centerPos)
+              {
+                computeDirection();
+                node->state->anchor = anchor;
+              }
+              else
+              {
+                node->state->angle = labelAngle + 180;
+                if (isAutoSet)
+                {
+                  setAutoAnchor(myNode->centerPos.x() - myNode->anchorPos.x(),myNode->centerPos.y() - myNode->anchorPos.y());
+                  node->state->anchor = anchor;
+                }                
+              }
+            }
+          }
+          node->state->shift(x, y);
+        }        
+        node->doShape(true);  
+        if (node->nodeType == XW_TIKZ_PIN)
+        {
+          toTarget = node->anchorPos; 
+          endRadius = node->centerPos.x() - node->westPos.x();
+          graphic->doEveryPinEdge(this);
+          doEdgeFromParentPath();
         }
-        tmpanchor = node->state->anchor;
-        tmpangle = node->state->angle;
-        node->state->anchorChild();
-        graphic->doChildAnchor(node->state);
-        node->doShape(false);
-        node->state->toTarget = node->anchorPos;
-        node->state->endRadius = node->centerPos.x() - node->westPos.x();
-        node->state->anchor = tmpanchor;
-        node->state->angle = tmpangle;
-        node->state->transformLabel();
-        node->doShape(true);
         break;
 
       case XW_TIKZ_CHILD:
-        anchor = growthParentAnchor;
-        anchorParent();
+        anchor = growthParentAnchor;        
         if (myNode)
         {
-          graphic->doParentAnchor(myNode->state);
+          anchorParent();
           myNode->doShape(false);
-          node->state->toStart = myNode->anchorPos;
-          node->state->startRadius = myNode->centerPos.x() - myNode->westPos.x();
+          toStart = myNode->anchorPos;
+          startRadius = myNode->centerPos.x() - myNode->westPos.x();
         }
-        tmpanchor = node->state->anchor;
-        tmpangle = node->state->angle;
-        node->state->anchorChild();
-        graphic->doChildAnchor(node->state);
-        node->doShape(false);
-        node->state->toTarget = node->anchorPos;
-        node->state->endRadius = node->centerPos.x() - node->westPos.x();
-        node->state->anchor = tmpanchor;
-        node->state->angle = tmpangle;
         node->state->anchorChild();
         node->state->transformChild();
-        node->doShape(true);
+        node->doShape(false);
+        endRadius = node->centerPos.x() - node->westPos.x();
+        toTarget = node->anchorPos; 
+        doEdgeFromParentPath();
+        node->state->doNodes();
         break;
 
       case XW_TIKZ_EDGE:
-        nodes[i + 1]->state->setEdgeFromParent(true);
+        setEdgeFromParent(true);
+        break;
+
+      case XW_TIKZ_CIRCUIT_HANDLE_SYMBOL:
+        if (nodeTime == 0)
+        {
+          QString var("(0,0)");
+          at = new XWTikzCoord(graphic,var,this);
+          node->state->anchorNode();
+          QVector2D v(toStart.x() - toTarget.x(), toStart.y() - toTarget.y());
+          v.normalize();
+          node->state->setMatrix(v.x(), v.y(), -v.y(), v.x(), toStart.x(), toStart.y());
+          node->doShape(true);
+          toStart = node->anchorPos;
+          startRadius = node->centerPos.x() - node->westPos.x();
+        }
+        else if (nodeTime == 1)
+        {
+          QString var("(0,0)");
+          at = new XWTikzCoord(graphic,var,this);
+          node->state->anchorNode();
+          QVector2D v(toStart.x() - toTarget.x(), toStart.y() - toTarget.y());
+          v.normalize();
+          node->state->setMatrix(v.x(), v.y(), -v.y(), v.x(), toTarget.x(), toTarget.y());
+          node->doShape(true);
+          endRadius = node->centerPos.x() - node->westPos.x();
+          toTarget = node->anchorPos; 
+          to_path = &XWTikzState::circuitHandleSymbol;
+          doToPath();
+        }
+        else
+        {
+          node->state->transformNode();
+          node->doShape(true);
+          endRadius = node->centerPos.x() - node->westPos.x();
+          toTarget = node->anchorPos; 
+          doToPath();
+        }
         break;
     }
   }
 }
 
-void XWTikzState::drawArrows()
-{
-  if (points.size() < 2)
-    return ;
-
-  QTransform tmp = transform;
-
-  QPointF p0 = points[1];
-  QPointF p1 = points[0];
-  transformArrow(p0,p1);
-  XWTikzArrow arrow;
-  arrow.shape = startArrow;
-  arrow.doArrow(this);
-
-  int size = points.size();
-  p0 = points[size - 2];
-  p1 = points[size - 1];
-  transformArrow(p0,p1);
-  arrow.shape = endArrow;
-  arrow.doArrow(this);
-
-  transform = tmp;
-}
-
 void XWTikzState::edgeFromParentForkDown()
 {
   operations << XW_TIKZ_MOVETO;
-  points << toStart;
+  QPointF p0 = map(toStart);
+  points << p0;
 
-  double x = toStart.x();
-  double y = toStart.y() - 0.5 * levelDistance;
+  double x = p0.x();
+  double y = p0.y() - 0.5 * levelDistance;
   QPointF p1(x,y);
   operations << XW_TIKZ_LINETO;
   points << p1;
 
-  QPointF p2(toTarget.x(), y);
-  QPointF p3(toTarget.x(), toTarget.y());
+  QPointF p = map(toTarget);
+  QPointF p2(p.x(), y);
+  QPointF p3(p.x(), p.y());
   operations << XW_TIKZ_LINETO;
   points << p2;
   operations << XW_TIKZ_LINETO;
   points << p3;
+
+  fourthLastOnPath = p0;
+  thirdLastOnPath = p1;
+  secondLastOnPath = p2;
+  lastOnPath = p3;
 }
 
 void XWTikzState::edgeFromParentForkLeft()
 {
   operations << XW_TIKZ_MOVETO;
-  points << toStart;
+  QPointF p0 = map(toStart);
+  points << p0;
 
-  double x = toStart.x() - 0.5 * levelDistance;
-  double y = toStart.y();
+  double x = p0.x() - 0.5 * levelDistance;
+  double y = p0.y();
   QPointF p1(x,y);
   operations << XW_TIKZ_LINETO;
   points << p1;
 
-  QPointF p2(toTarget.x(), y);
-  QPointF p3(toTarget.x(), toTarget.y());
+  QPointF p = map(toTarget);
+  QPointF p2(p.x(), y);
+  QPointF p3(p.x(), p.y());
   operations << XW_TIKZ_LINETO;
   points << p2;
   operations << XW_TIKZ_LINETO;
   points << p3;
+
+  fourthLastOnPath = toStart;
+  thirdLastOnPath = p1;
+  secondLastOnPath = p2;
+  lastOnPath = p3;
 }
 
 void XWTikzState::edgeFromParentForkRight()
 {
   operations << XW_TIKZ_MOVETO;
-  points << toStart;
+  QPointF p0 = map(toStart);
+  points << p0;
 
-  double x = toStart.x() + 0.5 * levelDistance;
-  double y = toStart.y();
+  double x = p0.x() + 0.5 * levelDistance;
+  double y = p0.y();
   QPointF p1(x,y);
   operations << XW_TIKZ_LINETO;
   points << p1;
 
-  QPointF p2(toTarget.x(), y);
-  QPointF p3(toTarget.x(), toTarget.y());
+  QPointF p = map(toTarget);
+  QPointF p2(p.x(), y);
+  QPointF p3(p.x(), p.y());
   operations << XW_TIKZ_LINETO;
   points << p2;
   operations << XW_TIKZ_LINETO;
   points << p3;
+
+  fourthLastOnPath = toStart;
+  thirdLastOnPath = p1;
+  secondLastOnPath = p2;
+  lastOnPath = p3;
 }
 
 void XWTikzState::edgeFromParentForkUp()
 {
   operations << XW_TIKZ_MOVETO;
-  points << toStart;
+  QPointF p0 = map(toStart);
+  points << p0;
 
-  double x = toStart.x();
-  double y = toStart.y() + 0.5 * levelDistance;
+  double x = p0.x();
+  double y = p0.y() + 0.5 * levelDistance;
   QPointF p1(x,y);
   operations << XW_TIKZ_LINETO;
   points << p1;
 
-  QPointF p2(toTarget.x(), y);
-  QPointF p3(toTarget.x(), toTarget.y());
+  QPointF p = map(toTarget);
+  QPointF p2(p.x(), y);
+  QPointF p3(p.x(), p.y());
   operations << XW_TIKZ_LINETO;
   points << p2;
   operations << XW_TIKZ_LINETO;
   points << p3;
+
+  fourthLastOnPath = toStart;
+  thirdLastOnPath = p1;
+  secondLastOnPath = p2;
+  lastOnPath = p3;
 }
 
 bool XWTikzState::hitTestLine(const QPointF & p1, const QPointF & p2)
 {
-  QPointF c1 = transform.map(p1);
-  QPointF c2 = transform.map(p2);
+  QPointF c1 = map(p1);
+  QPointF c2 = map(p2);
   double minx = c1.x();
   if (c2.x() < minx)
     minx = c2.x();
@@ -3432,7 +3962,7 @@ bool XWTikzState::hitTestLine(const QPointF & p1, const QPointF & p2)
 
 bool XWTikzState::hitTestPoint(const QPointF & p)
 {
-  QPointF c = transform.map(p);
+  QPointF c = map(p);
   pathLast = c;
   double x = qAbs(c.x() - mousePoint.x());
   double y = qAbs(c.y() - mousePoint.y());
@@ -3494,6 +4024,12 @@ bool XWTikzState::hitTestLines()
 
 void XWTikzState::init()
 {
+  pictureType = -1;
+  circuitType = -1;
+  circuitsSizeUnit = 7;
+  circuitSymbolWidth = 5;
+  circuitSymbolHeight = 5;
+  annotation = 0;
   lineWidth = 0.4;
   innerLineWidth = 0;
   anchor = PGFcenter;
@@ -3524,7 +4060,7 @@ void XWTikzState::init()
   isAllowUpsideDown = false;
   location = -1;
 
-  labelAngle = PGFcenter;
+  labelAngle = PGFabove;
   labelDistance = 0;
   absolute = true;
 
@@ -3614,6 +4150,7 @@ void XWTikzState::init()
 
   isUseAsBoundingBoxSet = false;
 
+  matrix = false;
   isMatrixAnchorSet = false;
   matrixAnchor = 0;
   columnSep = 0;
@@ -3636,6 +4173,7 @@ void XWTikzState::init()
   edgeFromParent = false;
   currentChild = 0;
   childrenNumber = 0;
+  isTransformChildSet = false;
 
   isContinue = false;
   handler = 0;
@@ -3649,11 +4187,33 @@ void XWTikzState::init()
 
   startArrow = 0;
   endArrow = 0;
-
-  leftExtend = 0;
-  rightExtend = 0;
-  shortenStartAdditional = 0;
-  shortenEndAdditional = 0;
+  isEnd = false;
+  arrowLength = 0;
+  arrowWidth = 0;
+  arrowInset = 0;
+  arrowAngle = 0;
+  arrowLineWidth = 0;
+  arrowSep = 0;
+  shorteningDistance = 0;
+  shortenStart = 0;
+  shortenEnd = 0;
+  arrowTotalLength = 0;
+  arrowScaleLength = 0;
+  arrowScaleWidth = 0;
+  arrowArc = 180;
+  arrowSlant = 0;
+  arrowReversed = false;
+  arrowHarpoon = false;
+  arrowSwap = false;
+  isArrowFillSet = false;
+  isArrowDrawSet = false;
+  arrowLineCap = PGFbutt;
+  arrowLineJoin = PGFmiter;
+  arrowFlex = 1;
+  arrowFlexMode = -1;
+  arrowBendMode = -1;
+  preciseShortening = false;
+  nextTip = 0;
 
   xVec = 28.4527559;
   yVec = 28.4527559;
@@ -3671,7 +4231,6 @@ void XWTikzState::init()
   pathMaxX = -16000;
   pathMaxY = -16000;
 
-  pathType = XW_TIKZ_PATH_BEFOREBACKGROUND;
   aspect = 1.0;
   setAspect(aspect);
   trapeziumLeftAngle = 60;
@@ -3783,6 +4342,7 @@ void XWTikzState::init()
   chamferedRectangleYsep = 6.66;
 
   siblingAngle = 20;
+
   isTarget = false;
 
   mindmap = -1;
@@ -3799,6 +4359,7 @@ void XWTikzState::init()
   after_code = &XWTikzState::defaultCode;
 
   to_path = &XWTikzState::toPathDefault;
+  nolinear_map = NULL;
 
   myNode = 0;
   myBox = 0;
@@ -3806,25 +4367,101 @@ void XWTikzState::init()
 
 void XWTikzState::initPath()
 {
-  XWTikzArrow arrow;
-  arrow.shape = endArrow;
-  arrow.initPath(this,true);
+  if (!isPath || (!startArrow && !endArrow))
+    return ;
 
-  arrow.shape = startArrow;
-  arrow.initPath(this,false);
+  if (operations.size() < 2 || points.size() < 2)
+    return ;
 
-  if (points.size() > 1)
+  int n = points.size();
+  if (startArrow)
   {
-    QPointF p0 = points[0];
-    QPointF p1 = points[1];
-    p0 = lineAtDistance(-leftExtend + shortenStartAdditional,p0,p1);
-    points[0] = p0;
+    shorteningDistance = shortenStart;
+    arrowTotalLength = 0;
+    startArrow->setup(this);
+    if (shorteningDistance == 0)
+      goto endshorten;
 
-    int size = points.size();
-    p0 = points[size - 2];
-    p1 = points[size - 1];
-    p1 = lineAtDistance(rightExtend + shortenEndAdditional,p0,p1);
-    points[size - 1] = p1;
+    switch (operations[1])
+    {
+      default:
+        break;
+
+      case XW_TIKZ_LINETO:
+        {
+          int i = 1;
+          while (i < n)
+          {
+            if (points[i] != firstOnPath)
+            {
+              secondOnPath = points[i];
+              break;
+            }
+            i++;
+          }
+
+          QPointF p = lineAtDistance(shorteningDistance, firstOnPath, secondOnPath);
+          points[0] = p;
+        }
+        break;
+
+      case XW_TIKZ_CURVETO:
+        {
+          setCurviLinearBezierCurve(firstOnPath,secondOnPath,thirdOnPath,fourthOnPath);
+          double t = curviLinearDistanceToTime(shorteningDistance);
+          QPointF p = curveAtTime(t,firstOnPath,secondOnPath,thirdOnPath,fourthOnPath);
+          points[0] = p;
+        }
+        break;
+    }
+  }
+
+endshorten:
+  if (endArrow)
+  {
+    shorteningDistance = shortenEnd;
+    arrowTotalLength = 0;
+    endArrow->setup(this);
+    if (shorteningDistance == 0)
+      return ;
+
+    int s = operations.size();
+    if (operations[s - 1] != XW_TIKZ_CLOSE)
+    {
+      switch (operations[s - 1])
+      {
+        default:
+          break;
+
+        case XW_TIKZ_LINETO:
+          {
+            int i = n - 2;
+            while (i > 0)
+            {
+              if (points[i] != lastOnPath)
+              {
+                secondLastOnPath = points[i];
+                break;
+              }
+                
+              i--;
+            }
+
+            QPointF p = lineAtDistance(shorteningDistance, lastOnPath, secondLastOnPath);
+            points[n - 1] = p;
+          }
+          break;
+
+        case XW_TIKZ_CURVETO:
+          {
+            setCurviLinearBezierCurve(lastOnPath,secondLastOnPath,thirdLastOnPath,fourthLastOnPath);
+            double t = curviLinearDistanceToTime(shorteningDistance);
+            QPointF p = curveAtTime(t,lastOnPath,secondLastOnPath,thirdLastOnPath,fourthLastOnPath);
+            points[n - 1] = p;
+          }
+          break;
+      }
+    }
   }
 }
 
@@ -4732,8 +5369,9 @@ double XWTikzState::mathrnd(int z)
 
 void XWTikzState::quadraticCurveTo(const QPointF & c1,const QPointF & endpoint)
 {
-  QPointF p1 = transform.map(c1);
-  QPointF p2 = transform.map(endpoint);
+  fourthLastOnPath = pathLast;
+  QPointF p1 = map(c1);
+  QPointF p2 = map(endpoint);
   double xb = p2.x();
   double yb = p2.y();
   double xc = 0.6666666 * p1.x();
@@ -4751,10 +5389,21 @@ void XWTikzState::quadraticCurveTo(const QPointF & c1,const QPointF & endpoint)
   pathLast.setX(xb);
   pathLast.setY(yb);
 
+  if (points.size() < 4)
+  {
+    secondOnPath = p1;
+    thirdOnPath = p2;
+    fourthOnPath = pathLast;
+  }
+
   points << p1;
-  points << p1;
+  points << p2;
   points << pathLast;
   toStart = pathLast;
+
+  thirdLastOnPath = p1;
+  secondLastOnPath = p2;
+  lastOnPath = pathLast;
 }
 
 void XWTikzState::rectangle(const QPointF & ll,double w, double h)
@@ -4767,11 +5416,23 @@ void XWTikzState::rectangle(const QPointF & ll,double w, double h)
   p4.setX(ll.x());
   p4.setY(ll.y() + h);
   pathLast = p3;
-  toStart = pathLast;
-  QPointF p1 = transform.map(ll);
-  p2 = transform.map(p2);
-  p3 = transform.map(p3);
-  p4 = transform.map(p4);
+  QPointF p1 = map(ll);
+  p2 = map(p2);
+  p3 = map(p3);
+  p4 = map(p4);
+
+  if (points.size() < 4)
+  {
+    firstOnPath = p3;
+    secondOnPath = p2;
+    thirdOnPath = p1;
+    fourthOnPath = p4;
+  }
+
+  fourthLastOnPath = p3;
+  thirdLastOnPath = p2;
+  secondLastOnPath = p1;
+  lastOnPath =  p4;
 
   operations << XW_TIKZ_MOVETO;
   points << p3;
@@ -4817,73 +5478,168 @@ void XWTikzState::runCodes()
     cmds[i]->doPath(this, false);
 }
 
+void XWTikzState::setAutoAnchor(double x, double y)
+{
+  QVector2D v(x,y);
+  v.normalize();
+
+  if (autoAnchor == PGFleft)
+  {
+    if (v.x() > 0.05)
+    {
+      if (v.y() > 0.05)
+        anchor = PGFsoutheast;
+      else if (v.y() < - 0.05)
+        anchor = PGFsouthwest;
+      else
+        anchor = PGFsouth;
+    }
+    else if (v.x() < -0.05)
+    {
+      if (v.y() > 0.05)
+        anchor = PGFnortheast;
+      else if (v.y() < - 0.05)
+        anchor = PGFnorthwest;
+      else
+        anchor = PGFnorth;
+    }
+    else
+    {
+      if (v.y() > 0)
+        anchor = PGFeast;
+      else
+        anchor = PGFwest;
+    }
+  }
+  else
+  {
+    if (v.x() > 0.05)
+    {
+      if (v.y() > 0.05)
+        anchor = PGFnorthwest;
+      else if (v.y() < - 0.05)
+        anchor = PGFnortheast;
+      else
+        anchor = PGFnorth;
+    }
+    else if (v.x() < -0.05)
+    {
+      if (v.y() > 0.05)
+        anchor = PGFsouthwest;
+      else if (v.y() < - 0.05)
+        anchor = PGFsoutheast;
+      else
+        anchor = PGFsouth;
+    }
+    else
+    {
+      if (v.y() > 0)
+        anchor = PGFwest;
+      else
+        anchor = PGFeast;
+    }
+  }
+}
+
+void XWTikzState::setCurviLinearBezierCurve(const QPointF & startpoint,
+                                            const QPointF & c1, 
+                                            const QPointF & c2,
+                                            const QPointF & endpoint)
+{
+  curviLinearLineA = startpoint;
+  double xa = -curviLinearLineA.x();
+  double ya = -curviLinearLineA.y();
+  curviLinearLineB = c1;
+  double xb = -curviLinearLineB.x();
+  double yb = -curviLinearLineB.y();
+  double x = curviLinearLineB.x() + xa;
+  double y = curviLinearLineB.y() + ya;
+  double curvilinearlenab = veclen(x,y);
+  curviLinearLineC = c2;
+  double xc = -curviLinearLineC.x();
+  double yc = -curviLinearLineC.y();
+  x = curviLinearLineC.x() + xb;
+  y = curviLinearLineC.y() + yb;
+  double curvilinearlenbc = veclen(x,y);
+  curviLinearLineD = endpoint;
+  x = curviLinearLineD.x() + xc;
+  y = curviLinearLineD.y() + yc;
+  double curvilinearlencd = veclen(x,y);
+
+  x = curvilinearlenab + curvilinearlenbc + curvilinearlencd;
+  curviLinearTimeA = 1 / x;
+  QPointF p = curveAtTime(curviLinearTimeA,curviLinearLineA,curviLinearLineB,curviLinearLineC,curviLinearLineD);
+  xb = -p.x();
+  yb = -p.y();
+  x = p.x() + xa;
+  y = p.y() + ya;
+  curviLinearLengthA = veclen(x,y);
+  if (curviLinearLengthA > 1)
+  {
+    curviLinearTimeA = curviLinearTimeA / curviLinearLengthA;
+    p = curveAtTime(curviLinearTimeA,curviLinearLineA,curviLinearLineB,curviLinearLineC,curviLinearLineD);
+    xb = -p.x();
+    yb = -p.y();
+    x = p.x() + xa;
+    y = p.y() + ya;
+    curviLinearLengthA = veclen(x,y);
+  }
+
+  p = curveAtTime(2 * curviLinearTimeA,curviLinearLineA,curviLinearLineB,curviLinearLineC,curviLinearLineD);
+  xa = -p.x();
+  ya = -p.y();
+  x = p.x() + xb;
+  y = p.y() + yb;
+  curviLinearLengthB = veclen(x,y) + curviLinearLengthA;
+
+  p = curveAtTime(4 * curviLinearTimeA,curviLinearLineA,curviLinearLineB,curviLinearLineC,curviLinearLineD);
+  xb = -p.x();
+  yb = -p.y();
+  x = p.x() + xa;
+  y = p.y() + ya;
+  curviLinearLengthC = veclen(x,y) + curviLinearLengthB;
+
+  p = curveAtTime(8 * curviLinearTimeA,curviLinearLineA,curviLinearLineB,curviLinearLineC,curviLinearLineD);
+  x = p.x() + xb;
+  y = p.y() + yb;
+  curviLinearLengthD = veclen(x,y) + curviLinearLengthC;
+}
+
 void XWTikzState::timerCurver()
 {
-  if (points.size() < 4)
-    return ;
-
-  int pos = points.size() - 1;
-  QPointF p4 = points[pos];
-  QPointF p3 = points[pos-1];
-  QPointF p2 = points[pos-2];
-  QPointF p1 = points[pos-3];
-
-  transformCurveAtTime(nodeTime,p1,p2,p3,p4);
+  transformCurveAtTime(nodeTime,fourthLastOnPath,thirdLastOnPath,secondLastOnPath,lastOnPath);
 }
 
 void XWTikzState::timerHVLine()
 {
-  if (points.size() < 3)
-    return ;
-
-  int pos = points.size() - 1;
-  QPointF p3 = points[pos];
-  QPointF p2 = points[pos-1];
-  QPointF p1 = points[pos-2];
-
   if (nodeTime < 0.5)
   {
     double t = 2 * nodeTime;
-    transformLineAtTime(t,p1,p2);
+    transformLineAtTime(t,thirdLastOnPath,secondLastOnPath);
   }
   else
   {
     double t = 2 * nodeTime - 1;
-    transformLineAtTime(t,p2,p3);
+    transformLineAtTime(t,secondLastOnPath,lastOnPath);
   }
 }
 
 void XWTikzState::timerLine()
 {
-  if (points.size() < 2)
-    return ;
-
-  int pos = points.size() - 1;
-  QPointF p2 = points[pos];
-  QPointF p1 = points[pos-1];
-
-  transformLineAtTime(nodeTime,p1,p2);
+  transformLineAtTime(nodeTime,secondLastOnPath,lastOnPath);
 }
 
 void XWTikzState::timerVHLine()
 {
-  if (points.size() < 3)
-    return ;
-
-  int pos = points.size() - 1;
-  QPointF p3 = points[pos];
-  QPointF p2 = points[pos-1];
-  QPointF p1 = points[pos-2];
-
   if (nodeTime < 0.5)
   {
     double t = 2 * nodeTime;
-    transformLineAtTime(t,p1,p2);
+    transformLineAtTime(t,thirdLastOnPath,secondLastOnPath);
   }
   else
   {
     double t = 2 * nodeTime - 1;
-    transformLineAtTime(t,p2,p3);
+    transformLineAtTime(t,secondLastOnPath,lastOnPath);
   }
 }
 
@@ -4891,6 +5647,7 @@ void XWTikzState::toPathDefault()
 {
   QTransform oldtranform = transform;
   transform.reset();
+  moveTo(toStart);
   lineTo(toTarget);
   transform = oldtranform;
 }
@@ -4907,8 +5664,136 @@ void XWTikzState::transformArrow(const QPointF & p1,const QPointF & p2)
   transform.setMatrix(x,y,0,ya,x,0,p2.x(),p2.y(),1);
 }
 
+void XWTikzState::transformArrowBend()
+{
+  switch (arrowBendMode)
+  {
+    default:
+      break;
+
+    case PGForthogonal:
+      nolinear_map = &XWTikzState::curviLinearBezierOrthogonal;
+      break;
+
+    case PGFpolar:
+      nolinear_map = &XWTikzState::curviLinearBezierPolar;
+      break;
+  }
+
+  scale(-1,-1);
+}
+
+void XWTikzState::transformArrowCurved(XWTikzArrow * a,
+                                  const QPointF & startpoint,
+                                  const QPointF & c1, 
+                                  const QPointF & c2,
+                                  const QPointF & endpoint)
+{
+  setCurviLinearBezierCurve(startpoint,c1,c2,endpoint);
+  if (arrowBendMode <= 0)
+    arrowFlexMode = -1;
+
+  switch (arrowFlexMode)
+  {
+    default:
+      transformArrowRigit(a,a->tipEnd, a->backEnd);
+      break;
+
+    case PGFflexrot:
+      transformArrowRigit(a,a->visualTipEnd,a->visualBackEnd);
+      break;
+
+    case PGFbend:
+      transformArrowBend();
+      break;
+  }  
+}
+
+void XWTikzState::transformArrowRigit(XWTikzArrow * a,double s, double e)
+{
+  double x = s;
+  double y = (e - x) * arrowFlex + x;
+  if (x == y)
+  {
+    double xb = nextTip + a->backEnd - x;
+    xb = curviLinearDistanceToTime(xb);
+    QPointF ref;
+    double xc,yc;
+    if (xb == 0)
+    {
+      if (curviLinearLineA == curviLinearLineB)
+      {
+        if (curviLinearLineA == curviLinearLineC)
+          ref = curviLinearLineD;
+        else
+          ref = curviLinearLineC;
+        xc = curviLinearLineA.x();
+        yc = curviLinearLineA.y();
+        x = ref.x() - xc;
+        y = ref.y() - yc;
+        QVector2D v(x,y);
+        v.normalize();
+        x = -v.x();
+        y = -v.y();
+      }
+      else
+      {
+        QPointF p = curveAtTime(xb,curviLinearLineA,curviLinearLineB,curviLinearLineC,curviLinearLineD);
+        xc = p.x();
+        yc = p.y();
+        x = curveXB - curveXA;
+        y = curveYB = curveYA;
+        QVector2D v(x,y);
+        v.normalize();
+        x = v.x();
+        y = v.y();
+      }
+    }
+    else
+    {
+      QPointF p = curveAtTime(xb,curviLinearLineA,curviLinearLineB,curviLinearLineC,curviLinearLineD);
+      xc = p.x();
+      yc = p.y();
+      x = curveXB - curveXA;
+      y = curveYB - curveYA;
+      QVector2D v(x,y);
+      v.normalize();
+      x = v.x();
+      y = v.y();
+    }
+
+    transform.setMatrix(x,y,0,-y,x,0,xc,yc,1);
+  }
+  else
+  {
+    double xb = nextTip + a->backEnd;
+    double xc = xb;
+    xc -= x;
+    xb -= y;
+    xc = curviLinearDistanceToTime(xc);
+    xb = curviLinearDistanceToTime(xb);
+    QPointF p1 = curveAtTime(xc,curviLinearLineA,curviLinearLineB,curviLinearLineC,curviLinearLineD);
+    QPointF p2 = curveAtTime(xb,curviLinearLineA,curviLinearLineB,curviLinearLineC,curviLinearLineD);
+    transformArrow(p1,p2);
+  }
+
+  addShift(-s, 0);
+}
+
+void XWTikzState::transformArrowStraight(XWTikzArrow * a,
+                           const QPointF & c1, 
+                           const QPointF & c2)
+{
+  transformArrow(c1, c2);
+  addShift(-arrowTotalLength,0);   
+  addShift(-a->backEnd,0);   
+}
+
 void XWTikzState::transformChild()
 {
+  if (isTransformChildSet)
+    return ;
+
   double xc = 0.5 * siblingDistance * (childrenNumber + 1);
   double x = xc * cos(growLeft) + (siblingDistance * currentChild) * cos(growRight);
   double y = xc * sin(growLeft) + (siblingDistance * currentChild) * sin(growRight);
@@ -4949,16 +5834,6 @@ void XWTikzState::transformCurveAtTime(double t,const QPointF & startpoint,const
     QTransform trans(v.x(),v.y(),-v.y(),v.x(),0,0);
     transform = trans * transform;
   }
-}
-
-void XWTikzState::transformLabel()
-{
-  if ((int)(labelAngle) == PGFcenter)
-    return ;
-    
-  double dx = labelDistance * cos(labelAngle) + transform.dx();
-  double dy = labelDistance * sin(labelAngle) + transform.dy();
-  transform.translate(dx,dy);
 }
 
 void XWTikzState::transformLineAtTime(double t, const QPointF & p1,const QPointF & p2)

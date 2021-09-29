@@ -41,15 +41,17 @@ bool XWTikzGraphic::addMenuAction(QMenu & menu)
   if (cur < 0 || cur >= cmds.size())
     return false;
 
+  XWTikzState state(this,0,false);
+  options->doPath(&state,false);
   bool ret = true;
   switch (curScope)
   {
     case XW_TIKZ_S_OPERATION:
-      ret = cmds[cur]->addOperationAction(menu);
+      ret = cmds[cur]->addOperationAction(menu, &state);
       break;
 
     case XW_TIKZ_S_PATH:
-      cmds[cur]->addPathAction(menu);
+      cmds[cur]->addPathAction(menu, &state);
       break;
 
     case XW_TIKZ_S_SCOPE:
@@ -57,53 +59,77 @@ bool XWTikzGraphic::addMenuAction(QMenu & menu)
           cmds[cur]->getKeyWord() == XW_TIKZ_GROUP)
       {
         XWTikzScope * s = (XWTikzScope*)(cmds[cur]);
-        s->addScopeAction(menu);
+        s->addScopeAction(menu, &state);
       }
       break;
 
     default:
       {
-         QMenu * submenu = menu.addMenu(tr("draw"));
-         options->addLineAction(*submenu);
-         options->addArrowsAction(*submenu);
-         options->addRoundedCornersAction(*submenu);
-         options->addDoubleDistanceAction(*submenu);
-         menu.addSeparator();
-         submenu = menu.addMenu(tr("decoration"));
-         menu.addSeparator();
-         submenu = menu.addMenu(tr("color"));
-         options->addColorAction(*submenu);
-         options->addOpacityAction(*submenu);
-         options->addDoubleAction(*submenu);
-         menu.addSeparator();
-         submenu = menu.addMenu(tr("pattern"));
-         options->addPatternAction(*submenu);
-         menu.addSeparator();
-         submenu = menu.addMenu(tr("shade"));
-         options->addShadeAction(*submenu);
-         menu.addSeparator();
-         submenu = menu.addMenu(tr("fading"));
-         options->addPathFading(*submenu);
-         menu.addSeparator();
-         options->addDecorationAction(*submenu);
-         submenu = menu.addMenu(tr("node"));
-         options->addShapeAction(*submenu);
-         options->addAnchorAction(*submenu);    
-         menu.addSeparator();     
-         submenu = menu.addMenu(tr("spy"));
-         options->addSpyAction(*submenu);
-         menu.addSeparator();
-         submenu = menu.addMenu(tr("mindmap"));
-         options->addMinmapAction(*submenu);
-         menu.addSeparator();
-         options->addDomainAction(menu);
-         menu.addSeparator();
-         submenu = menu.addMenu(tr("transform"));
-         options->addXYZAction(*submenu);
-         options->addScaleAction(*submenu);
-         options->addShiftAction(*submenu);
-         options->addRotateAction(*submenu);
-         options->addSlantAction(*submenu);         
+        QMenu * submenu = 0;
+        switch (state.getPictureType())
+        {
+          default:
+            submenu = menu.addMenu(tr("draw"));
+            options->addLineAction(*submenu);
+            options->addArrowsAction(*submenu);
+            options->addRoundedCornersAction(*submenu);
+            options->addDoubleDistanceAction(*submenu);
+            menu.addSeparator();
+            submenu = menu.addMenu(tr("decoration"));
+            menu.addSeparator();
+            submenu = menu.addMenu(tr("color"));
+            options->addColorAction(*submenu);
+            options->addOpacityAction(*submenu);
+            options->addDoubleAction(*submenu);
+            menu.addSeparator();
+            submenu = menu.addMenu(tr("pattern"));
+            options->addPatternAction(*submenu);
+            menu.addSeparator();
+            submenu = menu.addMenu(tr("shade"));
+            options->addShadeAction(*submenu);
+            menu.addSeparator();
+            submenu = menu.addMenu(tr("fading"));
+            options->addPathFading(*submenu);
+            menu.addSeparator();
+            options->addDecorationAction(*submenu);
+            submenu = menu.addMenu(tr("node"));
+            options->addShapeAction(*submenu);
+            options->addAnchorAction(*submenu);    
+            menu.addSeparator();     
+            submenu = menu.addMenu(tr("spy"));
+            options->addSpyAction(*submenu);
+            menu.addSeparator();
+            submenu = menu.addMenu(tr("mindmap"));
+            options->addMinmapAction(*submenu);
+            menu.addSeparator();
+            options->addDomainAction(menu);
+            menu.addSeparator();
+            submenu = menu.addMenu(tr("transform"));
+            options->addXYZAction(*submenu);
+            options->addScaleAction(*submenu);
+            options->addShiftAction(*submenu);
+            options->addRotateAction(*submenu);
+            options->addSlantAction(*submenu);
+            menu.addSeparator();
+            options->adddCircuitAction(menu); 
+            break;
+
+          case PGFmindmap:
+            options->addConceptColorAction(menu);
+            menu.addSeparator();
+            options->addOpacityAction(menu);
+            menu.addSeparator();
+            options->addShadeAction(menu);
+            menu.addSeparator();
+            options->addPathFading(menu);
+            menu.addSeparator();
+            options->addMinmapAction(menu);
+            break;
+
+          case PGFcircuit:
+            options->adddCircuitSymbolAction(menu);
+            break;
+        }      
       }      
       break;
   }
@@ -186,40 +212,28 @@ void XWTikzGraphic::doChildAnchor(XWTikzState * state)
 
 void XWTikzGraphic::doCopy(XWTikzState * state)
 {
-  if (cur < 0 || cur >= cmds.size())
-    return ;
-
-  options->doPath(state);
-  if (cmds[cur]->getKeyWord() == PGFscope || 
-      cmds[cur]->getKeyWord() == XW_TIKZ_GROUP)
+  QList<XWTikzCommand*> spies;
+  int tcur = cur;
+  for (int i = 0; i < cmds.size(); i++)
   {
-    cmds[cur]->doCopy(state);
-  }
-  else
-  {
-    int tcur = cur;
-    QList<int> spies;
-    for (int i = 0; i < cmds.size(); i++)
+    cur = i;
+    if (cmds[i]->getKeyWord() == PGFscope || 
+      cmds[i]->getKeyWord() == XW_TIKZ_GROUP)    
     {
-      cur = i;
-      if (cmds[i]->getKeyWord() == PGFscope || 
-        cmds[i]->getKeyWord() == XW_TIKZ_GROUP)    
-      {
-        XWTikzScope * s = (XWTikzScope*)(cmds[i]);
-        s->doScope(state);
-      }
-      else if (cmds[i]->getKeyWord() == PGFforeach)
-      {
-        XWTikzForeach * s = (XWTikzForeach*)(cmds[i]);
-        s->doScope(state);
-      }
-      else if (cmds[i]->getKeyWord() == PGFspy)
-        spies << i;
-      else
-        cmds[i]->doPath(state,false);
+      XWTikzScope * s = (XWTikzScope*)(cmds[i]);
+      s->doCopy(state);
     }
-    cur = tcur;
+    else if (cmds[i]->getKeyWord() == PGFforeach)
+    {
+      XWTikzForeach * s = (XWTikzForeach*)(cmds[i]);
+      s->doScope(state);
+    }
+    else if (cmds[i]->getKeyWord() == PGFspy)
+      spies << cmds[i];
+    else
+      cmds[i]->doPath(state,false);
   }
+  cur = tcur;
 }
 
 void XWTikzGraphic::doDecoration(XWTikzState * state)
@@ -267,6 +281,24 @@ void XWTikzGraphic::doEveryChildNode(XWTikzState * state)
   cmds[cur]->doEveryChildNode(state);
 }
 
+void XWTikzGraphic::doEveryCircuitAnnotation(XWTikzState * state)
+{
+  options->doEveryCircuitAnnotation(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryCircuitAnnotation(state);
+}
+
+void XWTikzGraphic::doEveryCircuitSymbol(XWTikzState * state)
+{
+  options->doEveryCircuitSymbol(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryCircuitSymbol(state);
+}
+
 void XWTikzGraphic::doEveryConcept(XWTikzState * state)
 {
   options->doEveryConcept(state);
@@ -283,6 +315,15 @@ void XWTikzGraphic::doEveryEdge(XWTikzState * state)
     return ;
 
   cmds[cur]->doEveryEdge(state);
+}
+
+void XWTikzGraphic::doEveryInfo(XWTikzState * state)
+{
+  options->doEveryInfo(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryInfo(state);
 }
 
 void XWTikzGraphic::doEveryLabel(XWTikzState * state)
@@ -365,7 +406,7 @@ void XWTikzGraphic::doGraphic(XWPDFDriver * driver)
   XWTikzState * state = new XWTikzState(this,driver);
   options->doPath(state);
   int tcur = cur;
-  QList<int> spies;
+  QList<XWTikzCommand*> spies;
   for (int i = 0; i < cmds.size(); i++)
   {
     cur = i;
@@ -381,21 +422,14 @@ void XWTikzGraphic::doGraphic(XWPDFDriver * driver)
       s->doScope(state);
     }
     else if (cmds[i]->getKeyWord() == PGFforeach)
-      spies << i;
+      spies << cmds[i];
     else
       cmds[i]->doPath(state,false);
   }
   cur = tcur;
 
   for (int i = 0; i < spies.size(); i++)
-  {
-    state = state->save();
-    state->setOnNode(true);
-    cmds[i]->doPath(state,false);
-    state->setOnNode(false);
-    cmds[i]->doPath(state,false);
-    state = state->restore();
-  }
+    spies[i]->doPath(state,false);
 
   delete state;
 }
@@ -458,17 +492,7 @@ void XWTikzGraphic::doPath(XWPDFDriver * driver)
   XWTikzState * state = new XWTikzState(this,driver);
   
   options->doPath(state,true);
-  if (cmds[cur]->getKeyWord() == PGFspy)
-  {
-    state = state->save();
-    state->setOnNode(true);
-    cmds[cur]->doPath(state,false);
-    state->setOnNode(false);
-    cmds[cur]->doPath(state,true);
-    state = state->restore();
-  }
-  else
-    cmds[cur]->doPath(state,true);
+  cmds[cur]->doPath(state,true);
   delete state;
 }
 
@@ -706,7 +730,7 @@ QString XWTikzGraphic::getLocalPath()
   return path;
 }
 
-QPointF XWTikzGraphic::getNodeAnchor(const QString & nameA,int a,XWTikzState * stateA)
+QPointF XWTikzGraphic::getNodeAnchor(const QString & nameA,int a)
 {
   QPointF ret;
   QString n = nameA;
@@ -721,14 +745,14 @@ QPointF XWTikzGraphic::getNodeAnchor(const QString & nameA,int a,XWTikzState * s
   if (names.contains(n))
   {
     int i = names[n];
-    ret = cmds[i]->getAnchor(nameA,a,stateA,state);
+    ret = cmds[i]->getAnchor(nameA,a,state);
   }
 
   delete state;
   return ret;
 }
 
-QPointF XWTikzGraphic::getNodeAngle(const QString & nameA,double a,XWTikzState * stateA)
+QPointF XWTikzGraphic::getNodeAngle(const QString & nameA,double a)
 {
   XWTikzState * state = new XWTikzState(this,0,false);
   options->doPath(state,false);
@@ -743,7 +767,7 @@ QPointF XWTikzGraphic::getNodeAngle(const QString & nameA,double a,XWTikzState *
   if (names.contains(n))
   {
     int i = names[n];
-    ret = cmds[i]->getAngle(nameA,a,stateA,state);
+    ret = cmds[i]->getAngle(nameA,a,state);
   }
 
   delete state;
@@ -751,11 +775,8 @@ QPointF XWTikzGraphic::getNodeAngle(const QString & nameA,double a,XWTikzState *
   return ret;
 }
 
-QPointF XWTikzGraphic::getPoint(const QString & nameA,XWTikzState * stateA)
+QPointF XWTikzGraphic::getPoint(const QString & nameA)
 {
-  if (options->isMe(nameA,stateA))
-    return options->getPoint(stateA);
-    
   QString n = nameA;
   if (nameA.contains("."))
   {
@@ -769,7 +790,7 @@ QPointF XWTikzGraphic::getPoint(const QString & nameA,XWTikzState * stateA)
     int i = names[n];
     XWTikzState * state = new XWTikzState(this,0,false);
     options->doPath(state,false);
-    ret = cmds[i]->getPoint(nameA,stateA,state);
+    ret = cmds[i]->getPoint(nameA,state);
     delete state;
   }
   else if (by.contains(n))
@@ -798,7 +819,7 @@ QPointF XWTikzGraphic::getPoint(const QString & nameA,XWTikzState * stateA)
   return ret;
 }
 
-QVector3D XWTikzGraphic::getPoint3D(const QString & nameA,XWTikzState * stateA)
+QVector3D XWTikzGraphic::getPoint3D(const QString & nameA)
 {
   QString n = nameA;
   if (nameA.contains("."))
@@ -813,7 +834,7 @@ QVector3D XWTikzGraphic::getPoint3D(const QString & nameA,XWTikzState * stateA)
     int i = names[n];
     XWTikzState * state = new XWTikzState(this,0,false);
     options->doPath(state,false);
-    ret = cmds[i]->getPoint3D(nameA,stateA,state);
+    ret = cmds[i]->getPoint3D(nameA,state);
     delete state;
   }
   else if (by.contains(n))
@@ -965,6 +986,15 @@ QString XWTikzGraphic::getTips(const QPointF & p)
   delete state;
 
   return ret;
+}
+
+QString XWTikzGraphic::getUnit(const QString & nameA)
+{
+  initUnits();
+  if (units.contains(nameA))
+    return units[nameA];
+
+  return QString();
 }
 
 double XWTikzGraphic::getWidth()
@@ -1398,6 +1428,11 @@ void XWTikzGraphic::insertText(const QString & str)
   delete state;
 }
 
+bool XWTikzGraphic::isUnit(const QString & nameA)
+{
+  return units.contains(nameA);
+}
+
 void XWTikzGraphic::keyInput(const QString & str)
 {
   if (cur < 0 || cur >= cmds.size())
@@ -1583,7 +1618,7 @@ void XWTikzGraphic::scan(const QString & str)
         }
         else
         {
-          obj = createPGFObject(this,id,this);
+          obj = createPGFObject(this,0,id,this);
           cmds << obj;
           cur++;
           obj->scan(str,len,pos);
@@ -1608,7 +1643,7 @@ void XWTikzGraphic::scan(const QString & str)
       }
       else
       {
-        obj = createPGFObject(this,id,this);
+        obj = createPGFObject(this,0,id,this);
         cmds << obj;
         cur++;
         obj->scan(str,len,pos);        
@@ -1616,7 +1651,7 @@ void XWTikzGraphic::scan(const QString & str)
     }
     else  if (str[pos] == QChar('{'))
     {
-      obj = new XWTikzScope(this,XW_TIKZ_GROUP,this);
+      obj = new XWTikzScope(this,0,XW_TIKZ_GROUP,this);
       cmds << obj;
       cur++;
       obj->scan(str,len,pos);
@@ -1665,6 +1700,11 @@ void XWTikzGraphic::setSortBy(const QString & nameA)
     sortBy = -1;
 
   intersections.clear();
+}
+
+void XWTikzGraphic::setUnit(const QString & nameA, const QString & u)
+{
+  units[nameA] = u;
 }
 
 XWTikzCommand * XWTikzGraphic::takeAt(int i)
@@ -1716,7 +1756,7 @@ void XWTikzGraphic::addCoordinateCommand()
   XWTikzCoordinateCommandDialog dlg;
   if (dlg.exec() == QDialog::Accepted)
   {
-    XWTikzCoordinatePath * node = new XWTikzCoordinatePath(this,this);
+    XWTikzCoordinatePath * node = new XWTikzCoordinatePath(this,0,this);
     QString tmp = dlg.getName();
     node->setName(tmp);
     tmp = dlg.getCoord();
@@ -1812,7 +1852,7 @@ void XWTikzGraphic::addNodeCommand()
   XWTikzNodeCommandDialog dlg;
   if (dlg.exec() == QDialog::Accepted)
   {
-    XWTikzNodePath * node = new XWTikzNodePath(this,this);
+    XWTikzNodePath * node = new XWTikzNodePath(this,0,this);
     QString tmp = dlg.getName();
     node->setName(tmp);
     tmp = dlg.getCoord();
@@ -1841,7 +1881,7 @@ void XWTikzGraphic::addPath(int keywordA)
     return ;
   }
 
-  XWTikzPath * path = new XWTikzPath(this,keywordA,this);
+  XWTikzPath * path = new XWTikzPath(this,0,keywordA,this);
   XWTikzAddPath * cmd = new XWTikzAddPath(this,cur + 1,path);
   push(cmd);
 }
@@ -1889,14 +1929,14 @@ void XWTikzGraphic::addScope()
     }
     else
     {
-      XWTikzScope * s = new XWTikzScope(this,PGFscope,this);
+      XWTikzScope * s = new XWTikzScope(this,0,PGFscope,this);
       XWTikzAddPath * cmd = new XWTikzAddPath(this,cur + 1,s);
       push(cmd);
     }
   }
   else
   {
-    XWTikzScope * s = new XWTikzScope(this,PGFscope,this);
+    XWTikzScope * s = new XWTikzScope(this,0,PGFscope,this);
     XWTikzAddPath * cmd = new XWTikzAddPath(this,cur + 1,s);
     push(cmd);
   }  
@@ -1925,7 +1965,7 @@ void XWTikzGraphic::addSpy()
     XWTikzTwoCoordDialog dlg(tr("spy"),tr("on"), tr("at"));
     if (dlg.exec() == QDialog::Accepted)
     {
-      XWTikzSpy * spy = new XWTikzSpy(this,this);
+      XWTikzSpy * spy = new XWTikzSpy(this,0,this);
       QString on = dlg.getCoord1();
       QString at = dlg.getCoord2();
       spy->setOn(on);
@@ -1940,6 +1980,23 @@ void XWTikzGraphic::addVHLines()
 {
   if ((cur >= 0) && (cur <= (cmds.size() - 1)))
     cmds[cur]->addVHLines();
+}
+
+void XWTikzGraphic::initUnits()
+{
+  if (units.contains("ampere"))
+    return ;
+
+  units["ampere"] = "A";
+  units["volt"] = "V";
+  units["ohm"] = "\\Omega";
+  units["siemens"] = "S";
+  units["henry"] = "H";
+  units["farad"] = "F";
+  units["coulomb"] = "C";
+  units["voltampere"] = "VA";
+  units["watt"] = "W";
+  units["hertz"] = "Hz";
 }
 
 void XWTikzGraphic::newTikz()

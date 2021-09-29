@@ -94,6 +94,10 @@ void XWTikzKey::doPath(XWTikzState * state, bool)
     case PGFevenoddrule:
       state->setFillRule(PGFevenoddrule);
       break;
+
+    case PGFmatrix:
+      state->setMatrix();
+      break;
       
     case PGFshiftonly:
       state->shiftOnly();
@@ -286,8 +290,8 @@ void XWTikzKey::doPath(XWTikzState * state, bool)
 
     case PGFconceptconnection:
       state->setLineWidth(2.8453);
-      state->setShortenStartAdditional(5.6906);
-      state->setShortenEndAdditional(5.6906);
+      state->setShortenStart(5.6906);
+      state->setShortenEnd(5.6906);
       state->setLineCap(PGFcap);
       {
         QColor c = calulateColor(Qt::black,0.5);
@@ -336,6 +340,65 @@ void XWTikzKey::doPath(XWTikzState * state, bool)
     case PGFcoil:
     case PGFbumps:
       state->setDecoration(keyWord);
+      break;
+
+    case PGFcircuit:
+    case PGFcircuits:
+    case PGFcircuitee:
+      state->setPictureType(PGFcircuit);
+      break;
+
+    case PGFhugecircuitsymbols:
+      state->setCircuitSizeUnit(10);
+      break;
+
+    case PGFlargecircuitsymbols:
+      state->setCircuitSizeUnit(8);
+      break;
+
+    case PGFmediumcircuitsymbols:
+      state->setCircuitSizeUnit(7);
+      break;
+
+    case PGFsmallcircuitsymbols:
+      state->setCircuitSizeUnit(6);
+      break;
+
+    case PGFtinycircuitsymbols:
+      state->setCircuitSizeUnit(5);
+      break;
+
+    case PGFpointup:
+      state->rotate(90);
+      break;
+
+    case PGFpointdown:
+      state->rotate(-90);
+      break;
+
+    case PGFpointleft:
+      state->rotate(-180);
+      break;
+
+    case PGFpointright:
+      state->rotate(180);
+      break;
+
+    case PGFcircuitsymbolopen:
+      state->setDraw(true);
+      break;
+
+    case PGFcircuitsymbolfilled:
+      state->setDraw(true);
+      state->setFillColor(Qt::black);
+      break;
+
+    case PGFcircuitsymbollines:
+      state->setDraw(true);
+      break;
+
+    case PGFcircuitsymbolwires:
+      state->setDraw(true);
       break;
   }
 }
@@ -1140,6 +1203,18 @@ void XWTikzValue::doPath(XWTikzState * state, bool)
     case PGFmarkconnectionnode:
       state->setMarkNode(text);
       break;
+
+    case PGFshortenend:
+      state->setShortenEnd(v.expv->getResult(state));
+      break;
+
+    case PGFshortenstart:
+      state->setShortenStart(v.expv->getResult(state));
+      break;
+
+    case PGFcircuitsymbolunit:
+      state->setCircuitSizeUnit(v.expv->getResult(state));
+      break;
   }
 }
 
@@ -1659,6 +1734,17 @@ void XWTikzValue::scan(const QString & str, int & len, int & pos)
       }
       break;
 
+    case PGFlabelposition:
+    case PGFpinposition:
+      scanValue(str,len,pos,value);
+      if (value[0].isLetter())
+      {
+        int id = lookupPGFID(value);
+        value = QString("%1").arg(id);
+      }
+      v.expv = new XWTikzExpress(graphic,value,this);
+      break;
+
     default:
       scanValue(str,len,pos,value);
       if (value.isEmpty())
@@ -2108,33 +2194,636 @@ void XWTikzDashPattern::scan(const QString & str, int & len, int & pos)
   }
 }
 
+XWTikzArrowKey::XWTikzArrowKey(XWTikzGraphic * graphicA, int idA, QObject * parent)
+:XWTikzOperation(graphicA, idA,parent)
+{}
+
+void XWTikzArrowKey::doPath(XWTikzState * state, bool )
+{
+  switch (keyWord)
+  {
+    default:
+      break;
+
+    case PGFreversed:
+      state->setArrowReversed(true);
+      break;
+
+    case PGFharpoon:
+      state->setArrowHarpoon(true);
+      break;
+
+    case PGFswap:
+      state->setArrowSwap(true);
+      break;
+
+    case PGFleft:
+      state->setArrowHarpoon(true);
+      break;
+
+    case PGFright:
+      state->setArrowHarpoon(true);
+      state->setArrowSwap(true);
+      break;
+
+    case PGFopen:
+      state->setArrowFill(false);
+      break;
+
+    case PGFround:
+      state->setArrowLineCap(PGFround);
+      state->setArrowLineJoin(PGFround);
+      break;
+
+    case PGFsharp:
+      state->setArrowLineCap(PGFbutt);
+      state->setArrowLineJoin(PGFmiter);
+      break;
+
+    case PGFquick:
+    case PGFbend:
+      state->setArrowFlexMode(keyWord);
+      break;
+  }
+}
+
+QString XWTikzArrowKey::getText()
+{
+  QString ret = getPGFString(keyWord);
+  return ret;
+}
+
+XWTikzArrowValue::XWTikzArrowValue(XWTikzGraphic * graphicA, int idA, QObject * parent)
+:XWTikzOperation(graphicA, idA,parent)
+{
+  v.expv = 0;
+  v.coordv = 0;
+}
+
+void XWTikzArrowValue::doPath(XWTikzState * state, bool )
+{
+  switch (keyWord)
+  {
+    default:
+      break;
+
+    case PGFscale:
+      state->setArrowScaleLength(v.expv->getResult(state));
+      state->setArrowScaleWidth(v.expv->getResult(state));
+      break;
+
+    case PGFscalelength:
+      state->setArrowScaleLength(v.expv->getResult(state));
+      break;
+
+    case PGFscalewidth:
+      state->setArrowScaleWidth(v.expv->getResult(state));
+      break;
+
+    case PGFarc:
+      state->setArrowArc(v.expv->getResult(state));
+      break;
+
+    case PGFslant:
+      state->setArrowSlant(v.expv->getResult(state));
+      break;
+
+    case PGFlinecap:
+      state->setArrowLineCap((int)(v.expv->getResult(state)));
+      break;
+
+    case PGFlinejoin:
+      state->setArrowLineJoin((int)(v.expv->getResult(state)));
+      break;
+
+    case PGFflex:
+    case PGFflexrot:
+      state->setArrowFlex(v.expv->getResult(state));
+      state->setArrowFlexMode(keyWord);
+      break;
+
+    case PGFanglelength:
+      state->angleSetupPrime(v.expv->getResult(state));
+      break;
+
+    case PGFcapangle:
+      {
+        double x = 0.5 * v.expv->getResult(state);
+        x = 0.5 / tan(x);
+        state->setArrowLength(state->lineWidthDependent(0,x,0));
+      }
+  }
+}
+
+QString XWTikzArrowValue::getText()
+{
+  QString ret = getPGFString(keyWord);
+  ret += "=";
+  QString tmp = v.expv->getText();
+  ret += tmp;
+  return ret;
+}
+
+void XWTikzArrowValue::scan(const QString & str, int & len, int & pos)
+{
+  QString value;
+  scanValue(str,len,pos,value);
+  v.expv = new XWTikzExpress(graphic,value,this);
+}
+
+XWTikzArrowColor::XWTikzArrowColor(XWTikzGraphic * graphicA, int idA, QObject * parent)
+:XWTikzColor(graphicA, idA,parent)
+{}
+
+void XWTikzArrowColor::doPath(XWTikzState * state, bool )
+{
+  QColor color = getColor();
+  switch (keyWord)
+  {
+    default:
+      break;
+      
+    case PGFcolor:
+      state->setArrowDrawColor(color);
+      break;
+
+    case PGFfill:
+      state->setArrowFillColor(color);
+      break;
+  }
+}
+
+XWTikzArrowDependent::XWTikzArrowDependent(XWTikzGraphic * graphicA, int idA, QObject * parent)
+:XWTikzOperation(graphicA, idA,parent),
+ angle(0),
+ dimension(0),
+ firstFactor(0),
+ lastFactor(0)
+{}
+
+void XWTikzArrowDependent::doPath(XWTikzState * state, bool)
+{
+  double a = 0;
+  if (angle)
+    a = angle->getResult(state);
+  double d = 0;
+  if (dimension)
+    d = dimension->getResult(state);
+  double f = 0;
+  if (firstFactor)
+    f = firstFactor->getResult(state);
+  double l = 0;
+  if (lastFactor)
+    l = lastFactor->getResult(state);
+  switch (keyWord)
+  {
+    default:
+      break;
+
+    case PGFlength:
+      state->setArrowLength(state->lineWidthDependent(d,f,l));
+      break;
+
+    case PGFwidth:
+      state->setArrowWidth(state->lineWidthDependent(d,f,l));
+      break;
+
+    case PGFwidthlength:
+      state->setArrowWidth(state->lengthDependent(d,f,l));
+      break;
+
+    case PGFinset:
+      state->setArrowInset(state->lineWidthDependent(d,f,l));
+      break;
+
+    case PGFinsetlength:
+      state->setArrowInset(state->lengthDependent(d,f,l));
+      break;
+
+    case PGFangle:
+      state->angleSetup(a,d,f,l);
+      break;
+
+    case PGFlinewidth:
+      state->setArrowLineWidth(state->lineWidthDependent(d,f,l));
+      break;
+
+    case PGFlinewidthlength:
+      state->setArrowLineWidth(state->lengthDependent(d,f,l));
+      break;
+
+    case PGFsep:
+      state->setArrowSep(state->lineWidthDependent(d,f,l));
+      break;
+  }
+}
+
+QString XWTikzArrowDependent::getText()
+{
+  QString ret = getPGFString(keyWord);
+  if (angle)
+  {
+    ret += "=";
+    QString tmp = angle->getText();
+    ret += tmp;
+    if (dimension)  
+      ret += ":";
+  }
+
+  if (dimension)  
+  {
+    if (!angle)
+      ret += "=";
+    QString tmp = dimension->getText();
+    ret += tmp;
+
+    if (firstFactor)
+    {
+      ret += " ";
+      QString tmp = firstFactor->getText();
+      ret += tmp;
+
+      if (lastFactor)
+      {
+        ret += " ";
+        tmp = lastFactor->getText();
+        ret += tmp;
+      }
+    }
+  }  
+
+  return ret;
+}
+
+void XWTikzArrowDependent::scan(const QString & str, int & , int & pos)
+{
+  while (str[pos].isSpace())
+    pos++;
+
+  if (str[pos] == QChar('='))
+  {
+    pos++;
+    while (str[pos].isSpace())
+      pos++;
+    int i = pos;
+    while (!str[pos].isSpace() && str[pos] != QChar(':'))
+      pos++;
+
+    QString v;
+    if (str[pos] == QChar(':'))
+    {
+      i++;
+      v = str.mid(i,pos - i);
+      angle = new XWTikzExpress(graphic,v,this);
+      pos++;
+      while (str[pos].isSpace())
+        pos++;
+      i = pos;
+      while (!str[pos].isSpace())
+        pos++;
+    }
+    v = str.mid(i,pos - i);
+    dimension = new XWTikzExpress(graphic,v,this);
+    pos++;
+    if (str[pos].isSpace())
+    {
+      pos++;
+      if (str[pos].isDigit())
+      {
+        i = pos;
+        while (!str[pos].isSpace() && str[pos] != QChar(']'))
+          pos++;
+        v = str.mid(i,pos - i);
+        firstFactor = new XWTikzExpress(graphic,v,this);
+        if (str[pos].isSpace())
+        {
+          pos++;
+          if (str[pos].isDigit())
+          {
+            i = pos;
+            while (!str[pos].isSpace() && str[pos] != QChar(']'))
+              pos++;
+            v = str.mid(i,pos - i);
+            lastFactor = new XWTikzExpress(graphic,v,this);
+          }
+        }
+      }
+    }
+  }
+}
+
+XWTikzArrowTipSpecification::XWTikzArrowTipSpecification(XWTikzGraphic * graphicA, QObject * parent)
+:XWTikzOperation(graphicA, PGFarrow,parent),
+arrow(-1)
+{}
+
+void XWTikzArrowTipSpecification::doPath(XWTikzState * state, bool showpoint)
+{
+  for (int i = 0; i < ops.size(); i++)
+    ops[i]->doPath(state,showpoint);
+
+  state->drawArrow(arrow);
+}
+
+QString XWTikzArrowTipSpecification::getText()
+{
+  QString ret = getPGFString(arrow);
+  if (ops.size() > 0)
+  {
+    ret += "[";
+    for (int i = 0; i < ops.size(); i++)
+    {
+      QString tmp = ops[i]->getText();
+      ret += tmp;
+      if (i < (ops.size() - 1))
+        ret += ",";
+    }
+    ret += "]";
+  }
+
+  return ret;
+}
+
+void XWTikzArrowTipSpecification::scan(const QString & str, int & len, int & pos)
+{
+  while (str[pos].isSpace())
+    pos++;
+
+  int i = pos;
+  while (str[pos] == QChar(',') && str[pos] == QChar('-') && str[pos] == QChar(']'))
+    pos++;
+  if (pos == i)
+    pos++;
+
+  QString key = str.mid(i, pos - i);
+  arrow = lookupPGFID(key);
+
+  while (str[pos].isSpace())
+    pos++;
+  if (str[pos] == QChar('['))
+  {
+    pos++;
+    while (pos < len)
+    {
+      if (str[pos] == QChar(']'))
+      {
+        pos++;
+        break;
+      }
+
+      XWTikzOperation * op = scanOption(str,len,pos,this);
+      if (op)
+        ops << op;
+    }
+  }
+}
+
+XWTikzOperation * XWTikzArrowTipSpecification::scanOption(const QString & str, int & len, int & pos,XWTikzOperation * parent)
+{
+  QString key;
+  scanKey(str,len,pos,key);
+  int id = lookupPGFID(key);
+  XWTikzOperation * op = 0;
+  switch (id)
+  {
+    default:
+      break;
+
+    case PGFlength:
+    case PGFinset:
+    case PGFinsetlength:
+    case PGFlinewidth:
+    case PGFlinewidthlength:
+    case PGFwidth:
+    case PGFwidthlength:
+    case PGFangle:
+    case PGFsep:
+      op = new XWTikzArrowDependent(parent->graphic,id,parent);
+      op->scan(str,len,pos);
+      break;
+
+    case PGFfill:
+    case PGFcolor:
+      op = new XWTikzArrowColor(parent->graphic,id,parent);
+      op->scan(str,len,pos);
+      break;
+
+    case PGFanglelength:
+    case PGFscale:
+    case PGFscalelength:
+    case PGFscalewidth:
+    case PGFarc:
+    case PGFslant:
+    case PGFlinecap:
+    case PGFlinejoin:
+    case PGFflex:
+    case PGFflexrot:
+    case PGFcapangle:
+      op = new XWTikzArrowValue(parent->graphic,id,parent);
+      op->scan(str,len,pos);
+      break;
+
+    case PGFbutt:
+    case PGFmiter:
+    case PGFround:
+    case PGFsharp:
+    case PGFswap:
+    case PGFreversed:
+    case PGFharpoon:
+    case PGFleft:
+    case PGFright:
+    case PGFopen:
+    case PGFquick:
+    case PGFbend:
+      op = new XWTikzArrowKey(parent->graphic,id,parent);
+      break;
+  }
+
+  while (str[pos].isSpace())
+    pos++;
+
+  if (str[pos] == QChar(','))
+    pos++;
+
+  return op;
+}
+
+void XWTikzArrowTipSpecification::setup(XWTikzState * state)
+{
+  for (int i = 0; i < ops.size(); i++)
+    ops[i]->doPath(state,false);
+
+  state->setupArrow(arrow);
+}
+
+XWTikzArrowSpecification::XWTikzArrowSpecification(XWTikzGraphic * graphicA, QObject * parent)
+:XWTikzOperation(graphicA, PGFtips,parent)
+{}
+
+void XWTikzArrowSpecification::doPath(XWTikzState * state, bool showpoint)
+{
+  for (int i = 0; i < ops.size(); i++)
+    ops[i]->doPath(state,showpoint);
+
+  for (int i = 0; i < tips.size(); i++)
+    tips[i]->doPath(state,showpoint);
+}
+
+int XWTikzArrowSpecification::getArrow()
+{
+  if (tips.size() == 0)
+    return -1;
+
+  return tips[tips.size() - 1]->getArrow();
+}
+
+QString XWTikzArrowSpecification::getText()
+{
+  QString ret;
+  if (ops.size() > 0)
+  {
+    ret += "[";
+    for (int i = 0; i < ops.size(); i++)
+    {
+      QString tmp = ops[i]->getText();
+      ret += tmp;
+      if (i < (ops.size() - 1))
+        ret += ",";
+    }
+    ret += "]";
+  }
+
+  if (tips.size() > 0)
+  {
+    for (int i = 0; i < tips.size(); i++)
+    {
+      QString tmp = tips[i]->getText();
+      ret += tmp;
+    }
+  }
+
+  return ret;
+}
+
+void XWTikzArrowSpecification::scan(const QString & str, int & len, int & pos)
+{
+  while (str[pos].isSpace())
+    pos++;
+
+  if (str[pos] == QChar('['))
+  {
+    pos++;
+    while (pos < len)
+    {
+      if (str[pos] == QChar(']'))
+      {
+        pos++;
+        break;
+      }
+
+      XWTikzOperation * op = XWTikzArrowTipSpecification::scanOption(str,len,pos,this);
+      if (op)
+        ops << op;
+    }
+
+    while (str[pos].isSpace())
+      pos++;
+  }
+
+  if (str[pos] == QChar('{'))
+  {
+    pos++;
+    while (str[pos].isSpace())
+      pos++;
+  }
+
+  while (pos < len)
+  {
+    if (str[pos] == QChar('-') || str[pos] == QChar(',') || str[pos] == QChar(']'))
+      break;
+
+    if (str[pos] == QChar('}'))
+    {
+      pos++;
+      break;
+    }
+
+    XWTikzArrowTipSpecification * tip = new XWTikzArrowTipSpecification(graphic,this);
+    tips << tip;
+    tip->scan(str,len,pos);
+  }
+
+  while (str[pos].isSpace())
+    pos++;
+
+  if (str[pos] == QChar(','))
+    pos++;
+}
+
+void XWTikzArrowSpecification::setArrow(int a)
+{
+  if (tips.size() == 0)
+  {
+    XWTikzArrowTipSpecification * tip = new XWTikzArrowTipSpecification(graphic,this);
+    tips << tip;
+  }
+
+  tips[tips.size() - 1]->setArrow(a);
+}
+
+void XWTikzArrowSpecification::setup(XWTikzState * state)
+{
+  for (int i = 0; i < ops.size(); i++)
+    ops[i]->doPath(state,false);
+
+  for (int i = 0; i < tips.size(); i++)
+    tips[i]->setup(state);
+}
+
 XWTikzArrows::XWTikzArrows(XWTikzGraphic * graphicA, QObject * parent)
-:XWTikzOperation(graphicA, PGFarrows,parent)
+:XWTikzOperation(graphicA, PGFarrows,parent),
+startArrow(0),
+endArrow(0)
 {}
 
 void XWTikzArrows::doPath(XWTikzState * state, bool)
 {
-  state->setArrows(sarrow,earrow);
+  state->setEndArrow(endArrow);
+  state->setStartArrow(startArrow);
 }
 
-void XWTikzArrows::dragTo(XWTikzState * state)
+int XWTikzArrows::getEndArrow()
 {
-  doPath(state);
+  if (!endArrow)
+    return -1;
+
+  return endArrow->getArrow();
+}
+
+int XWTikzArrows::getStartArrow()
+{
+  if (!startArrow)
+    return -1;
+
+  return startArrow->getArrow();
 }
 
 QString XWTikzArrows::getText()
 {
-  QString ret = "arrows";
-  if (sarrow > 0)
+  QString ret;
+  if (startArrow && startArrow)
+    ret = "arrows=";
+
+  if (startArrow)
   {
-    QString tmp = getPGFString(sarrow);
+    QString tmp = startArrow->getText();
     ret += tmp;
   }
 
-  ret += "-";
-  if (earrow > 0)
+  if (endArrow)
   {
-    QString tmp = getPGFString(earrow);
+    ret += "-";
+    QString tmp = endArrow->getText();
     ret += tmp;
   }
 
@@ -2143,21 +2832,84 @@ QString XWTikzArrows::getText()
 
 void XWTikzArrows::scan(const QString & str, int & len, int & pos)
 {
-  QString value;
-  scanValue(str,len,pos,value);
-  QStringList list = value.split(QChar('-'));
-  if (list.size() == 2)
+  while (str[pos].isSpace())
+    pos++;
+
+  if (str[pos] != QChar('-'))
   {
-    sarrow = lookupPGFID(list[0]);
-    earrow = lookupPGFID(list[1]);
+    startArrow = new XWTikzArrowSpecification(graphic,this);
+    startArrow->scan(str,len,pos);
+
+    while (str[pos].isSpace())
+      pos++;
   }
-  else if (list.size() == 1)
+
+  if (str[pos] == QChar('-'))
   {
-    if (value[0] == QChar('-'))
-      earrow = lookupPGFID(list[0]);
-    else
-      sarrow = lookupPGFID(list[0]);
+    pos++;
+    endArrow = new XWTikzArrowSpecification(graphic,this);
+    endArrow->scan(str,len,pos);
   }
+
+  while (str[pos].isSpace())
+    pos++;
+
+  if (str[pos] == QChar(','))
+    pos++;
+}
+
+void XWTikzArrows::setEndArrow(int a)
+{
+  if (!endArrow)
+    endArrow = new XWTikzArrowSpecification(graphic,this);
+
+  endArrow->setArrow(a);
+}
+
+void XWTikzArrows::setStartArrow(int a)
+{
+  if (!startArrow)
+    startArrow = new XWTikzArrowSpecification(graphic,this);
+
+  startArrow->setArrow(a);
+}
+
+XWTikzAnnotationArrow::XWTikzAnnotationArrow(XWTikzGraphic * graphicA, QObject * parent)
+:XWTikzOperation(graphicA, PGFannotationarrow,parent),
+endArrow(0)
+{
+  endArrow = new XWTikzArrowSpecification(graphic,this);
+  endArrow->setArrow(PGFdirectionee);
+}
+
+void XWTikzAnnotationArrow::doPath(XWTikzState * state, bool)
+{
+  state->setAnnotationArrow(endArrow);
+}
+
+QString XWTikzAnnotationArrow::getText()
+{
+  QString ret = "annotation arrow";
+  return ret;
+}
+
+XWTikzCurrentDirectionArrow::XWTikzCurrentDirectionArrow(XWTikzGraphic * graphicA, QObject * parent)
+:XWTikzOperation(graphicA, PGFcurrentdirectionarrow,parent),
+endArrow(0)
+{
+  endArrow = new XWTikzArrowSpecification(graphic,this);
+  endArrow->setArrow(PGFdirectionee);
+}
+
+void XWTikzCurrentDirectionArrow::doPath(XWTikzState * state, bool)
+{
+  state->setCurrentDirectionArrow(endArrow);
+}
+
+QString XWTikzCurrentDirectionArrow::getText()
+{
+  QString ret = "current direction arrow";
+  return ret;
 }
 
 XWTikzAround::XWTikzAround(XWTikzGraphic * graphicA, int idA, QObject * parent)
@@ -2840,7 +3592,7 @@ void XWTikzCodes::scanCommands(const QString & str, int & len, int & pos)
       {
         QString key = XWTeXBox::scanControlSequence(str,len,pos);
         int id = lookupPGFID(key);
-        XWTikzCommand * cmd = createPGFObject(graphic,id,this);
+        XWTikzCommand * cmd = createPGFObject(graphic,0,id,this);
         cmds << cmd;
         cmd->scan(str,len,pos);
       }
@@ -2998,4 +3750,118 @@ void XWTikzMark::scan(const QString & str, int & len, int & pos)
   else
     mark = new XWTikzBetweenPositionsWidth(graphic,this);
   mark->scan(str,len,pos);
+}
+
+XWTikzSize::XWTikzSize(XWTikzGraphic * graphicA, int id, QObject * parent)
+:XWTikzOperation(graphicA, id,parent),
+width(0),
+height(0)
+{}
+
+void XWTikzSize::doPath(XWTikzState * state, bool)
+{
+  switch (keyWord)
+  {
+    default:
+      break;
+
+    case PGFcircuitsymbolsize:
+      state->setCircuitSymbolSize(width->getResult(state),height->getResult(state));
+      break;
+  }
+}
+
+void XWTikzSize::getSize(QString & w, QString & h)
+{
+  w = width->getText();
+  h = height->getText();
+}
+
+QString XWTikzSize::getText()
+{
+  QString ret = getPGFString(keyWord);
+  ret += " width ";
+  QString tmp = width->getText();
+  ret += tmp;
+  ret += " height ";
+  tmp = height->getText();
+  ret += tmp;
+  return ret;
+}
+
+void XWTikzSize::scan(const QString & str, int & , int & pos)
+{
+  while (str[pos].isSpace())
+    pos++;
+  if (str[pos] == QChar('w'))
+    pos += 5;
+
+  int i = pos;
+  while (str[pos] != QChar('h'))
+    pos++;
+
+  QString w = str.mid(i, pos - i);
+  width = new XWTikzExpress(graphic,w,this);
+
+  if (str[pos] == QChar('h'))
+    pos += 6;
+
+  i = pos;
+  while (str[pos] != QChar(',') && str[pos] != QChar(']') && str[pos] != QChar('}'))
+    pos++;
+  
+  QString h = str.mid(i, pos - i);
+  height = new XWTikzExpress(graphic,h,this);
+}
+
+void XWTikzSize::setSize(const QString & w, const QString & h)
+{
+  if (!width)
+    width = new XWTikzExpress(graphic,this);
+  width->setText(w);
+  if (!height)
+    height = new XWTikzExpress(graphic,this);
+  height->setText(h);
+}
+
+ XWTikzCircuitDeclareUnit::XWTikzCircuitDeclareUnit(XWTikzGraphic * graphicA, QObject * parent)
+ :XWTikzOperation(graphicA, PGFcircuitdeclareunit,parent)
+ {}
+
+QString XWTikzCircuitDeclareUnit::getText()
+{
+  QString ret = QString("circuit declare unit={%1}{%2}").arg(name).arg(unit);
+  return ret;
+}
+
+void XWTikzCircuitDeclareUnit::scan(const QString & str, int & , int & pos)
+{
+  while (str[pos].isSpace())
+    pos++;
+
+  pos++;
+  int i = pos;
+  while (str[pos] != QChar('}'))
+    pos++;
+
+  name = str.mid(i, pos - i);
+  name = name.simplified();
+  pos++;
+  while (str[pos].isSpace())
+    pos++;
+  pos++;  
+  i = pos;
+  while (str[pos] != QChar('}'))
+    pos++;
+  unit = str.mid(i, pos - i);
+  unit = unit.simplified();
+  pos++;
+
+  graphic->setUnit(name,unit);
+  QString tmp = QString("%1'").arg(name);
+  graphic->setUnit(tmp,unit);
+  tmp = QString("%1 sloped").arg(name);
+  graphic->setUnit(tmp,unit);
+  tmp = QString("%1' sloped").arg(name);
+  graphic->setUnit(tmp,unit);
 }

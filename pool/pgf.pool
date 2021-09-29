@@ -613,10 +613,12 @@ every year
 every on chain
 every join
 every circuit symbol
-every info
+every circuit symbol /.style
+every info /.style
 every circuit logic
 every circuit ee
 every circuit annotation
+every circuit annotation /.style
 every light emitting
 every entity
 every relationship
@@ -651,6 +653,7 @@ barycentric
 tangent
 perpendicular
 angle
+angle'
 point
 solution
 horizontal line through
@@ -690,12 +693,159 @@ l-system
 baseline
 color
 arrows
+tips
+true
+proper
+on draw
+on proper draw
+never
+false
+length
+inset
+inset'
+cap angle
 >
 stealth
+stealth'
+stealth' reversed
 to reversed
 latex
+latex reversed
+latex'
+latex' reversed
 bar
 space
+square bracket
+[
+]
+(
+)
+angle 90
+angle 90 reversed
+angle 60
+angle 60 reversed
+angle 45
+angle 45 reversed
+*
+o
+open diamond
+square
+open square
+triangle 90
+triangle 90 reversed
+triangle 60
+triangle 60 reversed
+triangle 45
+triangle 45 reversed
+open triangle 90
+open triangle 90 reversed
+open triangle 60
+open triangle 60 reversed
+open triangle 45
+open triangle 45 reversed
+left to
+left to reversed
+right to
+right to reversed
+left hook
+left hook reversed
+right hook
+right hook reversed
+hooks
+hooks reversed
+serif cm
+round cap
+butt cap
+triangle 90 cap
+triangle 90 cap reversed
+fast cap
+fast cap reversed
+implies
+Straight Barb
+Hooks
+Arc Barb
+Tee Barb
+Classical TikZ Rightarrow
+Computer Modern Rightarrow
+Implies
+Latex
+Stealth
+Kite
+Square
+Circle
+Round Cap
+Butt Cap
+Triangle Cap
+Fast Triangle
+Fast Round
+Rays
+LaTeX
+Triangle
+Rectangle
+Ellipse
+Diamond
+Turned Square
+To
+Bar
+Bracket
+Parenthesis
+spaced to
+spaced to reversed
+spaced implies
+spaced latex
+spaced latex reversed
+spaced latex'
+spaced latex' reversed
+spaced stealth
+spaced stealth reversed
+spaced stealth'
+spaced stealth' reversed
+spaced triangle 90
+spaced triangle 90 reversed
+spaced triangle 60
+spaced triangle 60 reversed
+spaced triangle 45
+spaced triangle 45 reversed
+spaced open triangle 90
+spaced open triangle 90 reversed
+spaced open triangle 60
+spaced open triangle 60 reversed
+spaced open triangle 45
+spaced open triangle 45 reversed
+spaced angle 90
+spaced angle 90 reversed
+spaced angle 60
+spaced angle 60 reversed
+spaced angle 45
+spaced angle 45 reversed
+spaced hooks
+spaced hooks reversed
+spaced o
+spaced *
+spaced diamond
+spaced open diamond
+spaced square
+spaced open square
+spaced serif cm
+spaced left to
+spaced left to reversed
+spaced right to
+spaced right to reversed
+spaced left hook
+spaced left hook reversed
+spaced right hook
+spaced right hook reversed
+spaced round cap
+spaced butt cap
+spaced triangle 90 cap
+spaced triangle 90 cap reversed
+spaced fast cap
+spaced fast cap reversed
+spaced (
+spaced )
+spaced |
+spaced [-spaced ]
+spaced ]-spaced [
 shorten >
 shorten <
 radius
@@ -759,6 +909,7 @@ yellow
 light steel blue
 dark light steel blue
 line width
+line width'
 ultra thin
 very thin
 thin
@@ -768,6 +919,7 @@ very thick
 ultra thick
 line cap
 round
+sharp
 rect
 butt
 line join
@@ -902,6 +1054,14 @@ transform shape
 pos
 auto
 swap
+reversed
+harpoon
+open
+quick
+flex
+flex'
+orthogonal
+polar
 sloped
 allow upside down
 midway
@@ -1063,12 +1223,16 @@ xshift
 yshift
 scale
 scale around
+scale length
+scale width
+slant
 xscale
 yscale
 xslant
 yslant
 rotate
 rotate around
+sep
 cm
 reset cm
 transform canvas
@@ -1149,6 +1313,7 @@ on chain
 join
 start branch
 continue branch
+circuit
 circuits
 circuit symbol unit
 huge circuit symbols
@@ -1170,10 +1335,15 @@ info' sloped
 circuit declare unit
 circuit declare annotation
 annotation arrow
+current direction arrow
 circuit symbol open
+circuit symbol open /.style
 circuit symbol filled
+circuit symbol filled /.style
 circuit symbol lines
+circuit symbol lines /.style
 circuit symbol wires
+circuit symbol wires /.style
 circuit logic
 circuit logic IEC
 circuit logic US
@@ -1238,8 +1408,11 @@ hertz
 light emitting
 light emitting'
 light dependent
+light dependent'
 direction info
+direction info'
 adjustable
+adjustable'
 direction ee arrow
 /pgf/generic circle IEC/before background
 /pgf/generic diode IEC/before background
@@ -1470,19 +1643,43 @@ circle ee
 direction ee
 generic circle IEC
 generic diode IEC
-breakdown diode IEC
 var resistor IEC
+resistor IEC
 inductor IEC
+var inductor IEC
 capacitor IEC
-battery IEC
+contact IEC
+connection IEC
 ground IEC
+battery IEC
+diode IEC
+var diode IEC
+Zener diode IEC
+var Zener diode IEC
+tunnel diode IEC
+var tunnel diode IEC
+backward diode IEC
+var backward diode IEC
+Schottky diode IEC
+var Schottky diode IEC
+breakdown diode IEC
+var breakdown diode IEC
+bulb IEC
+voltage source IEC
+current source IEC
 make contact IEC
-var make contact IEC
 break contact IEC
+var make contact IEC
+amperemeter
+voltmeter
+ohmmeter
+ac source
+dc source
 spy scope
 size
 height
 width
+width'
 lens
 magnification
 spy connection path
@@ -1751,6 +1948,8 @@ chamfer none
 lower
 nowhere
 none
+input
+output
 in and out
 out and in
 concave

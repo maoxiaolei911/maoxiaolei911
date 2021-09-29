@@ -59,7 +59,7 @@ public:
   virtual ~XWTeXTextBoxPart();
 
   void append(XWTeXText*obj);
-
+  
   virtual bool back();
 
   bool contains(double xA, double yA);

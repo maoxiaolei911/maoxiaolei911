@@ -564,7 +564,7 @@ void XWTikzDecoration::doMarkingsMainState(XWTikzState * stateA)
   stateA->runCodes();
   if (!stateA->markNode.isEmpty())
   {
-    QPointF p = stateA->graphic->getPoint(stateA->markNode,stateA);
+    QPointF p = stateA->graphic->getPoint(stateA->markNode);
     QPointF ur1(-1,0), ur2(1,0);
     QPointF a = XWTikzShape::pointBorderRectangle(p,ur1);
     stateA->lineTo(a);

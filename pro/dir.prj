@@ -1,7 +1,7 @@
-DESTDIR = ../../../../bin
-TMPDIR = ../../../../tmp
+DESTDIR = ../../../../../bin
+TMPDIR = ../../../../../tmp
 
-LIBS += -L$${DESTDIR}
+LIBS += -L"d:/work/bin"
 
 XWCORESRCDIR = ../../src/lib/core
 XWGUICORESRCDIR = ../../src/lib/gui

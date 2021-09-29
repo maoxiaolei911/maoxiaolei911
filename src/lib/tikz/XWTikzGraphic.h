@@ -51,8 +51,11 @@ public:
   void doEdgeFromParentPath(XWTikzState * state);
   void doEveryChild(XWTikzState * state);
   void doEveryChildNode(XWTikzState * state);
+  void doEveryCircuitAnnotation(XWTikzState * state);
+  void doEveryCircuitSymbol(XWTikzState * state);
   void doEveryConcept(XWTikzState * state);
   void doEveryEdge(XWTikzState * state);
+  void doEveryInfo(XWTikzState * state);
   void doEveryLabel(XWTikzState * state);
   void doEveryMark(XWTikzState * state);
   void doEveryMatrix(XWTikzState * state);
@@ -91,13 +94,14 @@ public:
   double getMinX() {return minX;}
   double getMinY() {return minY;}
   QString getLocalPath();
-  QPointF getNodeAnchor(const QString & nameA,int a,XWTikzState * stateA);
-  QPointF getNodeAngle(const QString & nameA,double a,XWTikzState * stateA);
-  QPointF getPoint(const QString & nameA,XWTikzState * stateA);
-  QVector3D getPoint3D(const QString & nameA,XWTikzState * stateA);
+  QPointF getNodeAnchor(const QString & nameA,int a);
+  QPointF getNodeAngle(const QString & nameA,double a);
+  QPointF getPoint(const QString & nameA);
+  QVector3D getPoint3D(const QString & nameA);
   QString getSelectedText();
   QString getText();
   QString getTips(const QPointF & p);
+  QString getUnit(const QString & nameA);
   double getWidth();
   void goToEnd();
   void goToNext();
@@ -118,6 +122,7 @@ public:
 
   void insert(int i, XWTikzCommand * cmd);
   void insertText(const QString & str);
+  bool isUnit(const QString & nameA);
 
   void keyInput(const QString & str);
 
@@ -150,6 +155,7 @@ public:
   void setScope(int s) {curScope=s;}  
   void setSize(double minxA, double minyA,double maxxA,double maxyA);
   void setSortBy(const QString & nameA);
+  void setUnit(const QString & nameA, const QString & u);
 
   XWTikzCommand * takeAt(int i);
 
@@ -191,6 +197,8 @@ public slots:
   void addSpy();
   void addVHLines();
 
+  void initUnits();
+
   void newTikz();
   void newTikzpicture();
 
@@ -212,6 +220,7 @@ private:
   QUndoStack  * undoStack;
   XWTIKZOptions * options;
   QHash<QString,int> names;
+  QHash<QString,QString> units;
   QList<XWTikzCommand*> cmds;
   QList<QPointF> intersections;
   QStringList by;

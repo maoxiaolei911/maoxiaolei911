@@ -1485,7 +1485,7 @@ void XWTikzCoordExpress::calculate(XWTikzState * state)
     }
     else if((int)(p.w()) == XW_TIKZ_NAME)
     {
-      result = graphic->getPoint3D(text,state);
+      result = graphic->getPoint3D(text);
       stack.push(result);
     }
     else

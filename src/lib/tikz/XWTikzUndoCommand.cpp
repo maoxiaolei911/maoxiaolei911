@@ -54,7 +54,7 @@ void XWTikzMoveTo::undo()
   p->moveTo(oldP);
 }
 
-XWTikzSetKey::XWTikzSetKey(XWTikzKey * keyA, 
+XWTikzSetKey::XWTikzSetKey(XWTikzOperation * keyA, 
                           int newkA,
                           QUndoCommand * parent)
 :QUndoCommand(parent),
@@ -567,4 +567,56 @@ void XWTikzRenameOperation::undo()
   int k = op->getKeyWord();
   op->setKeyword(keyWord);
   keyWord = k;
+}
+
+XWTikzSetSize::XWTikzSetSize(XWTikzSize * sizeA, 
+                  const QString & wA,
+                  const QString & hA,
+                  QUndoCommand * parent)
+:QUndoCommand(parent),
+  size(sizeA),
+  width(wA),
+  height(hA)
+{}                  
+
+void XWTikzSetSize::redo()
+{
+  QString w = width;
+  QString h = height;
+  size->getSize(width, height);
+  size->setSize(w, h);
+}
+
+void XWTikzSetSize::undo()
+{
+  QString w = width;
+  QString h = height;
+  size->getSize(width, height);
+  size->setSize(w, h);
+}
+
+XWTikzSetUnit::XWTikzSetUnit(XWTikzUnit * unitA, 
+                  const QString & nA,
+                  const QString & vA,
+                  QUndoCommand * parent)
+:QUndoCommand(parent),
+  unit(unitA),
+  name(nA),
+  value(vA)
+{}                  
+
+void XWTikzSetUnit::redo()
+{
+  QString n = name;
+  QString v = value;
+  unit->getUnit(name, value);
+  unit->setUnit(n, v);
+}
+
+void XWTikzSetUnit::undo()
+{
+  QString n = name;
+  QString v = value;
+  unit->getUnit(name, value);
+  unit->setUnit(n, v);
 }

@@ -194,3 +194,171 @@ void XWTikzShapeDialog::setShape(int d)
 {
   shape = d;
 }
+
+XWTikzCircuiteeWidget::XWTikzCircuiteeWidget(const QString & styleA,QWidget * parent)
+:QWidget(parent),
+style(styleA)
+{
+  buttonGroup = new QButtonGroup(this);
+  connect(buttonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(buttonGroupClicked(QAbstractButton*)));
+
+  QGridLayout *layout = new QGridLayout;
+  layout->addWidget(createButton("rectangle"),0,0);
+
+  setLayout(layout);
+}
+
+QToolButton * XWTikzCircuiteeWidget::createButton(const QString & txt)
+{
+  XWPDFDriver driver(100,100);
+  XWTikzGraphic graphicA;
+  QString src = QString("\\tikz[%1] \\node[%2] at (1.76,1.7);").arg(style).arg(txt);
+  graphicA.scan(src);
+  graphicA.doGraphic(&driver);
+
+  QPixmap pix(100,100);
+  QPainter painter(&pix);
+  driver.display(&painter);
+
+  QSize iconSize(100,100);
+  QToolButton *button = new QToolButton;
+  button->setIconSize(iconSize);
+  button->setText(txt);
+  button->setToolTip(txt);
+
+  button->setIcon(QIcon(pix));
+  button->setAutoRaise(true);
+  return button;
+}
+
+void XWTikzCircuiteeWidget::buttonGroupClicked(QAbstractButton * button)
+{
+  QList<QAbstractButton *> buttons = buttonGroup->buttons();
+  foreach (QAbstractButton *myButton, buttons)
+  {
+    if (myButton != button)
+      myButton->setChecked(false);
+  }
+
+  QString text = button->text();
+  int d = lookupPGFID(text);
+  emit shapeSelected(d);
+}
+
+XWTikzCircuiteeDialog::XWTikzCircuiteeDialog(int styleA, QWidget * parent)
+:QDialog(parent),
+shape(-1)
+{
+  setWindowTitle(tr("electrical engineering symbol"));
+  setWindowIcon(QIcon(":/images/xiuwen24.png"));
+
+  QString style = getPGFString(styleA);
+
+  shapeWidget = new XWTikzCircuiteeWidget(style,this);
+  connect(shapeWidget, SIGNAL(shapeSelected(int)), this, SLOT(setShape(int)));
+
+  buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                      | QDialogButtonBox::Cancel);
+	connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+  connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+  QVBoxLayout * layout = new QVBoxLayout;
+  layout->addWidget(shapeWidget);
+  layout->addWidget(buttonBox);
+
+  setLayout(layout);
+}
+
+int XWTikzCircuiteeDialog::getShape()
+{
+  return shape;
+}
+
+void XWTikzCircuiteeDialog::setShape(int d)
+{
+  shape = d;
+}
+
+XWTikzCircuitLogicWidget::XWTikzCircuitLogicWidget(const QString & styleA,QWidget * parent)
+:QWidget(parent),
+style(styleA)
+{
+  buttonGroup = new QButtonGroup(this);
+  connect(buttonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(buttonGroupClicked(QAbstractButton*)));
+
+  QGridLayout *layout = new QGridLayout;
+  layout->addWidget(createButton("rectangle"),0,0);
+
+  setLayout(layout);
+}
+
+QToolButton * XWTikzCircuitLogicWidget::createButton(const QString & txt)
+{
+  XWPDFDriver driver(100,100);
+  XWTikzGraphic graphicA;
+  QString src = QString("\\tikz[%1] \\node[%2] at (1.76,1.7);").arg(style).arg(txt);
+  graphicA.scan(src);
+  graphicA.doGraphic(&driver);
+
+  QPixmap pix(100,100);
+  QPainter painter(&pix);
+  driver.display(&painter);
+
+  QSize iconSize(100,100);
+  QToolButton *button = new QToolButton;
+  button->setIconSize(iconSize);
+  button->setText(txt);
+  button->setToolTip(txt);
+
+  button->setIcon(QIcon(pix));
+  button->setAutoRaise(true);
+  return button;
+}
+
+void XWTikzCircuitLogicWidget::buttonGroupClicked(QAbstractButton * button)
+{
+  QList<QAbstractButton *> buttons = buttonGroup->buttons();
+  foreach (QAbstractButton *myButton, buttons)
+  {
+    if (myButton != button)
+      myButton->setChecked(false);
+  }
+
+  QString text = button->text();
+  int d = lookupPGFID(text);
+  emit shapeSelected(d);
+}
+
+XWTikzCircuitLogicDialog::XWTikzCircuitLogicDialog(int styleA, QWidget * parent)
+:QDialog(parent),
+shape(-1)
+{
+  setWindowTitle(tr("logical circuit symbol"));
+  setWindowIcon(QIcon(":/images/xiuwen24.png"));
+
+  QString style = getPGFString(styleA);
+
+  shapeWidget = new XWTikzCircuitLogicWidget(style,this);
+  connect(shapeWidget, SIGNAL(shapeSelected(int)), this, SLOT(setShape(int)));
+
+  buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                      | QDialogButtonBox::Cancel);
+	connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+  connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+  QVBoxLayout * layout = new QVBoxLayout;
+  layout->addWidget(shapeWidget);
+  layout->addWidget(buttonBox);
+
+  setLayout(layout);
+}
+
+int XWTikzCircuitLogicDialog::getShape()
+{
+  return shape;
+}
+
+void XWTikzCircuitLogicDialog::setShape(int d)
+{
+  shape = d;
+}

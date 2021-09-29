@@ -28,8 +28,7 @@ public:
 
 private:
   void createArrows();
-  void createEndArrow(int index,int d,const QString & str);
-  void createStartArrow(int index,int d,const QString & str);
+  void createArrow(int index,int d,const QString & str);
   QIcon createArrow(const QString & arrow);
 
 private:

@@ -29,7 +29,7 @@ XWTeXText::XWTeXText(int keywordA,XWTeXTextBox * boxA,QObject * parent)
  width(0),
  height(0),
  depth(0),
- family(0),
+ family(XW_TEX_FONT_CMR),
  family2(0),
  fontSize(XW_TEX_FONT_NORMAL),
  textPos(0),

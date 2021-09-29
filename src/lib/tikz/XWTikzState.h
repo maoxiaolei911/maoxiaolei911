@@ -32,6 +32,9 @@
 #define XW_TIKZ_PIN   2
 #define XW_TIKZ_CHILD 3
 #define XW_TIKZ_EDGE  4
+#define XW_TIKZ_CIRCUIT_HANDLE_SYMBOL 5
+#define XW_TIKZ_INFO  6
+#define XW_TIKZ_CIRCUIT_SYMBOL 7
 
 #define XW_TIKZ_PATH_BEFOREBACKGROUND 0
 #define XW_TIKZ_PATH_BEHINDFOREGROUND 1
@@ -56,6 +59,9 @@ class XWTikzCoord;
 class XWTIKZOptions;
 class XWTikzDecoration;
 class XWTikzCodes;
+class XWTikzArrowSpecification;
+class XWTikzArrow;
+class XWTikzAnnotation;
 
 class XWTikzState : public QObject
 {
@@ -70,6 +76,7 @@ public:
   friend class XWTikzPattern;
   friend class XWTikzPlotHandler;
   friend class XWTikzPlotMark;
+  friend class XWTikzArrowDependent;
 
   XWTikzState(XWTikzGraphic * graphicA,XWPDFDriver * driverA = 0,bool ispathA = true, QObject * parent = 0);
   XWTikzState(bool ispathA = false, QObject * parent = 0);
@@ -92,7 +99,6 @@ public:
   void addParabola(const QPointF & e);
   void addPlot(XWTikzCoord * p);
   void addPlotFunction(XWTikzCoord * exp);
-  void addPoint(XWTikzCoord * p);
   void addRectangle(XWTikzCoord * p);
   void addRectangle(const QPointF & p);
   void addRectangle(const QPointF & ll,const QPointF & ur);
@@ -100,7 +106,11 @@ public:
   void addSine(XWTikzCoord * p);  
   void addSine(const QPointF & p);
   bool allowUpsideDown() {return isAllowUpsideDown;}  
-  void anchorMatrix();
+  void angleSetup(double a,
+                  double dimension, 
+                  double linewidthfactor,
+                  double outerfactor);
+  void angleSetupPrime(double a);
   
   void clearPath();
   void clockwiseFrom(double a);
@@ -116,7 +126,7 @@ public:
   void curveTo(const QPointF & c1,const QPointF & c2,const QPointF & endpoint);
   void cycle();
 
-  QPointF doAnchor(XWTikzState * stateA,XWTeXBox * box);
+  QPointF doAnchor(XWTeXBox * box);
   void doEdgeFromParentForkDown();
   void doEdgeFromParentForkLeft();
   void doEdgeFromParentForkRight();
@@ -124,6 +134,7 @@ public:
   void doEdgeFromParentPath();
   void doToPath();
   void dragTo(XWTeXBox * box);
+  void drawArrow(int a);
 
   void flush();
 
@@ -131,6 +142,9 @@ public:
   int getAlign() {return align;}
   double getAngle() {return angle;}
   int getAnchor() {return anchor;}
+  double getArrowLength() {return arrowLength;}
+  double getArrowTotalLength(int a);
+  double getArrowWidth() {return arrowWidth;}
   int getAuto() {return autoAnchor;}
   QColor getBallColor() {return ballColor;}
   double getBelow() {return below;}
@@ -181,6 +195,7 @@ public:
   double  getPathMinX() {return pathMinX;}
   double  getPathMinY() {return pathMinY;}
   QColor  getPatternColor() {return patternColor;}
+  int     getPictureType() {return pictureType;}
   double  getPos() {return nodeTime;}
   int     getPost() {return post;}
   double  getPostlength() {return postlength;}
@@ -233,11 +248,15 @@ public:
   void incLevel() {level++;}
   void inverted();
   bool isAuto() {return isAutoSet;}
+  bool isMatrix() {return matrix;}
   bool isOnNode() {return onNode;}
   bool isPosSet() {return isTimeSet;}
   bool isSloped() {return isSlopedSet;}
   bool isSwap() {return isSwapSet;}
 
+  double  lengthDependent(double dimension, 
+                          double lengthfactor,
+                          double linewidthfactor);
   void    lineTo(XWTikzCoord * p);
   void    lineTo(const QPointF & p);
   void    lineTo(double xA, double yA);
@@ -245,15 +264,19 @@ public:
   void    lineToHV(const QPointF & p);
   void    lineToVH(XWTikzCoord * p);
   void    lineToVH(const QPointF & p);
+  double  lineWidthDependent(double dimension, 
+                          double linewidthfactor,
+                          double outerfactor);
 
   QRectF  map(const QRectF & rectA);
   QPointF map(const QPointF & pA);
+  QPointF map(double x,double y);
   QPointF mapInverted(const QPointF & pA);
   void    map(double x1,double y1, double * x2, double * y2);
   bool    moveTest(XWTeXBox * box);
-  void    moveTo(double xA, double yA, bool istarget=false);
-  void    moveTo(XWTikzCoord * p, bool istarget=false);
-  void    moveTo(const QPointF & p, bool istarget=false);
+  void    moveTo(double xA, double yA);
+  void    moveTo(XWTikzCoord * p);
+  void    moveTo(const QPointF & p);
 
   bool   needEdgeFromParent() {return edgeFromParent;}
 
@@ -274,6 +297,10 @@ public:
   void setAllowUpsideDown() {isAllowUpsideDown=true;}
   void setAnchor(int a) {anchor=a;}
   void setAngle(double a) {angle=a;}
+  void setAnnotationArrow(XWTikzArrowSpecification * e);
+  void setAnnotation(XWTikzAnnotation * a) {annotation=a;}
+  void setArrowAngle(double a) {arrowAngle=a;}
+  void setArrowArc(double a) {arrowArc=a;}
   void setArrowBoxEastArrow(const QPointF & e) {arrowBoxEastArrow=e;}
   void setArrowBoxTipAngle(double a) {arrowBoxTipAngle=a;}
   void setArrowBoxHeadExtend(double e) {arrowBoxHeadExtend=e;}
@@ -282,7 +309,24 @@ public:
   void setArrowBoxShaftWidth(double w) {arrowBoxShaftWidth=w;}
   void setArrowBoxSouthArrow(const QPointF & s) {arrowBoxSouthArrow=s;}
   void setArrowBoxWestArrow(const QPointF & w) {arrowBoxWestArrow=w;}
-  void setArrows(int sa,int ea) {startArrow = sa; endArrow=ea;isPath=true;}
+  void setArrowDrawColor(const QColor & c) {isArrowDrawSet=true;arrowDrawColor=c;}
+  void setArrowFill(bool e) {isArrowFillSet=e;}
+  void setArrowFillColor(const QColor & c) {isArrowFillSet=true;arrowFillColor=c;}
+  void setArrowFlex(double f) {arrowFlex=f;}
+  void setArrowFlexMode(int m) {arrowFlexMode=m;}
+  void setArrowHarpoon(bool e) {arrowHarpoon=e;}
+  void setArrowInset(double i) {arrowInset=i;}
+  void setArrowLength(double l) {arrowLength=l;}
+  void setArrowLineCap(int c) {arrowLineCap=c;}
+  void setArrowLineJoin(int j) {arrowLineJoin=j;}
+  void setArrowLineWidth(double w) {arrowLineWidth=w;}
+  void setArrowReversed(bool e) {arrowReversed=e;}
+  void setArrowScaleLength(double l) {arrowScaleLength=l;}
+  void setArrowScaleWidth(double w) {arrowScaleWidth=w;}
+  void setArrowSep(double s) {arrowSep=s;}
+  void setArrowSlant(double s) {arrowSlant=s;}
+  void setArrowSwap(bool e) {arrowSwap=e;}
+  void setArrowWidth(double w) {arrowWidth=w;}
   void setAspect(double a);
   void setAt(XWTikzCoord * p) {at = p;}
   void setAtPosition(XWTikzExpress * p) {position=p;}
@@ -307,7 +351,9 @@ public:
   void setChamferedRectangleYsep(double s) {chamferedRectangleYsep=s;}
   void setChildAnchor(int a) {childAnchor=a;isChildAnchorSet=true;}
   void setChildrenNumber(int i) {childrenNumber=i;}
-  void setCircularSectorAngle(double a) {circularSectorAngle=a;}
+  void setCircuitSizeUnit(double s);
+  void setCircuitSymbolSize(double w, double h);
+  void setCircularSectorAngle(double a) {circularSectorAngle=a;}  
   void setClip(bool e) {isClipSet=e;}
   void setCloudIgnoresAspect(bool e) {cloudIgnoresAspect=e;}
   void setCloudPuffArc(double a) {cloudPuffArc=a;}
@@ -316,6 +362,7 @@ public:
   void setColor(const QColor & c);
   void setColumnSep(double s) {columnSep=s;}
   void setCoreColor(const QColor & c) {coreColor=c;}
+  void setCurrentDirectionArrow(XWTikzArrowSpecification * e);
   void setCurrentChild(int i) {currentChild=i;}
   void setCurrentColumn(int i) {curColumn=i;}
   void setCurrentRow(int i) {curRow=i;}
@@ -340,7 +387,7 @@ public:
   void setDrawOpacity(double v) {drawOpacity=v;}
   void setEdgeFromParent(bool e=true) {edgeFromParent=e;}
   void setEndAngle(double a) {endIsSet=true;endAngle=a;}
-  void setEndArrow(int e) {endArrow=e;}
+  void setEndArrow(XWTikzArrowSpecification * e) {endArrow=e;}
   void setEndPosition(XWTikzExpress * p) {endPosition=p;}
   void setFadingRoate(double d);
   void setFadingScale(double sx,double sy);
@@ -369,7 +416,6 @@ public:
   void setLabelPosition(double p) {labelAngle=p;}
   void setLastMousePoint(const QPointF & p) {lastMousePoint = p;}
   void setLeftColor(const QColor & c) {leftColor=c;}
-  void setLeftExtend(double l) {leftExtend=l;}
   void setLevel(int l) {level=l;}
   void setLevelDistance(double d) {levelDistance=d;}
   void setLineCap(int c);
@@ -387,6 +433,7 @@ public:
   void setMarkPhase(int p) {markPhase=p;}
   void setMarkRepeat(int r) {markRepeat=r;}
   void setMarkSize(double m) {markSize=m;}
+  void setMatrix() {matrix=true;}
   void setMatrix(double a,double b,
                  double c,double d,
                  double dx, double dy);
@@ -402,6 +449,7 @@ public:
   void setNamePrefix(const QString & n) {namePrefix=n;}
   void setNameSuffix(const QString & n) {nameSuffix=n;}
   void setNodeContents(const QString & str);
+  void setNodeType(int shapeA,int nt);
   void setOnNode(bool e) {onNode=e;}
   void setOpacity(double v);
   void setOuterColor(const QColor & c) {outerColor=c;}
@@ -412,6 +460,7 @@ public:
   void setPattern(bool e) {isPatternSet=e;}
   void setPatternColor(const QColor & c);
   void setPatternName(int n);
+  void setPictureType(int t);
   void setPlotHandler(int h) {handler=h;}
   void setPos(double p);
   void setPost(int p) {post=p;}
@@ -434,7 +483,6 @@ public:
   void setRectangleSplitUseCustomFill(bool e) {rectangleSplitUseCustomFill=e;}
   void setReversePath(bool e) {reversePath=e;}
   void setRightColor(const QColor & c) {rightColor=c;}
-  void setRightExtend(double r) {rightExtend=r;}
   void setRoundedCorners(double v) {roundedCorners=v;}
   void setRoundedRectangleArcLength(double l) {roundedRectangleArcLength=l;}
   void setRoundedRectangleEastArc(int t) {roundedRectangleEastArc=t;}
@@ -451,8 +499,8 @@ public:
   void setShapeAspect(double a) {shapeAspect=a;}
   void setShapeBorderRotate(double a) {shapeBorderRotate=a;}
   void setShapeBorderUsesIncircle(bool e) {shapeBorderUsesIncircle=e;}
-  void setShortenEndAdditional(double l) {shortenEndAdditional=l;}
-  void setShortenStartAdditional(double l) {shortenStartAdditional=l;}
+  void setShortenStart(double l) {shortenStart = l;}
+  void setShortenEnd(double l) {shortenEnd = l;}
   void setSiblingAngle(double a) {siblingAngle=a;}
   void setSiblingDistance(double d) {siblingDistance=d;}
   void setSignalFrom(int f) {signalFrom=f;}
@@ -471,7 +519,7 @@ public:
   void setStarPoints(int p) {starPoints=p;}
   void setStarPointRatio(double r) {starPointRatio=r;useStarRatio=true;}
   void setStartAngle(double a) {startIsSet=true;startAngle=a;}
-  void setStartArrow(int a) {startArrow = a;}
+  void setStartArrow(XWTikzArrowSpecification * a) {startArrow = a;}
   void setStartPosition(XWTikzExpress * p) {startPosition=p;}
   void setStep(double sx,double sy) {xstep = sx;ystep=sy;}
   void setStep(XWTikzExpress * s) {step=s;}
@@ -491,6 +539,7 @@ public:
   void setTrapeziumRightAngle(double a) {trapeziumRightAngle=a;}
   void setTrapeziumStretches(bool e) {trapeziumStretches=e;}
   void setTrapeziumStretchesBody(bool e) {trapeziumStretchesBody=e;}
+  void setupArrow(int a);
   void setUpperLeftColor(const QColor & c) {upperLeftColor=c;}
   void setUpperRightColor(const QColor & c) {upperRightColor=c;}
   void setUseAsBoundingBox(bool e) {isUseAsBoundingBoxSet=e;}
@@ -505,13 +554,18 @@ public:
   void shift(double dx,double dy);
   void shiftOnly();
   void slant(double sx,double sy);
+  void spyAt(XWTikzCoord * p);
+  void spyOn(XWTikzCoord * p);
 
   QPointF tangent(const QPointF & nc, 
                   const QPointF & ne,
                   const QPointF & p, 
                   int s);
   void toPath(XWTikzCoord * p = 0);
+  
   void transformColumn();
+  
+  
   void transformRow(double h);
 
 private:
@@ -520,9 +574,8 @@ private:
   void addPlotStreamPoint(const QPointF & p);
   void addRoundedCorner(const QPointF & a,const QPointF & b,const QPointF & c);
   void anchorChild();
-  void anchorLabel();
   void anchorNode();
-  void anchorParent();
+  void anchorParent();  
   double angleBetweenLines(const QPointF & p1,const QPointF & p2,
                            const QPointF & p3,const QPointF & p4);
   double angleBetweenPoints(const QPointF & p1,const QPointF & p2);
@@ -530,8 +583,10 @@ private:
                    double sa,double sb);
   void arcTo(double la,double lb, double xr,double yr); 
 
+  void    circuitHandleSymbol();
   void    computeAngle();
-  void    computeDirection(const QPointF & b,const QPointF & c);
+  void    computeDirection();
+  void    computeShortening(XWTikzArrow * a);
   void    constructPath();  
   QPointF curveAtTime(double t,
                       const QPointF & startpoint,
@@ -544,6 +599,9 @@ private:
   void curveBetweenTime(double t,const double ts,double tt,
                       const QPointF & startpoint,const QPointF & c1, 
                       const QPointF & c2,const QPointF & endpoint,bool ignoremoveto);
+  double curviLinearDistanceToTime(double d);
+  void   curviLinearBezierOrthogonal(double & d,double & f);
+  void   curviLinearBezierPolar(double & d,double & f);
 
   double decorateCurveLength(const QPointF & c1,
                              const QPointF & c2,
@@ -574,7 +632,6 @@ private:
   void   decorateTransformLine(const QPointF & c,double decorateangle,double decoratedistance);
   void   defaultCode();
   void   doNodes();
-  void   drawArrows();
 
   void   edgeFromParentForkDown();
   void   edgeFromParentForkLeft();
@@ -609,7 +666,7 @@ private:
                                   const QPointF & p7,const QPointF & p8);
   QPointF intersectionOfLines(const QPointF & p1,const QPointF & p2,
                               const QPointF & p3,const QPointF & p4);
-  void   invokeDecorate();
+  void invokeDecorate();
   bool isLinesIntersect(const QPointF & p1,
                         const QPointF & p2,
                         const QPointF & p3,
@@ -628,7 +685,13 @@ private:
 
   void    rectangle(const QPointF & ll,double w, double h);
   QPointF rotatePointAround(const QPointF & p,const QPointF & r,double d);
-  void runCodes();
+  void    runCodes();
+
+  void setAutoAnchor(double x, double y);
+  void setCurviLinearBezierCurve(const QPointF & startpoint,
+                                 const QPointF & c1, 
+                                 const QPointF & c2,
+                                 const QPointF & endpoint);
 
   void timerCurver();
   void timerHVLine();
@@ -636,10 +699,19 @@ private:
   void timerVHLine();
   void toPathDefault();
   void transformArrow(const QPointF & p1,const QPointF & p2);
+  void transformArrowBend();
+  void transformArrowCurved(XWTikzArrow * a,
+                         const QPointF & startpoint,
+                         const QPointF & c1, 
+                         const QPointF & c2,
+                         const QPointF & endpoint);
+  void transformArrowRigit(XWTikzArrow * a,double s, double e);
+  void transformArrowStraight(XWTikzArrow * a,
+                           const QPointF & c1, 
+                           const QPointF & c2);
   void transformChild();
   void transformCurveAtTime(double t,const QPointF & startpoint,const QPointF & c1, 
                       const QPointF & c2,const QPointF & endpoint);
-  void transformLabel();
   void transformLineAtTime(double t, const QPointF & p1,const QPointF & p2);
   void transformNode();
 
@@ -650,6 +722,13 @@ private:
   XWPDFDriver * driver;
   bool isPath;
   int curLabel;
+
+  int    pictureType;
+  int    circuitType;
+  double circuitsSizeUnit;
+  double circuitSymbolWidth;
+  double circuitSymbolHeight;
+  XWTikzAnnotation *  annotation;
 
   double lineWidth;
   double innerLineWidth;
@@ -736,6 +815,7 @@ private:
 
   bool isUseAsBoundingBoxSet;
 
+  bool matrix;
   bool isMatrixAnchorSet;
   int matrixAnchor;
   double columnSep;
@@ -758,6 +838,7 @@ private:
   bool edgeFromParent;
   int  currentChild;
   int  childrenNumber;
+  bool isTransformChildSet;
 
   bool   isContinue;
   int    handler;
@@ -767,9 +848,24 @@ private:
   int    markPhase;
   double markSize;
 
-  int startArrow,endArrow;
-  double leftExtend,rightExtend;
-  double shortenStartAdditional,shortenEndAdditional;
+  XWTikzArrowSpecification * startArrow;
+  XWTikzArrowSpecification * endArrow;
+  double shortenStart,shortenEnd;
+  bool   isEnd;
+  double arrowLength,arrowWidth,arrowInset,arrowAngle,arrowLineWidth,arrowSep;
+  double shorteningDistance, arrowTotalLength;
+  double arrowScaleLength,arrowScaleWidth;
+  double arrowArc;
+  double arrowSlant;
+  bool   arrowReversed,arrowHarpoon,arrowSwap;
+  QColor arrowDrawColor,arrowFillColor;
+  bool   isArrowFillSet, isArrowDrawSet;
+  int    arrowLineCap,arrowLineJoin;
+  double arrowFlex;
+  int    arrowFlexMode;
+  int    arrowBendMode;
+  bool   preciseShortening;
+  double nextTip;
 
   QTransform transform;
   QTransform decorateTransform;
@@ -808,8 +904,6 @@ private:
   double labelAngle;
   double labelDistance;
   bool   absolute;
-
-  int pathType;
 
   double aspect,aspectInverse;
 
@@ -890,10 +984,26 @@ private:
   int spyUsing;
   bool onNode;
 
+  double curveXA, curveYA;
+  double curveXB, curveYB;
+  double curveXC, curveYC;
+  double curviLinearTimeA;
+  double curviLinearLengthA;
+  double curviLinearLengthB;
+  double curviLinearLengthC;
+  double curviLinearLengthD;
+  QPointF curviLinearLineA;
+  QPointF curviLinearLineB;
+  QPointF curviLinearLineC;
+  QPointF curviLinearLineD;
+  QPointF firstOnPath,secondOnPath,thirdOnPath,fourthOnPath;
+  QPointF lastOnPath,secondLastOnPath,thirdLastOnPath,fourthLastOnPath;
+
   void (XWTikzState::*tikzTimer)();
   void (XWTikzState::*before_code)();
   void (XWTikzState::*after_code)();
   void (XWTikzState::*to_path)();
+  void (XWTikzState::*nolinear_map)(double & x, double & y);
 
   int samples;
   double domainStart;

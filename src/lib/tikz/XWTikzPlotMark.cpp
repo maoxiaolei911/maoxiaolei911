@@ -28,7 +28,7 @@ void XWTikzPlotMark::doBall(XWTikzState * stateA)
 {
   double r = stateA->getMarkSize();
   stateA->setRadius(r);
-  stateA->moveTo(0,0,false);
+  stateA->moveTo(0,0);
   stateA->addEllipse();
   stateA->setShade(true);
 }

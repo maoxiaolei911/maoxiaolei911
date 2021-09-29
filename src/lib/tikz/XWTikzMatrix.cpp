@@ -282,7 +282,7 @@ void XWTikzCell::scan(const QString & str, int & len, int & pos)
           id = lookupPGFID(key);
         }
 
-        XWTikzCommand * cmd = createPGFObject(graphic,id,this);
+        XWTikzCommand * cmd = createPGFObject(graphic,0,id,this);
         cmds << cmd;
         cmd->scan(str,len,pos);
       }

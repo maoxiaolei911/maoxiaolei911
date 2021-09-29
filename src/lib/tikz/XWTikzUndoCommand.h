@@ -30,6 +30,8 @@ class XWTikzValue;
 class XWTikzOf;
 class XWTikzEdge;
 class XWTikzCoordinate;
+class XWTikzSize;
+class XWTikzUnit;
 
 class XWTikzSetCoordinate : public QUndoCommand
 {
@@ -67,13 +69,13 @@ private:
 class XWTikzSetKey : public QUndoCommand
 {
 public:
-  XWTikzSetKey(XWTikzKey * keyA, int newkA,QUndoCommand * parent=0);
+  XWTikzSetKey(XWTikzOperation * keyA, int newkA,QUndoCommand * parent=0);
 
   virtual void redo();
   virtual void undo();
 
 private:
-   XWTikzKey * key;
+   XWTikzOperation * key;
    int newK;
 };
 
@@ -403,6 +405,40 @@ public:
 private:
    XWTikzOperation * op;
    int keyWord;
+};
+
+class XWTikzSetSize : public QUndoCommand
+{
+public:
+  XWTikzSetSize(XWTikzSize * sizeA, 
+                  const QString & wA,
+                  const QString & hA,
+                  QUndoCommand * parent=0);
+
+  virtual void redo();
+  virtual void undo();
+
+private:
+   XWTikzSize * size;
+   QString width;
+   QString height;
+};
+
+class XWTikzSetUnit : public QUndoCommand
+{
+public:
+  XWTikzSetUnit(XWTikzUnit * unitA, 
+                  const QString & nA,
+                  const QString & vA,
+                  QUndoCommand * parent=0);
+
+  virtual void redo();
+  virtual void undo();
+
+private:
+   XWTikzUnit * unit;
+   QString name;
+   QString value;
 };
 
 #endif //XWTIKZUNDOCOMMAND_H

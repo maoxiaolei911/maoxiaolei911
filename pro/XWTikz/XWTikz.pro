@@ -63,6 +63,15 @@ SOURCES += $${XWTIKZSRCDIR}/tikzcolor.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzExpress.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzState.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzShape.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzShapeGeometric.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzShapeSymbol.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzShapeArrow.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzShapeMultipleText.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzShapeCallout.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzShapeMiscellaneous.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzShapeGatesee.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzShapeGateseeIEC.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzAnnotation.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzArrow.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzFading.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzPattern.cpp \

@@ -41,13 +41,10 @@ XWTikzOperation::XWTikzOperation(XWTikzGraphic * graphicA, int idA, int subk, QO
 XWTikzOperation::~XWTikzOperation()
 {}
 
-bool XWTikzOperation::addAction(QMenu &)
+bool XWTikzOperation::addAction(QMenu &, XWTikzState * )
 {
   return false;
 }
-
-void XWTikzOperation::addPoint(XWTikzState *)
-{}
 
 bool XWTikzOperation::back(XWTikzState *)
 {
@@ -82,7 +79,7 @@ bool XWTikzOperation::dropTo(XWTikzState * )
   return false;
 }
 
-QPointF XWTikzOperation::getAnchor(int , XWTikzState * , XWTikzState * )
+QPointF XWTikzOperation::getAnchor(int , XWTikzState * )
 {
   return QPointF();
 }
@@ -92,7 +89,7 @@ int XWTikzOperation::getAnchorPosition()
   return -1;
 }
 
-QPointF XWTikzOperation::getAngle(double , XWTikzState * , XWTikzState * )
+QPointF XWTikzOperation::getAngle(double , XWTikzState * )
 {
   return QPointF();
 }
@@ -234,7 +231,7 @@ void XWTikzOperation::scanValue(const QString & str, int & len,
 
   while (str[pos].isSpace())
     pos++;
-  
+
   bool b = false;
   if (str[pos] == QChar('{'))
   {
@@ -611,16 +608,11 @@ XWTikzLineTo::XWTikzLineTo(XWTikzGraphic * graphicA, QObject * parent)
   coord = new XWTikzCoord(graphicA,this);
 }
 
-bool XWTikzLineTo::addAction(QMenu & menu)
+bool XWTikzLineTo::addAction(QMenu & menu, XWTikzState *)
 {
   QAction * a = menu.addAction(tr("line to"));
   connect(a, SIGNAL(triggered()), this, SLOT(setCoord()));
   return true;
-}
-
-void XWTikzLineTo::addPoint(XWTikzState * state)
-{
-  state->addPoint(coord);
 }
 
 void XWTikzLineTo::doPath(XWTikzState * state, bool showpoint)
@@ -693,16 +685,11 @@ XWTikzHVLinesTo::XWTikzHVLinesTo(XWTikzGraphic * graphicA, QObject * parent)
   coord = new XWTikzCoord(graphicA,this);
 }
 
-bool XWTikzHVLinesTo::addAction(QMenu & menu)
+bool XWTikzHVLinesTo::addAction(QMenu & menu, XWTikzState *)
 {
   QAction * a = menu.addAction(tr("horizontal,vertical"));
   connect(a, SIGNAL(triggered()), this, SLOT(setCoord()));
   return true;
-}
-
-void XWTikzHVLinesTo::addPoint(XWTikzState * state)
-{
-  state->addPoint(coord);
 }
 
 void XWTikzHVLinesTo::doPath(XWTikzState * state, bool showpoint)
@@ -775,16 +762,11 @@ XWTikzVHLinesTo::XWTikzVHLinesTo(XWTikzGraphic * graphicA, QObject * parent)
   coord = new XWTikzCoord(graphicA,this);
 }
 
-bool XWTikzVHLinesTo::addAction(QMenu & menu)
+bool XWTikzVHLinesTo::addAction(QMenu & menu, XWTikzState *)
 {
   QAction * a = menu.addAction(tr("vertical,horizontal"));
   connect(a, SIGNAL(triggered()), this, SLOT(setCoord()));
   return true;
-}
-
-void XWTikzVHLinesTo::addPoint(XWTikzState * state)
-{
-  state->addPoint(coord);
 }
 
 void XWTikzVHLinesTo::doPath(XWTikzState * state, bool showpoint)
@@ -859,7 +841,7 @@ c2(0)
   endPoint = new XWTikzCoord(graphicA,this);
 }
 
-bool XWTikzCurveTo::addAction(QMenu & menu)
+bool XWTikzCurveTo::addAction(QMenu & menu, XWTikzState *)
 {
   QAction * a = menu.addAction(tr("first control point"));
   connect(a, SIGNAL(triggered()), this, SLOT(setC1()));
@@ -868,11 +850,6 @@ bool XWTikzCurveTo::addAction(QMenu & menu)
   a = menu.addAction(tr("end point"));
   connect(a, SIGNAL(triggered()), this, SLOT(setEndPoint()));
   return true;
-}
-
-void XWTikzCurveTo::addPoint(XWTikzState * state)
-{
-  state->addPoint(endPoint);
 }
 
 void XWTikzCurveTo::doPath(XWTikzState * state, bool showpoint)
@@ -1170,16 +1147,11 @@ XWTikzRectangle::XWTikzRectangle(XWTikzGraphic * graphicA, QObject * parent)
   coord = new XWTikzCoord(graphicA,this);
 }
 
-bool XWTikzRectangle::addAction(QMenu & menu)
+bool XWTikzRectangle::addAction(QMenu & menu, XWTikzState *)
 {
   QAction * a = menu.addAction(tr("corner"));
   connect(a, SIGNAL(triggered()), this, SLOT(setCoord()));
   return true;
-}
-
-void XWTikzRectangle::addPoint(XWTikzState * state)
-{
-  state->addPoint(coord);
 }
 
 void XWTikzRectangle::doPath(XWTikzState * state, bool showpoint)
@@ -1252,8 +1224,9 @@ XWTikzEllipse::XWTikzEllipse(XWTikzGraphic * graphicA, int idA,QObject * parent)
   options = new XWTIKZOptions(graphicA,this);
 }
 
-bool XWTikzEllipse::addAction(QMenu & menu)
+bool XWTikzEllipse::addAction(QMenu & menu, XWTikzState * state)
 {
+  options->doPath(state,false);
   QAction * a = 0;
   if (keyWord == PGFcircle)
   {
@@ -1362,8 +1335,9 @@ XWTikzArc::XWTikzArc(XWTikzGraphic * graphicA, QObject * parent)
   options = new XWTIKZOptions(graphicA,this);
 }
 
-bool XWTikzArc::addAction(QMenu & menu)
+bool XWTikzArc::addAction(QMenu & menu, XWTikzState * state)
 {
+  options->doPath(state,false);
   QAction * a = menu.addAction(tr("start angle"));
   connect(a, SIGNAL(triggered()), this, SLOT(setStartAngle()));
   a = menu.addAction(tr("end angle"));
@@ -1436,18 +1410,14 @@ XWTikzGrid::XWTikzGrid(XWTikzGraphic * graphicA, QObject * parent)
   coord = new XWTikzCoord(graphicA,this);
 }
 
-bool XWTikzGrid::addAction(QMenu & menu)
+bool XWTikzGrid::addAction(QMenu & menu, XWTikzState * state)
 {
+  options->doPath(state,false);
   QAction * a = menu.addAction(tr("corner"));
   connect(a, SIGNAL(triggered()), this, SLOT(setCoord()));
   a = menu.addAction(tr("step"));
   connect(a, SIGNAL(triggered()), this, SLOT(setStep()));
   return true;
-}
-
-void XWTikzGrid::addPoint(XWTikzState * state)
-{
-  state->addPoint(coord);
 }
 
 void XWTikzGrid::doPath(XWTikzState * state, bool showpoint)
@@ -1541,18 +1511,14 @@ bendCoord(0)
   coord = new XWTikzCoord(graphicA,this);
 }
 
-bool XWTikzParabola::addAction(QMenu & menu)
+bool XWTikzParabola::addAction(QMenu & menu, XWTikzState * state)
 {
+  options->doPath(state,false);
   QAction * a = menu.addAction(tr("bend point"));
   connect(a, SIGNAL(triggered()), this, SLOT(setBend()));
   a = menu.addAction(tr("end point"));
   connect(a, SIGNAL(triggered()), this, SLOT(setEnd()));
   return true;
-}
-
-void XWTikzParabola::addPoint(XWTikzState * state)
-{
-  state->addPoint(coord);
 }
 
 void XWTikzParabola::doPath(XWTikzState * state, bool showpoint)
@@ -1754,16 +1720,11 @@ XWTikzSine::XWTikzSine(XWTikzGraphic * graphicA, QObject * parent)
   coord = new XWTikzCoord(graphicA,this);
 }
 
-bool XWTikzSine::addAction(QMenu & menu)
+bool XWTikzSine::addAction(QMenu & menu, XWTikzState *)
 {
   QAction * a = menu.addAction(tr("end point"));
   connect(a, SIGNAL(triggered()), this, SLOT(setCoord()));
   return true;
-}
-
-void XWTikzSine::addPoint(XWTikzState * state)
-{
-  state->addPoint(coord);
 }
 
 void XWTikzSine::doPath(XWTikzState * state, bool showpoint)
@@ -1840,16 +1801,11 @@ XWTikzCosine::XWTikzCosine(XWTikzGraphic * graphicA, QObject * parent)
   coord = new XWTikzCoord(graphicA,this);
 }
 
-bool XWTikzCosine::addAction(QMenu & menu)
+bool XWTikzCosine::addAction(QMenu & menu, XWTikzState *)
 {
   QAction * a = menu.addAction(tr("end point"));
   connect(a, SIGNAL(triggered()), this, SLOT(setCoord()));
   return true;
-}
-
-void XWTikzCosine::addPoint(XWTikzState * state)
-{
-  state->addPoint(coord);
 }
 
 void XWTikzCosine::doPath(XWTikzState * state, bool showpoint)
@@ -1937,8 +1893,9 @@ cur(-1)
   options->setParent(this);
 }
 
-bool XWTikzPlotCoordinates::addAction(QMenu & menu)
+bool XWTikzPlotCoordinates::addAction(QMenu & menu, XWTikzState * state)
 {
+  options->doPath(state,false);
   options->addPlotAction(menu);
   return true;
 }
@@ -2090,8 +2047,9 @@ options(opt)
   options->setParent(this);
 }
 
-bool XWTikzPlotFile::addAction(QMenu & menu)
+bool XWTikzPlotFile::addAction(QMenu & menu, XWTikzState * state)
 {
+  options->doPath(state,false);
   options->addPlotAction(menu);
   return true;
 }
@@ -2185,8 +2143,9 @@ options(opt)
   coordExp = new XWTikzCoord(graphicA,this);
 }
 
-bool XWTikzPlotFunction::addAction(QMenu & menu)
+bool XWTikzPlotFunction::addAction(QMenu & menu, XWTikzState * state)
 {
+  options->doPath(state,false);
   QAction * a = menu.addAction(tr("domain"));
   connect(a, SIGNAL(triggered()), this, SLOT(setDomain()));
   a = menu.addAction(tr("function"));
@@ -2534,8 +2493,9 @@ XWTikzDecorate::XWTikzDecorate(XWTikzGraphic * graphicA, QObject * parent)
   options = new XWTIKZOptions(graphicA, this);
 }
 
-bool XWTikzDecorate::addAction(QMenu & menu)
+bool XWTikzDecorate::addAction(QMenu & menu, XWTikzState * state)
 {
+  options->doPath(state,false);
   options->addDecorationAction(menu);
   return true;
 }

@@ -31,15 +31,20 @@ public:
 
   void addAnchorAction(QMenu & menu);
   void addArrowsAction(QMenu & menu);
+  void adddCircuitAction(QMenu & menu);
+  void adddCircuitSymbolAction(QMenu & menu);
   void addCMAction(QMenu & menu);
   void addColorAction(QMenu & menu);
   void addConceptAction(QMenu & menu);
+  void addConceptColorAction(QMenu & menu);
   void addConnectSpiesAction(QMenu & menu);
   void addDecorationAction(QMenu & menu);
   void addDomainAction(QMenu & menu);
   void addDoubleAction(QMenu & menu);
   void addDoubleDistanceAction(QMenu & menu);
+  void setInfoAction(QMenu & menu);
   void addIntersectionsAction(QMenu & menu);
+  void addLabelAction(QMenu & menu);
   void addLineAction(QMenu & menu);
   void addLineWidthAction(QMenu & menu);
   void addMinmapAction(QMenu & menu);
@@ -47,6 +52,7 @@ public:
   void addPathFading(QMenu & menu);
   void addPatternAction(QMenu & menu);
   void addPlotAction(QMenu & menu);
+  void addPointAction(QMenu & menu);
   void addRoundedCornersAction(QMenu & menu);
   void addRotateAction(QMenu & menu);
   void addScaleAction(QMenu & menu);
@@ -70,8 +76,11 @@ public:
   virtual void doEdgeFromParentPath(XWTikzState * state);
   virtual void doEveryChild(XWTikzState * state);
   virtual void doEveryChildNode(XWTikzState * state);
+  virtual void doEveryCircuitAnnotation(XWTikzState * state);
+  virtual void doEveryCircuitSymbol(XWTikzState * state);
   virtual void doEveryConcept(XWTikzState * state);
   virtual void doEveryEdge(XWTikzState * state);
+  virtual void doEveryInfo(XWTikzState * state);
   virtual void doEveryLabel(XWTikzState * state);
   virtual void doEveryMark(XWTikzState * state);
   virtual void doEveryMatrix(XWTikzState * state);
@@ -147,17 +156,27 @@ public:
   XWTikzOperation * takeAt(int i);
 
 public slots:
+  void addCircuit();
   void addConcept();
   void addConnectSpies();
   void addExtraConcept();
+  void addHugeCircuitSymbols();
   void addHugeMindmap();
   void addLabel();
+  void addLargeCircuitSymbols();
   void addLargeMindmap();
+  void addMediumCircuitSymbols();
   void addMindmap();
   void addPin();
+  void addPointDown();
+  void addPointLeft();
+  void addPointRight();
+  void addPointUp();
+  void addSmallCircuitSymbols();
   void addSmallMindmap();
   void addSpyUsingOutlines();
   void addspyUsingOverlays();
+  void addTinyCircuitSymbols();
   void addTransformShape();
 
   void removeTransformShape();
@@ -182,7 +201,9 @@ public slots:
   void setCalloutPointerShorten();
   void setCalloutPointerWidth();
   void setChamferedRectangleAngle();
-  void setChamferedRectangleSep();
+  void setChamferedRectangleSep();  
+  void setCircuitSymbolSize();
+  void setCircuitSymbolUnit();
   void setCircularSectorAngle();
   void setCloudPuffArc();
   void setCloudPuffs();
@@ -207,10 +228,15 @@ public slots:
   void setFadingAngle();
   void setFillColor();
   void setFillOpacity();
+  void setInfo();
+  void setInfoMissingAngle();
+  void setInfoSloped();
+  void setInfoSlopedMissingAngle();
   void setInnerColor();
   void setInnerSep();
   void setIsoscelesTriangleApexAngle();
   void setKiteVertexAngles();
+  void setLabel();
   void setLeftColor();
   void setLineCap();
   void setLineJoin();
@@ -234,6 +260,7 @@ public slots:
   void setPathFading();
   void setPattern();
   void setPatternColor();
+  void setPin();
   void setPlotHandler();
   void setPlotMark();
   void setPos();
@@ -291,12 +318,14 @@ protected:
   void doPathDefault(XWTikzState * state, bool showpoint = false);
 
   XWTikzOperation * find(int keywordA);
+  XWTikzKey * findCircuitSymbols();
   XWTikzKey * findConcept();
   XWTikzKey * findDash();
   XWTikzKey * findDecoration();
   XWTikzKey * findLineWidth();
   XWTikzKey * findMindmap();
   XWTikzKey * findPlotHandler();
+  XWTikzKey * findPoint();
   XWTikzKey * findShape();
 
   QString getOptions();
@@ -809,6 +838,129 @@ public:
   void doPath(XWTikzState * state, bool showpoint = false);
 
   QString getText();
+};
+
+class XWTikzCircuitHandleSymbol : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzCircuitHandleSymbol(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzEveryInfo : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzEveryInfo(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzEveryCircuitSymbol : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzEveryCircuitSymbol(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzEveryCircuitAnnotation : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzEveryCircuitAnnotation(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzCircuitSymbolOpen : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzCircuitSymbolOpen(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzCircuitSymbolFilled : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzCircuitSymbolFilled(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzCircuitSymbolLines : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzCircuitSymbolLines(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzCircuitSymbolWires : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzCircuitSymbolWires(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzCircuitSymbol : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzCircuitSymbol(XWTikzGraphic * graphicA, int id, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+  
+  QString getText();
+};
+
+class XWTikzAnnotation : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzAnnotation(XWTikzGraphic * graphicA, int id, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+  
+  QString getText();
+
+private:
+  bool b;
 };
 
 #endif //XWTIKZOPTIONS_H

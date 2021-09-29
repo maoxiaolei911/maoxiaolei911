@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
-SUBDIRS = WTeXGui \
+SUBDIRS = XWTeXGui \
           XWTikz \
           XWTeXDocEditorCore \
           xwlatexeditor \

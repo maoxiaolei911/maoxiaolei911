@@ -79,5 +79,84 @@ private:
   QDialogButtonBox *buttonBox;
 };
 
+class XWTikzCircuiteeWidget : public QWidget
+{
+  Q_OBJECT
+
+public:
+   XWTikzCircuiteeWidget(const QString & styleA,QWidget * parent = 0);
+
+signals:
+  void shapeSelected(int s);
+
+private slots:
+  void buttonGroupClicked(QAbstractButton * button);
+
+private:
+  QToolButton * createButton(const QString & txt);
+
+private:
+  QString style;
+  QButtonGroup * buttonGroup;
+};
+
+class XWTikzCircuiteeDialog : public QDialog
+{
+  Q_OBJECT
+	
+public:       
+  XWTikzCircuiteeDialog(int styleA,QWidget * parent = 0);
+
+  int getShape();
+
+public slots:
+  void setShape(int d);
+
+private:
+  int shape;
+  XWTikzCircuiteeWidget * shapeWidget;
+  
+  QDialogButtonBox *buttonBox;
+};
+
+class XWTikzCircuitLogicWidget : public QWidget
+{
+  Q_OBJECT
+
+public:
+   XWTikzCircuitLogicWidget(const QString & styleA,QWidget * parent = 0);
+
+signals:
+  void shapeSelected(int s);
+
+private slots:
+  void buttonGroupClicked(QAbstractButton * button);
+
+private:
+  QToolButton * createButton(const QString & txt);
+
+private:
+  QString style;
+  QButtonGroup * buttonGroup;
+};
+
+class XWTikzCircuitLogicDialog : public QDialog
+{
+  Q_OBJECT
+	
+public:       
+  XWTikzCircuitLogicDialog(int styleA,QWidget * parent = 0);
+
+  int getShape();
+
+public slots:
+  void setShape(int d);
+
+private:
+  int shape;
+  XWTikzCircuitLogicWidget * shapeWidget;
+  
+  QDialogButtonBox *buttonBox;
+};
 
 #endif //XWTIKZSHAPEDIALOG_H
