@@ -620,3 +620,74 @@ void XWTikzSetUnit::undo()
   unit->getUnit(name, value);
   unit->setUnit(n, v);
 }
+
+XWTikzAddInput::XWTikzAddInput(XWTikzInpus * inputsA, 
+                               const QChar & cA,
+                               QUndoCommand * parent)
+:QUndoCommand(parent),
+ inputs(inputsA),
+ c(cA)
+{
+}
+
+void XWTikzAddInput::redo()
+{
+  inputs->append(c);
+}
+
+void XWTikzAddInput::undo()
+{
+  c = inputs->remove();
+}
+
+XWTikzRemoveInput::XWTikzRemoveInput(XWTikzInpus * inputsA, 
+                               QUndoCommand * parent)
+:QUndoCommand(parent),
+ inputs(inputsA)
+{
+}
+
+void XWTikzRemoveInput::redo()
+{
+  c = inputs->remove();  
+}
+
+void XWTikzRemoveInput::undo()
+{
+  inputs->append(c);
+}
+
+XWTikzSetLabel::XWTikzSetLabel(XWTikzLabel * labelA,
+                       int kw,
+                       const QString & newstr,
+                       QUndoCommand * parent)
+:QUndoCommand(parent),
+ label(labelA),
+ keyword(kw),
+ str(newstr)
+{
+}
+
+void XWTikzSetLabel::redo()
+{
+  QString tmp = label->getText();
+  int kw = label->getKeyWord();
+  int len = str.length();
+  int pos = 0;
+  label->setKeyword(keyword);
+  label->scan(str,len,pos);
+  str = tmp;
+  keyword = kw;
+}
+
+void XWTikzSetLabel::undo()
+{
+  QString tmp = label->getText();
+  int kw = label->getKeyWord();
+  int len = str.length();
+  int pos = 0;
+  label->setKeyword(keyword);
+  label->scan(str,len,pos);
+  str = tmp;
+  keyword = kw;
+}

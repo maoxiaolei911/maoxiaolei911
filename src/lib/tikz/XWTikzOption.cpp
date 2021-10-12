@@ -400,6 +400,14 @@ void XWTikzKey::doPath(XWTikzState * state, bool)
     case PGFcircuitsymbolwires:
       state->setDraw(true);
       break;
+
+    case PGFcircuiteeIEC:
+    case PGFcircuitlogic:
+    case PGFcircuitlogicIEC:
+    case PGFcircuitlogicUS:
+    case PGFcircuitlogicCDH:
+      state->setPictureType(keyWord);
+      break;
   }
 }
 
@@ -1215,6 +1223,54 @@ void XWTikzValue::doPath(XWTikzState * state, bool)
     case PGFcircuitsymbolunit:
       state->setCircuitSizeUnit(v.expv->getResult(state));
       break;
+
+    case PGFlogicgateinvertedradius:
+      state->setLogicGateInvertedRadius(v.expv->getResult(state));
+      break;
+
+    case PGFlogicgateinputsep:
+      state->setLogicGateInputSep(v.expv->getResult(state));
+      break;
+
+    case PGFlogicgateanchorsuseboundingbox:
+      state->setLogicGateAnchorsUseBoundingBox((bool)v.expv->getResult(state));
+      break;
+
+    case PGFlogicgateIECsymbolalign:
+      state->setLogicGateIECSymbolAlign((int)v.expv->getResult(state));
+      break;
+
+    case PGFandgateIECsymbol:
+      state->setAndGateIECSymbol(text);
+      break;
+
+    case PGFnandgateIECsymbol:
+      state->setNAndGateIECSymbol(text);
+      break;
+
+    case PGForgateIECsymbol:
+      state->setOrGateIECSymbol(text);
+      break;
+
+    case PGFnorgateIECsymbol:
+      state->setNorGateIECSymbol(text);
+      break;
+
+    case PGFxorgateIECsymbol:
+      state->setXorGateIECSymbol(text);
+      break;
+
+    case PGFxnorgateIECsymbol:
+      state->setXNorGateIECSymbol(text);
+      break;
+
+    case PGFnotgateIECsymbol:
+      state->setNotGateIECSymbol(text);
+      break;
+
+    case PGFbuffergateIECsymbol:
+      state->setBufferGateIECSymbol(text);
+      break;
   }
 }
 
@@ -1436,6 +1492,14 @@ QString XWTikzValue::getText()
     case PGFnodecontents:
     case PGFnameprefix:
     case PGFnamesuffix:
+    case PGFandgateIECsymbol:
+    case PGFnandgateIECsymbol:
+    case PGForgateIECsymbol:
+    case PGFnorgateIECsymbol:
+    case PGFxorgateIECsymbol:
+    case PGFxnorgateIECsymbol:
+    case PGFnotgateIECsymbol:
+    case PGFbuffergateIECsymbol:
       ret += "=";
       ret += text;
       break;
@@ -1685,6 +1749,14 @@ void XWTikzValue::scan(const QString & str, int & len, int & pos)
     case PGFnameprefix:
     case PGFnamesuffix:
     case PGFmarkconnectionnode:
+    case PGFandgateIECsymbol:
+    case PGFnandgateIECsymbol:
+    case PGForgateIECsymbol:
+    case PGFnorgateIECsymbol:
+    case PGFxorgateIECsymbol:
+    case PGFxnorgateIECsymbol:
+    case PGFnotgateIECsymbol:
+    case PGFbuffergateIECsymbol:
       scanValue(str,len,pos,text);
       break;
 
@@ -2015,6 +2087,10 @@ void XWTikzColor::doPath(XWTikzState * state, bool)
 
     case PGFcylinderbodyfill:
       state->setCylinderBodyFill(color);
+      break;
+
+    case PGFlogicgateIECsymbolcolor:
+      state->setLogicGateIECSymbolColor(color);
       break;
   }
 }
@@ -3864,4 +3940,126 @@ void XWTikzCircuitDeclareUnit::scan(const QString & str, int & , int & pos)
   graphic->setUnit(tmp,unit);
   tmp = QString("%1' sloped").arg(name);
   graphic->setUnit(tmp,unit);
+}
+
+XWTikzInpus::XWTikzInpus(XWTikzGraphic * graphicA, QObject * parent)
+:XWTikzOperation(graphicA, PGFinputs,parent)
+{}
+
+void XWTikzInpus::append(const QChar & c)
+{
+  inputs << c;
+}
+
+void XWTikzInpus::doPath(XWTikzState * state, bool)
+{
+  state->setInputs(inputs);
+}
+
+QString XWTikzInpus::getText()
+{
+  QString ret = "inpus={";
+  for (int i= 0; i < inputs.size(); i++)
+    ret.append(inputs[i]);
+  ret += "}";
+
+  return ret;
+}
+
+QChar XWTikzInpus::remove()
+{
+  return inputs.takeLast();
+}
+
+void XWTikzInpus::scan(const QString & str, int & len, int & pos)
+{
+  while (str[pos].isSpace())
+    pos++;
+
+  if (str[pos] == QChar('{'))
+    pos++;
+
+  while (pos < len)
+  {
+    if (str[pos] == QChar('}'))
+    {
+      pos++;
+      break;
+    }
+    else if (str[pos].isSpace())
+      pos++;
+    else
+    {
+      inputs << str[pos];
+      pos++;
+    }
+  }
+}
+
+int  XWTikzInpus::size()
+{
+  return inputs.size();
+}
+
+XWTikzLogicGateInpus::XWTikzLogicGateInpus(XWTikzGraphic * graphicA, QObject * parent)
+:XWTikzOperation(graphicA, PGFlogicgateinputs,parent)
+{}
+
+void XWTikzLogicGateInpus::doPath(XWTikzState * state, bool)
+{
+  state->setInputs(inputs);
+}
+
+QString XWTikzLogicGateInpus::getText()
+{
+  QString ret = "logic gate inputs={";
+  for (int i= 0; i < inputs.size(); i++)
+  {
+    if (inputs[i] == QChar('i'))
+      ret += "inverted";
+    else
+      ret += "normal";
+
+    if (i < inputs.size() - 1)
+      ret += ",";
+  }
+
+  ret += "}";
+
+  return ret;
+}
+
+void XWTikzLogicGateInpus::scan(const QString & str, int & len, int & pos)
+{
+  while (str[pos].isSpace())
+    pos++;
+
+  if (str[pos] == QChar('{'))
+    pos++;
+
+  while (pos < len)
+  {
+    if (str[pos] == QChar('}'))
+    {
+      pos++;
+      break;
+    }
+    else if (str[pos].isSpace())
+      pos++;
+    else if (str[pos] == QChar(','))
+      pos++;
+    else
+    {
+      if (str[pos] == QChar('n'))
+      {
+        inputs << QChar('n');
+        pos += 6;
+      }
+      else
+      {
+        inputs << QChar('i');
+        pos += 8;
+      }
+    }
+  }
 }

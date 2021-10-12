@@ -71,6 +71,8 @@ SOURCES += $${XWTIKZSRCDIR}/tikzcolor.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzShapeMiscellaneous.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzShapeGatesee.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzShapeGateseeIEC.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzShapeGatesLogicIEC.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzShapeGatesLogicUS.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzAnnotation.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzArrow.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzFading.cpp \

@@ -165,6 +165,11 @@ QPointF XWTikzCoordinate::getAnchor(int a, XWTikzState * state)
   return state->doAnchor(box);
 }
 
+QPointF XWTikzCoordinate::getAnchor(XWTikzState * state)
+{
+  return state->doAnchor(box);
+}
+
 int XWTikzCoordinate::getAnchorPosition()
 {
   if (cur < 0 || cur >= children.size())
@@ -399,21 +404,41 @@ bool XWTikzCoordinate::isMe(const QString & nameA,XWTikzState * state)
     n.remove(prefx);
     n.remove(suffix);
   }
-
-  if (n.contains("."))
+  else
   {
-    int index = n.indexOf(".");
-    n = n.left(index);
-    if (n == name)
+    int index = nameA.indexOf(".");
+    if (index > 0)
     {
-      index++;
-      QString a = n.mid(index,-1);
-      int i = lookupPGFID(a);
-      state->setAnchor(i);
-      return true;
+      n = nameA.left(index);
+      if (n == name)
+      {
+        index++;
+        QString a = nameA.mid(index, -1);
+        int i = a.length() - 1;
+        while (a[i].isDigit())
+          i--;
+        if (i == a.length() - 1)
+        {
+          i = lookupPGFID(a);
+          state->setAnchor(i);
+        }
+        else
+        {
+          i++;
+          QString d = a.mid(i, -1);
+          double angle = d.toDouble();
+          i--;
+          while (a[i].isSpace())
+            i--;
+          i++;
+          a = a.left(i);
+          i = lookupPGFID(a);
+          state->setAnchor(i);
+          state->setAngle(angle);
+        }
+        return true;
+      }
     }
-
-    return false;
   }
 
   return (name == n);
@@ -615,16 +640,15 @@ XWTikzNode::XWTikzNode(XWTikzGraphic * graphicA, QObject * parent)
 bool XWTikzNode::addAction(QMenu & menu, XWTikzState * state)
 {
   options->doPath(state,false);
-  QAction * a = 0;
   switch (state->getPictureType())
   {
     default:
-      a = menu.addAction(tr("anchor"));
-      connect(a, SIGNAL(triggered()), this, SLOT(setAnchor()));
-      a = menu.addAction(tr("shape"));
-      connect(a, SIGNAL(triggered()), this, SLOT(setShape()));
+      options->addAnchorAction(menu);
       menu.addSeparator();     
+      options->addShapeAction(menu);
       options->addColorAction(menu);
+      menu.addSeparator();      
+      options->addLabelAction(menu);
       menu.addSeparator();
       options->addTransformShapeAction(menu);
       break;
@@ -639,8 +663,34 @@ bool XWTikzNode::addAction(QMenu & menu, XWTikzState * state)
       options->addConceptAction(menu);
       break;
 
-    case PGFcircuit:
+    case PGFcircuiteeIEC:
+      options->addCircuiteeSymbolAction(menu);
+      menu.addSeparator();
+      options->addCircuiteeUnitAction(menu);
+      menu.addSeparator();
+      options->addInfoAction(menu);
+      menu.addSeparator();
       options->addPointAction(menu);
+      menu.addSeparator();
+      options->addColorAction(menu);
+      menu.addSeparator();
+      options->addLineWidthAction(menu);      
+      break;
+
+    case PGFcircuitlogicIEC:
+    case PGFcircuitlogicUS:
+    case PGFcircuitlogicCDH:
+      options->addCircuitLogicSymbolAction(menu);
+      menu.addSeparator();
+      options->addInputAction(menu);
+      menu.addSeparator();
+      options->addInfoAction(menu);
+      menu.addSeparator();
+      options->addPointAction(menu);
+      menu.addSeparator();
+      options->addColorAction(menu);
+      menu.addSeparator();
+      options->addLineWidthAction(menu);
       break;
   }
   
@@ -949,16 +999,6 @@ void XWTikzNode::setText(const QString & str)
   box->scan(str,len,pos);
 }
 
-void XWTikzNode::setAnchor()
-{
-  options->setAnchor();
-}
-
-void XWTikzNode::setShape()
-{
-  options->setShape();
-}
-
 XWTikzEdge::XWTikzEdge(XWTikzGraphic * graphicA, QObject * parent)
 :XWTikzOperation(graphicA,PGFedge,parent),
  options(0),
@@ -1259,8 +1299,6 @@ options(0),
 angle(XW_TIKZ_LABEL_NOANGLE),
 box(0)
 {
-  options = new XWTIKZOptions(graphicA, this);
-  box = new XWTikzTextBox(graphicA, this);
 }
 
 XWTikzLabel::XWTikzLabel(XWTikzGraphic * graphicA, QObject * parent)
@@ -1269,8 +1307,6 @@ options(0),
 angle(XW_TIKZ_LABEL_NOANGLE),
 box(0)
 {
-  options = new XWTIKZOptions(graphicA, this);
-  box = new XWTikzTextBox(graphicA, this);
 }
 
 bool XWTikzLabel::back(XWTikzState * )
@@ -1290,9 +1326,50 @@ bool XWTikzLabel::del(XWTikzState * )
 
 void XWTikzLabel::doPath(XWTikzState * state, bool showpoint)
 {
-  state = state->saveNode(box,XW_TIKZ_LABEL);
-  if (angle != XW_TIKZ_LABEL_NOANGLE)
-    state->setLabelAngle(angle);
+  switch (keyWord)
+  {
+    default:
+      state = state->saveNode(box,XW_TIKZ_LABEL);
+      if (angle != XW_TIKZ_LABEL_NOANGLE)
+        state->setLabelAngle(angle);
+      break;
+
+    case PGFpin:
+      state = state->saveNode(box,XW_TIKZ_PIN);   
+      if (angle != XW_TIKZ_LABEL_NOANGLE)
+        state->setLabelAngle(angle);   
+      break;
+
+    case PGFinfo:
+      state = state->saveNode(box,XW_TIKZ_INFO);
+      if (angle != XW_TIKZ_LABEL_NOANGLE)
+        state->setLabelAngle(angle);  
+      break;
+
+    case PGFinfomissingangle:
+      state = state->saveNode(box,XW_TIKZ_LABEL);
+      if (angle == XW_TIKZ_LABEL_NOANGLE)
+        state->setLabelAngle(PGFbelow);
+      else
+         state->setLabelAngle(angle);
+      break;
+
+    case PGFinfosloped:
+      state = state->saveNode(box,XW_TIKZ_LABEL);
+      if (angle != XW_TIKZ_LABEL_NOANGLE)
+        state->setLabelAngle(angle);
+      state->setTransformShape();
+      break;
+
+    case PGFinfomissinganglesloped:
+      state = state->saveNode(box,XW_TIKZ_LABEL);
+      if (angle == XW_TIKZ_LABEL_NOANGLE)
+        state->setLabelAngle(PGFbelow);
+      else
+        state->setLabelAngle(angle);
+      state->setTransformShape();
+      break;
+  }
   options->doPath(state,showpoint);
 }
 
@@ -1306,6 +1383,30 @@ int XWTikzLabel::getAnchorPosition()
   return box->getAnchorPosition();
 }
 
+QString XWTikzLabel::getAngle()
+{
+  QString ret;
+  if (angle == XW_TIKZ_LABEL_NOANGLE)
+    return ret;
+
+  if (angle >= PGF_MIN_KEYWORD)
+  {
+    int key = (int)(angle);
+    ret = getPGFString(key);
+  }
+  else
+    ret = QString("%1").arg(angle);
+  return ret;
+}
+
+QString XWTikzLabel::getContent()
+{
+  QString ret;
+  if (box)
+    ret = box->getText();
+  return ret;
+}
+
 int XWTikzLabel::getCursorPosition()
 {
   return box->getCursorPosition();
@@ -1314,6 +1415,11 @@ int XWTikzLabel::getCursorPosition()
 QString XWTikzLabel::getCurrentText()
 {
   return box->getCurrentText();
+}
+
+QString XWTikzLabel::getOptions()
+{
+  return options->getContent();
 }
 
 QString XWTikzLabel::getSelectedText()
@@ -1407,6 +1513,18 @@ bool XWTikzLabel::paste(XWTikzState * )
 
 void XWTikzLabel::scan(const QString & str, int & len, int & pos)
 {
+  if (box)
+  {
+    delete box;
+    box = new XWTikzTextBox(graphic, this);
+  }
+
+  if (options)
+  {
+    delete options;
+    options = new XWTIKZOptions(graphic, this);
+  }
+  
   while (str[pos].isSpace())
     pos++;
 
@@ -1468,22 +1586,15 @@ void XWTikzLabel::setAngle(const QString & str)
 
 void XWTikzLabel::setText(const QString & str)
 {
+  if (box)
+  {
+    delete box;
+    box = new XWTikzTextBox(graphic, this);
+  }
+
   int len = str.length();
   int pos = 0;
   box->scan(str,len,pos);
-}
-
-XWTikzPin::XWTikzPin(XWTikzGraphic * graphicA, QObject * parent)
-:XWTikzLabel(graphicA,PGFpin,parent)
-{
-}
-
-void XWTikzPin::doPath(XWTikzState * state, bool showpoint)
-{
-  state = state->saveNode(box,XW_TIKZ_PIN);
-  if (angle != XW_TIKZ_LABEL_NOANGLE)
-    state->setLabelAngle(angle);
-  options->doPath(state,showpoint);
 }
 
 XWTikzChild::XWTikzChild(XWTikzGraphic * graphicA, QObject * parent)
@@ -2238,68 +2349,10 @@ void XWTikzNodePart::scan(const QString & str, int & len, int & pos)
   }
 }
 
-XWTikzInfo::XWTikzInfo(XWTikzGraphic * graphicA, QObject * parent)
-:XWTikzLabel(graphicA,PGFinfo,parent)
-{
-}
-
-void XWTikzInfo::doPath(XWTikzState * state, bool showpoint)
-{
-  state = state->saveNode(box,XW_TIKZ_INFO);
-  if (angle != XW_TIKZ_LABEL_NOANGLE)
-    state->setLabelAngle(angle);  
-  options->doPath(state,showpoint);
-}
-
-XWTikzInfoMissingAngle::XWTikzInfoMissingAngle(XWTikzGraphic * graphicA, QObject * parent)
-:XWTikzLabel(graphicA,PGFinfomissingangle,parent)
-{
-}
-
-void XWTikzInfoMissingAngle::doPath(XWTikzState * state, bool showpoint)
-{
-  state = state->saveNode(box,XW_TIKZ_LABEL);
-  if (angle == XW_TIKZ_LABEL_NOANGLE)
-    state->setLabelAngle(PGFbelow);
-  else
-    state->setLabelAngle(angle);
-  options->doPath(state,showpoint);
-}
-
-XWTikzInfoSloped::XWTikzInfoSloped(XWTikzGraphic * graphicA, QObject * parent)
-:XWTikzLabel(graphicA,PGFinfosloped,parent)
-{
-}
-
-void XWTikzInfoSloped::doPath(XWTikzState * state, bool showpoint)
-{
-  state = state->saveNode(box,XW_TIKZ_LABEL);
-  if (angle != XW_TIKZ_LABEL_NOANGLE)
-    state->setLabelAngle(angle);
-  state->setTransformShape();
-  options->doPath(state,showpoint);
-}
-
-XWTikzInfoSlopedMissingAngle::XWTikzInfoSlopedMissingAngle(XWTikzGraphic * graphicA, QObject * parent)
-:XWTikzLabel(graphicA,PGFinfomissinganglesloped,parent)
-{
-}
-
-void XWTikzInfoSlopedMissingAngle::doPath(XWTikzState * state, bool showpoint)
-{
-  state = state->saveNode(box,XW_TIKZ_LABEL);
-  if (angle == XW_TIKZ_LABEL_NOANGLE)
-    state->setLabelAngle(PGFbelow);
-  else
-    state->setLabelAngle(angle);
-  state->setTransformShape();
-  options->doPath(state,showpoint);
-}
-
 XWTikzUnit::XWTikzUnit(XWTikzGraphic * graphicA, 
              const QString & nameA,
              QObject * parent)
-:XWTikzLabel(graphicA, -1,parent),
+:XWTikzLabel(graphicA, PGFohm,parent),
 name(nameA)
 {}
 
@@ -2353,3 +2406,15 @@ void XWTikzUnit::setUnit(const QString & nameA,const QString & valueA)
   box->scan(tmp, slen, spos);
 }
 
+void XWTikzUnit::setValue(const QString & valueA)
+{
+  value = valueA;
+  if (box)
+    delete box;
+  box = new XWTikzTextBox(graphic, this);
+  QString u = graphic->getUnit(name);
+  QString tmp = QString("%1%2").arg(value).arg(u);
+  int slen = tmp.length();
+  int spos = 0;
+  box->scan(tmp, slen, spos);
+}

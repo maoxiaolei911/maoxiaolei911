@@ -47,16 +47,65 @@ XWTIKZOptions::XWTIKZOptions(XWTikzGraphic * graphicA, int idA,QObject * parent)
   cur(-1)
 {}
 
+bool XWTIKZOptions::addAction(QMenu & menu, XWTikzState * state)
+{
+  bool ret = true;
+  switch (state->getPictureType())
+  {
+    default:
+      ret = false;
+      break;
+
+    case PGFcircuiteeIEC:
+      addCircuiteeSymbolAction(menu);
+      menu.addSeparator();
+      addCircuiteeUnitAction(menu);
+      menu.addSeparator();
+      addInfoAction(menu);
+      menu.addSeparator();
+      addPointAction(menu);
+      menu.addSeparator();
+      addColorAction(menu);
+      menu.addSeparator();
+      addLineWidthAction(menu);      
+      break;
+
+    case PGFcircuitlogicIEC:
+    case PGFcircuitlogicUS:
+    case PGFcircuitlogicCDH:
+      addCircuitLogicSymbolAction(menu);
+      menu.addSeparator();
+      addInputAction(menu);
+      menu.addSeparator();
+      addInfoAction(menu);
+      menu.addSeparator();
+      addPointAction(menu);
+      menu.addSeparator();
+      addColorAction(menu);
+      menu.addSeparator();
+      addLineWidthAction(menu);
+      break;
+  }
+  return ret;
+}
+
 void XWTIKZOptions::addAnchorAction(QMenu & menu)
 {
   QAction * a = menu.addAction(tr("anchor"));
   connect(a, SIGNAL(triggered()), this, SLOT(setAnchor()));
-  a = menu.addAction(tr("pos"));
-  connect(a, SIGNAL(triggered()), this, SLOT(setPos()));
-  a = menu.addAction(tr("label"));
-  connect(a, SIGNAL(triggered()), this, SLOT(addLabel()));
-  a = menu.addAction(tr("pin"));
-  connect(a, SIGNAL(triggered()), this, SLOT(addPin()));
+  if (xwApp->getLicenseState() == APP_STATE_NORMAL)
+  {
+    a = menu.addAction(tr("pos"));
+    connect(a, SIGNAL(triggered()), this, SLOT(setPos()));
+  }  
+}
+
+void XWTIKZOptions::addAngleAction(QMenu & menu)
+{
+  QAction * a = menu.addAction(tr("start angle"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setStartAngle()));
+  a = menu.addAction(tr("end angle"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setEndAngle()));
 }
 
 void XWTIKZOptions::addArrowsAction(QMenu & menu)
@@ -65,21 +114,212 @@ void XWTIKZOptions::addArrowsAction(QMenu & menu)
   connect(a, SIGNAL(triggered()), this, SLOT(setArrows()));
 }
 
-void XWTIKZOptions::adddCircuitAction(QMenu & menu)
+void XWTIKZOptions::addAtAction(QMenu & menu)
 {
-  XWTikzOperation * op = find(PGFcircuits);
-  if (!op)
-    op = find(PGFcircuit);
+  QAction * a = menu.addAction(tr("at"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setAt()));
+}
 
-  QAction * a = 0;
-  if (!op)
+void XWTIKZOptions::addCircuitAction(QMenu & menu)
+{
+  XWTikzKey * key = findPictureType();
+  if (!key)
   {
-    menu.addAction(tr("circuit"));
-    connect(a, SIGNAL(triggered()), this, SLOT(addCircuit()));
+    QAction * a = menu.addAction(tr("circuit ee IEC"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addCircuiteeIEC()));
+    a = menu.addAction(tr("circuit logic US"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addCircuitLogicUS()));
+    a = menu.addAction(tr("circuit logic CDH"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addCircuitLogicCDH()));
+    a = menu.addAction(tr("circuit logic IEC"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addCircuitLogicIEC()));
+  }
+  else
+  {
+    if (key->getKeyWord() != PGFcircuiteeIEC)
+    {
+      QAction * a = menu.addAction(tr("circuit ee IEC"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addCircuiteeIEC()));
+    }
+
+    if (key->getKeyWord() != PGFcircuitlogicUS)
+    {
+      QAction * a = menu.addAction(tr("circuit logic US"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addCircuitLogicUS()));
+    }
+
+    if (key->getKeyWord() != PGFcircuitlogicCDH)
+    {
+      QAction * a = menu.addAction(tr("circuit logic CDH"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addCircuitLogicCDH()));
+    }
+
+    if (key->getKeyWord() != PGFcircuitlogicIEC)
+    {
+      QAction * a = menu.addAction(tr("circuit logic IEC"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addCircuitLogicIEC()));
+    }
   }
 }
 
-void XWTIKZOptions::adddCircuitSymbolAction(QMenu & menu)
+void XWTIKZOptions::addCircuiteeSymbolAction(QMenu & menu)
+{
+  QAction * a = menu.addAction(tr("circuit ee symbol"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setCircuiteeSymbol()));
+}
+
+void XWTIKZOptions::addCircuiteeUnitAction(QMenu & menu)
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (!op)
+    return ;
+
+  int kw = op->getKeyWord();
+  QAction * a;
+  switch (kw)
+  {
+    default:
+      break;
+
+    case PGFresistor:
+    case PGFresistorIEC:
+    case PGFohmmeter:
+      a = menu.addAction(tr("ohm"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setohm()));
+      a = menu.addAction(tr("ohm'"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setohmOppsite()));
+      a = menu.addAction(tr("ohm sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setohmSloped()));
+      a = menu.addAction(tr("ohm' sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setohmSlopedOppsite()));
+      if (xwApp->getLicenseState() == APP_STATE_NORMAL)
+      {
+        a = menu.addAction(tr("siemens"));
+        connect(a, SIGNAL(triggered()), this, SLOT(setSiemens()));
+        a = menu.addAction(tr("siemens'"));
+        connect(a, SIGNAL(triggered()), this, SLOT(setSiemensOppsite()));
+        a = menu.addAction(tr("siemens sloped"));
+        connect(a, SIGNAL(triggered()), this, SLOT(setSiemensSloped()));
+        a = menu.addAction(tr("siemens' sloped"));
+        connect(a, SIGNAL(triggered()), this, SLOT(setSiemensSlopedOppsite()));
+      }
+      break;
+
+    case PGFinductor:
+    case PGFinductorIEC:
+      a = menu.addAction(tr("henry"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setHenry()));
+      a = menu.addAction(tr("henry'"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setHenryOppsite()));
+      a = menu.addAction(tr("henry sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setHenrySloped()));
+      a = menu.addAction(tr("henry' sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setHenrySlopedOppsite()));
+      break;
+
+    case PGFcapacitor:
+    case PGFcapacitorIEC:
+      a = menu.addAction(tr("farad"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setFarad()));
+      a = menu.addAction(tr("farad'"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setFaradOppsite()));
+      a = menu.addAction(tr("farad sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setFaradSloped()));
+      a = menu.addAction(tr("farad' sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setFaradSlopedOppsite()));
+      if (xwApp->getLicenseState() == APP_STATE_NORMAL)
+      {
+        a = menu.addAction(tr("coulomb"));
+        connect(a, SIGNAL(triggered()), this, SLOT(setCoulomb()));
+        a = menu.addAction(tr("coulomb'"));
+        connect(a, SIGNAL(triggered()), this, SLOT(setCoulombOppsite()));
+        a = menu.addAction(tr("coulomb sloped"));
+        connect(a, SIGNAL(triggered()), this, SLOT(setCoulombSloped()));
+        a = menu.addAction(tr("coulomb' sloped"));
+        connect(a, SIGNAL(triggered()), this, SLOT(setCoulombSlopedOppsite()));
+      }      
+      break;
+
+    case PGFbattery:
+    case PGFbatteryIEC:
+    case PGFvoltagesource:
+    case PGFvoltagesourceIEC:
+    case PGFvoltmeter:
+    case PGFdcsource:
+      a = menu.addAction(tr("volt"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setVolt()));
+      a = menu.addAction(tr("volt'"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setVoltOppsite()));
+      a = menu.addAction(tr("volt sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setVoltSloped()));
+      a = menu.addAction(tr("volt' sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setVoltSlopedOppsite()));
+      if (xwApp->getLicenseState() == APP_STATE_NORMAL)
+      {
+        a = menu.addAction(tr("voltampere"));
+        connect(a, SIGNAL(triggered()), this, SLOT(setVoltAmpere()));
+        a = menu.addAction(tr("voltampere'"));
+        connect(a, SIGNAL(triggered()), this, SLOT(setVoltAmpereOppsite()));
+        a = menu.addAction(tr("voltampere sloped"));
+        connect(a, SIGNAL(triggered()), this, SLOT(setVoltAmpereSloped()));
+        a = menu.addAction(tr("voltampere' sloped"));
+        connect(a, SIGNAL(triggered()), this, SLOT(setVoltAmpereSlopedOppsite()));
+      }      
+      break;
+
+    case PGFbulb:
+    case PGFbulbIEC:
+      a = menu.addAction(tr("watt"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setWatt()));
+      a = menu.addAction(tr("watt'"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setWattOppsite()));
+      a = menu.addAction(tr("watt sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setWattSloped()));
+      a = menu.addAction(tr("watt' sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setWattSlopedOppsite()));
+      break;
+
+    case PGFcurrentsource:
+    case PGFcurrentsourceIEC:
+    case PGFamperemeter:
+      a = menu.addAction(tr("ampere"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setAmpere()));
+      a = menu.addAction(tr("ampere'"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setAmpereOppsite()));
+      a = menu.addAction(tr("ampere sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setAmpereSloped()));
+      a = menu.addAction(tr("ampere' sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setAmpereSlopedOppsite()));
+      break;
+
+    case PGFacsource:
+      a = menu.addAction(tr("hertz"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setHertz()));
+      a = menu.addAction(tr("hertz'"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setHertzOppsite()));
+      a = menu.addAction(tr("hertz sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setHertzSloped()));
+      a = menu.addAction(tr("hertz' sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setHertzSlopedOppsite()));
+      a = menu.addAction(tr("volt"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setVolt()));
+      a = menu.addAction(tr("volt'"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setVoltOppsite()));
+      a = menu.addAction(tr("volt sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setVoltSloped()));
+      a = menu.addAction(tr("volt' sloped"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setVoltSlopedOppsite()));      
+      break;
+  }
+}
+
+void XWTIKZOptions::addCircuitLogicSymbolAction(QMenu & menu)
+{
+  QAction * a = menu.addAction(tr("circuit logic symbol"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setCircuitLogicSymbol()));
+}
+
+void XWTIKZOptions::addCircuitSymbolAction(QMenu & menu)
 {
   XWTikzKey * key = findCircuitSymbols();
   if (!key)
@@ -126,6 +366,12 @@ void XWTIKZOptions::adddCircuitSymbolAction(QMenu & menu)
       QAction * a = menu.addAction(tr("tiny circuit symbols"));
       connect(a, SIGNAL(triggered()), this, SLOT(addTinyCircuitSymbols()));
     }
+  }
+
+  if (xwApp->getLicenseState() == APP_STATE_NORMAL)
+  {
+    QAction * a = menu.addAction(tr("circuit symbols size"));
+    connect(a, SIGNAL(triggered()), this, SLOT(setCircuitSymbolSize()));
   }
 }
 
@@ -247,7 +493,7 @@ void XWTIKZOptions::addDoubleDistanceAction(QMenu & menu)
   connect(a, SIGNAL(triggered()), this, SLOT(setDoubleDistanceBetweenLineCenters()));
 }
 
-void XWTIKZOptions::setInfoAction(QMenu & menu)
+void XWTIKZOptions::addInfoAction(QMenu & menu)
 {
   QAction * a = menu.addAction(tr("info"));
   connect(a, SIGNAL(triggered()), this, SLOT(setInfo()));
@@ -257,6 +503,52 @@ void XWTIKZOptions::setInfoAction(QMenu & menu)
   connect(a, SIGNAL(triggered()), this, SLOT(setInfoSloped()));
   a = menu.addAction(tr("info' sloped"));
   connect(a, SIGNAL(triggered()), this, SLOT(setInfoSlopedMissingAngle()));
+}
+
+void XWTIKZOptions::addInputAction(QMenu & menu)
+{
+  XWTikzCircuitSymbol * op = findCircuitLogicSymbol();
+  if (!op)
+    return ;
+
+  int kw = op->getKeyWord();
+  XWTikzInpus * inpus = (XWTikzInpus*)find(PGFinputs);
+  switch (kw)
+  {
+    default:
+      {
+        QAction * a = menu.addAction(tr("add normal input"));
+        connect(a, SIGNAL(triggered()), this, SLOT(addInputNormal()));
+        a = menu.addAction(tr("add inverted input"));
+        connect(a, SIGNAL(triggered()), this, SLOT(addInputInverted()));
+        if (inpus && inpus->size() > 0)
+        {
+          a = menu.addAction(tr("remove input"));
+          connect(a, SIGNAL(triggered()), this, SLOT(removeInput()));
+        }
+      }
+      break;
+
+    case PGFbuffergate:
+    case PGFbuffergateUS:
+    case PGFbuffergateIEC:
+    case PGFnotgate:
+    case PGFnotgateUS:
+    case PGFnotgateIEC:
+      if (!inpus || inpus->size() == 0)
+      {
+        QAction * a = menu.addAction(tr("add normal input"));
+        connect(a, SIGNAL(triggered()), this, SLOT(addInputNormal()));
+        a = menu.addAction(tr("add inverted input"));
+        connect(a, SIGNAL(triggered()), this, SLOT(addInputInverted()));
+      }
+      else
+      {
+        QAction * a = menu.addAction(tr("remove input"));
+        connect(a, SIGNAL(triggered()), this, SLOT(removeInput()));
+      }
+      break;
+  }
 }
 
 void XWTIKZOptions::addIntersectionsAction(QMenu & menu)
@@ -273,8 +565,8 @@ void XWTIKZOptions::addLabelAction(QMenu & menu)
 {
   QAction * a = menu.addAction(tr("label"));
   connect(a, SIGNAL(triggered()), this, SLOT(setLabel()));
-  a = menu.addAction(tr("info"));
-  connect(a, SIGNAL(triggered()), this, SLOT(setInfo()));
+  a = menu.addAction(tr("pin"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setPin()));
 }
 
 void XWTIKZOptions::addLineAction(QMenu & menu)
@@ -411,6 +703,12 @@ void XWTIKZOptions::addPointAction(QMenu & menu)
       connect(a, SIGNAL(triggered()), this, SLOT(addPointRight()));
     }
   }
+}
+
+void XWTIKZOptions::addRadiusAction(QMenu & menu)
+{
+  QAction * a = menu.addAction(tr("radius"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setRadius()));
 }
 
 void XWTIKZOptions::addRoundedCornersAction(QMenu & menu)
@@ -725,9 +1023,18 @@ void XWTIKZOptions::addSpyAction(QMenu & menu)
     connect(a, SIGNAL(triggered()), this, SLOT(setSpyNodeShape()));
     a = menu.addAction(tr("connect spies"));
     connect(a, SIGNAL(triggered()), this, SLOT(addConnectSpies()));
-    a = menu.addAction(tr("size"));
-    connect(a, SIGNAL(triggered()), this, SLOT(setSpySize()));
+    if (xwApp->getLicenseState() == APP_STATE_NORMAL)
+    {
+      a = menu.addAction(tr("size"));
+      connect(a, SIGNAL(triggered()), this, SLOT(setSpySize()));
+    }
   }
+}
+
+void XWTIKZOptions::addStepAction(QMenu & menu)
+{
+  QAction * a = menu.addAction(tr("step"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setStep()));
 }
 
 void XWTIKZOptions::addTextColorAction(QMenu & menu)
@@ -744,6 +1051,12 @@ void XWTIKZOptions::addTransformShapeAction(QMenu & menu)
   connect(a, SIGNAL(triggered()), this, SLOT(removeTransformShape()));
 }
 
+void XWTIKZOptions::addXRadiusAction(QMenu & menu)
+{
+  QAction * a = menu.addAction(tr("x radius"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setXRadius()));
+}
+
 void XWTIKZOptions::addXYZAction(QMenu & menu)
 {
   QAction * a = menu.addAction(tr("x-vector"));
@@ -752,6 +1065,35 @@ void XWTIKZOptions::addXYZAction(QMenu & menu)
   connect(a, SIGNAL(triggered()), this, SLOT(setYVector()));
   a = menu.addAction(tr("z-vector"));
   connect(a, SIGNAL(triggered()), this, SLOT(setZVector()));
+}
+
+void XWTIKZOptions::addYRadiusAction(QMenu & menu)
+{
+  QAction * a = menu.addAction(tr("y radius"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setYRadius()));
+}
+
+void XWTIKZOptions::addDomain(const QString & s,const QString & e)
+{
+  XWTikzDomain * d = new XWTikzDomain(graphic,this);
+  d->setStart(s);
+  d->setEnd(e);
+  ops << d;
+  cur = ops.size() - 1;
+}
+
+void XWTIKZOptions::addValueCoord(int keywordA, const QString & str)
+{
+  XWTikzValue * v = new  XWTikzValue(graphic,keywordA,this);
+  v->setCoord(str);
+  ops << v;
+}
+
+void XWTIKZOptions::addValueExpress(int keywordA, const QString & str)
+{
+  XWTikzValue * v = new  XWTikzValue(graphic,keywordA,this);
+  v->setExpress(str);
+  ops << v;
 }
 
 bool XWTIKZOptions::back(XWTikzState * state)
@@ -1208,6 +1550,20 @@ XWTikzColor  * XWTIKZOptions::getColor(int keywordA)
   return (XWTikzColor*)(op);
 }
 
+QString XWTIKZOptions::getContent()
+{
+  QString ret;
+  for (int i = 0; i < ops.size(); i++)
+  {
+    QString tmp = ops[i]->getText();
+    ret += tmp;
+    if (i < ops.size() - 1)
+      ret += ",";
+  }
+
+  return ret;
+}
+
 XWTikzDomain * XWTIKZOptions::getDomain()
 {
   XWTikzOperation * op = find(PGFdomain);
@@ -1516,6 +1872,11 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFcircuitsymbolfilled:
         case PGFcircuitsymbollines:
         case PGFcircuitsymbolwires:
+        case PGFcircuiteeIEC:
+        case PGFcircuitlogic:
+        case PGFcircuitlogicIEC:
+        case PGFcircuitlogicUS:
+        case PGFcircuitlogicCDH:
           {
             XWTikzKey * k = new XWTikzKey(graphic,id,this);
             ops << k;
@@ -1698,6 +2059,18 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFshortenend:
         case PGFshortenstart:
         case PGFcircuitsymbolunit:
+        case PGFlogicgateinvertedradius:
+        case PGFlogicgateinputsep:
+        case PGFlogicgateanchorsuseboundingbox:
+        case PGFlogicgateIECsymbolalign:
+        case PGFandgateIECsymbol:
+        case PGFnandgateIECsymbol:
+        case PGForgateIECsymbol:
+        case PGFnorgateIECsymbol:
+        case PGFxorgateIECsymbol:
+        case PGFxnorgateIECsymbol:
+        case PGFnotgateIECsymbol:
+        case PGFbuffergateIECsymbol:
           {
             XWTikzValue * v= new XWTikzValue(graphic,id,this);
             ops << v;
@@ -1736,6 +2109,7 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFcylinderendfill:
         case PGFcylinderbodyfill:
         case PGFconceptcolor:
+        case PGFlogicgateIECsymbolcolor:
           {
             XWTikzColor * c = new XWTikzColor(graphic,id,this);
             ops << c;
@@ -1883,16 +2257,13 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
           break;
 
         case PGFlabel:
-          {
-            XWTikzLabel * s = new XWTikzLabel(graphic,this);
-            ops << s;
-            s->scan(str,len,pos);
-          }
-          break;
-
         case PGFpin:
+        case PGFinfo:
+        case PGFinfomissingangle:
+	      case PGFinfosloped:
+	      case PGFinfomissinganglesloped:
           {
-            XWTikzPin * s = new XWTikzPin(graphic,this);
+            XWTikzLabel * s = new XWTikzLabel(graphic,id,this);
             ops << s;
             s->scan(str,len,pos);
           }
@@ -2360,6 +2731,32 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFdcsource:
         case PGFcurrentdirection:
 	      case PGFcurrentdirectionreversed:
+        case PGFandgate:
+        case PGFnandgate:
+        case PGForgate:
+        case PGFnorgate:
+        case PGFxorgate:
+        case PGFxnorgate:
+        case PGFnotgate:
+        case PGFbuffergate:
+        case PGFandgateIEC:
+        case PGFnandgateIEC:
+        case PGForgateIEC:
+        case PGFnorgateIEC:
+        case PGFxorgateIEC:
+        case PGFxnorgateIEC:
+        case PGFnotgateIEC:
+        case PGFbuffergateIEC:
+        case PGFandgateUS:
+        case PGFnandgateUS:
+        case PGForgateUS:
+        case PGFnorgateUS:
+        case PGFxorgateUS:
+        case PGFxnorgateUS:
+        case PGFnotgateUS:
+        case PGFbuffergateUS:
+        case PGFandgateCDH:
+        case PGFnandgateCDH:
           {
             XWTikzCircuitSymbol * s = new XWTikzCircuitSymbol(graphic,id,this);
             ops << s;
@@ -2377,6 +2774,22 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFadjustablesouth:
           {
             XWTikzAnnotation * s = new XWTikzAnnotation(graphic,id,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFinputs:
+          {
+            XWTikzInpus * s = new XWTikzInpus(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFlogicgateinputs:
+          {
+            XWTikzLogicGateInpus * s = new XWTikzLogicGateInpus(graphic,this);
             ops << s;
             s->scan(str,len,pos);
           }
@@ -2430,218 +2843,6 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
   }
 }
 
-void XWTIKZOptions::setAround(int keywordA, 
-                       const QString & title,
-                       const QString & ltxt)
-{
-  XWTikzAround * r = getAround(keywordA);
-  XWTikzAroundDialog dlg(title,ltxt);
-  if (r)
-  {
-    QString str = r->getExpress();
-    dlg.setExpress(str);
-    str = r->getCoord();
-    dlg.setCoord(str);
-  }
-
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    QString exp = dlg.getExpress();
-    QString around = dlg.getCoord();
-    QUndoCommand * cmd = 0;
-    if (r)
-      cmd = new XWTikzSetAround(r,exp,around);
-    else
-    {
-      r = new XWTikzAround(graphic,keywordA,this);
-      r->setExpress(exp);
-      r->setCoord(around);
-      cmd = new XWTikzAddOption(this,cur+1,r);
-    }    
-    graphic->push(cmd);
-  }
-}
-
-void XWTIKZOptions::setAt(const QString & str)
-{
-  setValueCoord(PGFat,str);
-}
-
-void XWTIKZOptions::setColor(int keywordA, const QString & title)
-{
-  XWTikzColor * c = getColor(keywordA);
-  XWTikzColorDialog dlg(title);
-  if (c)
-  {
-    int c1A,c2A;double pA;
-    c->getColor(c1A,pA,c2A);
-    dlg.setColor(c1A,pA,c2A);
-  }
-
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    int c1A,c2A;double pA;
-    dlg.getColor(c1A,pA,c2A);
-    QUndoCommand * cmd = 0;
-    if (c)
-      cmd = new XWTikzSetColor(c,c1A,pA,c2A);
-    else
-    {
-      c = new XWTikzColor(graphic,keywordA,this);
-      c->setColor(c1A,pA,c2A);
-      cmd = new XWTikzAddOption(this,cur+1,c);
-    }
-    graphic->push(cmd);
-  }
-}
-
-void XWTIKZOptions::setCoord(int keywordA, const QString & title)
-{
-  XWTikzValue * v = getValue(keywordA);
-  XWTikzCoordDialog dlg(title);
-  if (v)
-  {
-    QString str = v->getCoord();
-    dlg.setCoord(str);
-  }
-
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    QString str = dlg.getCoord();
-    QUndoCommand * cmd = 0;
-    if (v)
-      cmd = new XWTikzSetExpress(v,str);
-    else
-    {
-      v = new  XWTikzValue(graphic,keywordA,this);
-      v->setCoord(str);
-      cmd = new XWTikzAddOption(this,cur+1,v);
-    }
-    graphic->push(cmd);
-  }
-}
-
-void XWTIKZOptions::setDecoration(int keywordA)
-{
-  XWTikzValue * name = 0;
-  XWTikzKey * key = 0;
-  XWTikzOperation * op = find(PGFdecoration);
-  if (op)
-  {
-    XWTIKZOptions * opts = (XWTIKZOptions*)(op);
-    name = opts->getValue(keywordA);
-    if (!name && keywordA == PGFname)
-      key = opts->findDecoration();
-  }
-
-  XWTikzDecorationDialog dlg;
-  if (name)
-  {
-    int d = (int)(name->getValue());
-    dlg.setDecoration(d);
-  }
-  else
-  {
-    if (key)
-      dlg.setDecoration(key->getKeyWord());
-  }
-
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    int d = dlg.getDecoration();
-    QUndoCommand * cmd = 0;
-    if (name)
-      cmd = new XWTikzSetValue(name,d);
-    else if (key)
-      cmd = new XWTikzSetKey(key,d);
-    else
-    {
-      if (op)
-      {
-        name = new XWTikzValue(graphic,keywordA,this);
-        name->setValue(d);
-        cmd = new XWTikzAddOption((XWTIKZOptions*)(op),cur+1,name);
-      }
-      else
-      {
-        XWTikzDecorations * ds = new XWTikzDecorations(graphic,this);
-        XWTikzValue * de = new XWTikzValue(graphic,PGFdecorate,ds);
-        de->setValue(true);
-        ds->ops << de;
-        name = new XWTikzValue(graphic,keywordA,ds);
-        name->setValue(d);
-        ds->ops << name;
-        cmd = new XWTikzAddOption(this,cur+1,ds);
-      }
-    }
-    graphic->push(cmd);
-  }
-}
-
-void XWTIKZOptions::setDecorationExpress(int keywordA,
-                                    const QString & title,
-                                    const QString & ltxt)
-{
-  XWTikzValue * p = 0;
-  XWTikzOperation * op = find(PGFdecoration);
-  if (op)
-  {
-    XWTIKZOptions * opts = (XWTIKZOptions*)(op);
-    p = opts->getValue(keywordA);
-  }
-
-  XWTikzExpressDialog dlg(title,ltxt);
-  if (p)
-  {
-    QString l = p->getExpress();
-    dlg.setExpress(l);
-  }
-
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    QString l = dlg.getExpress();
-    QUndoCommand * cmd = 0;
-    if (p)
-      cmd = new XWTikzSetExpress(p,l);
-    else
-    {
-      if (op)
-      {
-        p = new XWTikzValue(graphic,keywordA,this);
-        p->setExpress(l);
-        cmd = new XWTikzAddOption((XWTIKZOptions*)(op),cur+1,p);
-      }
-      else
-      {
-        XWTikzDecorations * ds = new XWTikzDecorations(graphic,this);
-        p = new XWTikzValue(graphic,keywordA,ds);
-        p->setExpress(l);
-        ds->ops << p;
-        cmd = new XWTikzAddOption(this,cur+1,ds);
-      }
-    }
-    graphic->push(cmd);
-  }
-}
-
-void XWTIKZOptions::setDomain(const QString & s,const QString & e)
-{
-  XWTikzDomain * d = getDomain();
-  if (d)
-  {
-    d->setStart(s);
-    d->setEnd(e);
-  }
-  else
-  {
-    d = new XWTikzDomain(graphic,this);
-    d->setStart(s);
-    d->setEnd(e);
-    ops << d;
-    cur = ops.size() - 1;
-  }  
-}
-
 void XWTIKZOptions::setDouble()
 {
   setColor(PGFdouble,tr("double"));
@@ -2672,110 +2873,6 @@ void XWTIKZOptions::setDoubleDistanceBetweenLineCenters()
   setExpress(PGDdoubledistancebetweenlinecenters,tr("double distance between line centers"),tr("distance:"));
 }
 
-void XWTIKZOptions::setEndAngle(const QString & str)
-{
-  setValueExpress(PGFendangle,str);
-}
-
-void XWTIKZOptions::setExpress(int keywordA, 
-                       const QString & title,
-                       const QString & ltxt)
-{
-  XWTikzValue * v = getValue(keywordA);
-  XWTikzExpressDialog dlg(title,ltxt);
-  if (v)
-  {
-    QString str = v->getExpress();
-    dlg.setExpress(str);
-  }
-
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    QString str = dlg.getExpress();
-    QUndoCommand * cmd = 0;
-    if (v)
-      cmd = new XWTikzSetExpress(v,str);
-    else
-    {
-      v = new  XWTikzValue(graphic,keywordA,this);
-      v->setExpress(str);
-      cmd = new XWTikzAddOption(this,cur+1,v);
-    }
-    graphic->push(cmd);
-  }
-}
-
-void XWTIKZOptions::setRadius(const QString & str)
-{
-  setValueExpress(PGFradius,str);
-}
-
-void XWTIKZOptions::setStartAngle(const QString & str)
-{
-  setValueExpress(PGFstartangle,str);
-}
-
-void XWTIKZOptions::setStep(const QString & str)
-{
-  setValueExpress(PGFstep,str);
-}
-
-void XWTIKZOptions::setTwoValue(const QString & title,
-                           int k1, const QString & title1,
-                           int k2,const QString & title2)
-{
-  XWTikzValue * v1 = getValue(k1);
-  XWTikzValue * v2 = getValue(k2);
-  XWTikzDomainDialog dlg(title,title1,title2);
-  if (v1)
-  {
-    QString tmp = v1->getExpress();
-    dlg.setStart(tmp);
-  }
-
-  if (v2)
-  {
-    QString tmp = v2->getExpress();
-    dlg.setEnd(tmp);
-  }
-
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    QString s1 = dlg.getStart();
-    QString s2 = dlg.getEnd();
-    QUndoCommand * cmd = new QUndoCommand;
-    int i = cur+1;
-    if (v1)
-      new XWTikzSetExpress(v1,s1,cmd);
-    else
-    {
-      v1 = new XWTikzValue(graphic,k1,this);
-      v1->setExpress(s1);
-      new XWTikzAddOption(this,i++,v1,cmd);
-    }
-
-    if (v2)
-      new XWTikzSetExpress(v2,s2,cmd);
-    else
-    {
-      v2 = new XWTikzValue(graphic,k2,this);
-      v2->setExpress(s2);
-      new XWTikzAddOption(this,i++,v2,cmd);
-    }
-    graphic->push(cmd);
-  }
-}
-
-void XWTIKZOptions::setXRadius(const QString & str)
-{
-  setValueExpress(PGFxradius,str);
-}
-
-void XWTIKZOptions::setYRadius(const QString & str)
-{
-  setValueExpress(PGFyradius,str);
-}
-
 XWTikzOperation * XWTIKZOptions::takeAt(int i)
 {
   cur = i - 1;
@@ -2786,6 +2883,66 @@ void XWTIKZOptions::addCircuit()
 {
   XWTikzKey * key = new XWTikzKey(graphic, PGFcircuit,this);
   QUndoCommand * cmd = new XWTikzAddOption(this,cur+1,key);
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addCircuiteeIEC()
+{
+  XWTikzKey * key = findPictureType();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFcircuiteeIEC);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFcircuiteeIEC,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+    
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addCircuitLogicCDH()
+{
+  XWTikzKey * key = findPictureType();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFcircuitlogicCDH);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFcircuitlogicCDH,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+    
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addCircuitLogicIEC()
+{
+  XWTikzKey * key = findPictureType();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFcircuitlogicIEC);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFcircuitlogicIEC,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+    
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addCircuitLogicUS()
+{
+  XWTikzKey * key = findPictureType();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFcircuitlogicUS);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFcircuitlogicUS,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+    
   graphic->push(cmd);
 }
 
@@ -2860,17 +3017,36 @@ void XWTIKZOptions::addHugeMindmap()
   graphic->push(cmd);
 }
 
-void XWTIKZOptions::addLabel()
+void XWTIKZOptions::addInputInverted()
 {
-  XWTikzDomainDialog dlg(tr("label"),tr("angle:"),tr("text:"));
-  if (dlg.exec() == QDialog::Accepted)
+  XWTikzOperation * op = find(PGFinputs);
+  if (op)
   {
-    QString angle = dlg.getStart();
-    QString text = dlg.getEnd();
-    XWTikzLabel * l = new XWTikzLabel(graphic,this);
-    l->setAngle(angle);
-    l->setText(text);
-    QUndoCommand * cmd = new XWTikzAddOption(this,cur+1,l);
+    QUndoCommand * cmd = new XWTikzAddInput((XWTikzInpus*)op, QChar('i'));
+    graphic->push(cmd);
+  }
+  else
+  {
+    XWTikzInpus * i = new XWTikzInpus(graphic,this);
+    i->append(QChar('i'));
+    QUndoCommand * cmd = new XWTikzAddOption(this,cur+1,i);
+    graphic->push(cmd);
+  }
+}
+
+void XWTIKZOptions::addInputNormal()
+{
+  XWTikzOperation * op = find(PGFinputs);
+  if (op)
+  {
+    QUndoCommand * cmd = new XWTikzAddInput((XWTikzInpus*)op, QChar('n'));
+    graphic->push(cmd);
+  }
+  else
+  {
+    XWTikzInpus * i = new XWTikzInpus(graphic,this);
+    i->append(QChar('n'));
+    QUndoCommand * cmd = new XWTikzAddOption(this,cur+1,i);
     graphic->push(cmd);
   }
 }
@@ -2929,21 +3105,6 @@ void XWTIKZOptions::addMindmap()
     cmd = new XWTikzAddOption(this,cur+1,key);
   }
   graphic->push(cmd);
-}
-
-void XWTIKZOptions::addPin()
-{
-  XWTikzDomainDialog dlg(tr("pin"),tr("angle:"),tr("text:"));
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    QString angle = dlg.getStart();
-    QString text = dlg.getEnd();
-    XWTikzPin * n = new XWTikzPin(graphic,this);
-    n->setAngle(angle);
-    n->setText(text);
-    QUndoCommand * cmd = new XWTikzAddOption(this,cur+1,n);
-    graphic->push(cmd);
-  }
 }
 
 void XWTIKZOptions::addPointDown()
@@ -3083,6 +3244,16 @@ void XWTIKZOptions::addTransformShape()
   }
 }
 
+void XWTIKZOptions::removeInput()
+{
+  XWTikzOperation * op = find(PGFinputs);
+  if (op)
+  {
+    QUndoCommand * cmd = new XWTikzRemoveInput((XWTikzInpus*)op);
+    graphic->push(cmd);
+  }
+}
+
 void XWTIKZOptions::removeTransformShape()
 {
   XWTikzKey * k = getKey(PGFtransformshape);
@@ -3092,6 +3263,34 @@ void XWTIKZOptions::removeTransformShape()
     QUndoCommand * cmd = new XWTikzRemoveOption(this,i);
     graphic->push(cmd);
   }
+}
+
+void XWTIKZOptions::setAmpere()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("ampere", "ampere");
+}
+
+void XWTIKZOptions::setAmpereOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("ampere'", "ampere");
+}
+
+void XWTIKZOptions::setAmpereSloped()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("ampere sloped", "ampere");
+}
+
+void XWTIKZOptions::setAmpereSlopedOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("ampere' sloped", "ampere");
 }
 
 void XWTIKZOptions::setAnchor()
@@ -3195,6 +3394,11 @@ void XWTIKZOptions::setArrows()
   }
 }
 
+void XWTIKZOptions::setAt()
+{
+  setCoord(PGFat,tr("at"));
+}
+
 void XWTIKZOptions::setBallColor()
 {
   setColor(PGFballcolor,tr("ball color"));
@@ -3243,6 +3447,56 @@ void XWTIKZOptions::setChamferedRectangleAngle()
 void XWTIKZOptions::setChamferedRectangleSep()
 {
   setExpress(PGFchamferedrectanglesep, tr("chamfered rectangle sep"),tr("length:"));
+}
+
+void XWTIKZOptions::setCircuiteeSymbol()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  int symbol = -1;
+  if (op)
+    symbol = op->getKeyWord();
+
+  XWTikzCircuiteeDialog dlg(PGFcircuiteeIEC);
+  dlg.setShape(symbol);
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    symbol = dlg.getShape();
+    QUndoCommand * cmd = 0;
+    if (op)
+      cmd = new XWTikzSetKey(op,symbol);
+    else
+    {
+      op = new XWTikzCircuitSymbol(graphic,symbol,this);
+      cmd = new XWTikzAddOption(this,cur+1,op);
+    }
+
+    graphic->push(cmd);
+  }
+}
+
+void XWTIKZOptions::setCircuitLogicSymbol()
+{
+  XWTikzCircuitSymbol * op = findCircuitLogicSymbol();
+  int symbol = -1;
+  if (op)
+    symbol = op->getKeyWord();
+
+  XWTikzCircuitLogicDialog dlg(PGFcircuitlogicUS);
+  dlg.setShape(symbol);
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    symbol = dlg.getShape();
+    QUndoCommand * cmd = 0;
+    if (op)
+      cmd = new XWTikzSetKey(op,symbol);
+    else
+    {
+      op = new XWTikzCircuitSymbol(graphic,symbol,this);
+      cmd = new XWTikzAddOption(this,cur+1,op);
+    }
+
+    graphic->push(cmd);
+  }
 }
 
 void XWTIKZOptions::setCircuitSymbolSize()
@@ -3357,6 +3611,34 @@ void XWTIKZOptions::setConnectSpies()
   graphic->push(cmd);
 }
 
+void XWTIKZOptions::setCoulomb()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("coulomb", "coulomb");
+}
+
+void XWTIKZOptions::setCoulombOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("coulomb'", "coulomb");
+}
+
+void XWTIKZOptions::setCoulombSloped()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("coulomb sloped", "coulomb");
+}
+
+void XWTIKZOptions::setCoulombSlopedOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("coulomb' sloped", "coulomb");
+}
+
 void XWTIKZOptions::setCylinderEndFill()
 {
   setColor(PGFcylinderendfill,tr("cylinder end fill"));
@@ -3463,9 +3745,42 @@ void XWTIKZOptions::setDrawOpacity()
   }
 }
 
+void XWTIKZOptions::setEndAngle()
+{
+  setExpress(PGFendangle,tr("arc"),tr("end angle:"));
+}
+
 void XWTIKZOptions::setFadingAngle()
 {
   setExpress(PGFfadingangle,tr("fading angle"),tr("angle:"));
+}
+
+void XWTIKZOptions::setFarad()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("farad", "farad");
+}
+
+void XWTIKZOptions::setFaradOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("farad'", "farad");
+}
+
+void XWTIKZOptions::setFaradSloped()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("farad sloped", "farad");
+}
+
+void XWTIKZOptions::setFaradSlopedOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("farad' sloped", "farad");
 }
 
 void XWTIKZOptions::setFillColor()
@@ -3497,64 +3812,80 @@ void XWTIKZOptions::setFillOpacity()
   }
 }
 
+void XWTIKZOptions::setHenry()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("henry", "henry");
+}
+
+void XWTIKZOptions::setHenryOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("henry'", "henry");
+}
+
+void XWTIKZOptions::setHenrySloped()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("henry sloped", "henry");
+}
+
+void XWTIKZOptions::setHenrySlopedOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("henry' sloped", "henry");
+}
+
+void XWTIKZOptions::setHertz()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("hertz", "hertz");
+}
+
+void XWTIKZOptions::setHertzOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("hertz'", "hertz");
+}
+
+void XWTIKZOptions::setHertzSloped()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("hertz sloped", "hertz");
+}
+
+void XWTIKZOptions::setHertzSlopedOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("hertz' sloped", "hertz");
+}
+
 void XWTIKZOptions::setInfo()
 {
-  XWTikzLabelDialog dlg("info");
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    QString str = dlg.getLabel();
-    int len = str.length();
-    int pos = 0;
-    XWTikzInfo * l = new XWTikzInfo(graphic, this);
-    l->scan(str,len,pos);
-    QUndoCommand * cmd = new XWTikzAddOption(this,cur+1,l);
-    graphic->push(cmd);
-  }
+  setInfo("info",PGFinfo);
 }
 
 void XWTIKZOptions::setInfoMissingAngle()
 {
-  XWTikzLabelDialog dlg("info'");
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    QString str = dlg.getLabel();
-    int len = str.length();
-    int pos = 0;
-    XWTikzInfoMissingAngle * l = new XWTikzInfoMissingAngle(graphic, this);
-    l->scan(str,len,pos);
-    QUndoCommand * cmd = new XWTikzAddOption(this,cur+1,l);
-    graphic->push(cmd);
-  }
+  setInfo("info'",PGFinfomissingangle);
 }
 
 void XWTIKZOptions::setInfoSloped()
 {
-  XWTikzLabelDialog dlg("info sloped");
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    QString str = dlg.getLabel();
-    int len = str.length();
-    int pos = 0;
-    XWTikzInfoSloped * l = new XWTikzInfoSloped(graphic, this);
-    l->scan(str,len,pos);
-    QUndoCommand * cmd = new XWTikzAddOption(this,cur+1,l);
-    graphic->push(cmd);
-  }
+  setInfo("info sloped",PGFinfosloped);
 }
 
 void XWTIKZOptions::setInfoSlopedMissingAngle()
 {
-  XWTikzLabelDialog dlg("info' sloped");
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    QString str = dlg.getLabel();
-    int len = str.length();
-    int pos = 0;
-    XWTikzInfoSlopedMissingAngle * l = new XWTikzInfoSlopedMissingAngle(graphic, this);
-    l->scan(str,len,pos);
-    QUndoCommand * cmd = new XWTikzAddOption(this,cur+1,l);
-    graphic->push(cmd);
-  }
+  setInfo("info' sloped",PGFinfomissinganglesloped);
 }
 
 void XWTIKZOptions::setInnerColor()
@@ -3581,17 +3912,7 @@ void XWTIKZOptions::setKiteVertexAngles()
 
 void XWTIKZOptions::setLabel()
 {
-  XWTikzLabelDialog dlg("label");
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    QString str = dlg.getLabel();
-    int len = str.length();
-    int pos = 0;
-    XWTikzLabel * l = new XWTikzLabel(graphic, this);
-    l->scan(str,len,pos);
-    QUndoCommand * cmd = new XWTikzAddOption(this,cur+1,l);
-    graphic->push(cmd);
-  }
+  setLabel("label", PGFlabel);
 }
 
 void XWTIKZOptions::setLeftColor()
@@ -3805,6 +4126,34 @@ void XWTIKZOptions::setOf()
   }
 }
 
+void XWTIKZOptions::setohm()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("ohm", "ohm");
+}
+
+void XWTIKZOptions::setohmOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("ohm'", "ohm");
+}
+
+void XWTIKZOptions::setohmSloped()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("ohm sloped", "ohm");
+}
+
+void XWTIKZOptions::setohmSlopedOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("ohm' sloped", "ohm");
+}
+
 void XWTIKZOptions::setPathFading()
 {
   XWTikzValue * r = getValue(PGFpathfading);
@@ -3864,17 +4213,7 @@ void XWTIKZOptions::setPatternColor()
 
 void XWTIKZOptions::setPin()
 {
-  XWTikzLabelDialog dlg("pin");
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    QString str = dlg.getLabel();
-    int len = str.length();
-    int pos = 0;
-    XWTikzPin * p = new XWTikzPin(graphic, this);
-    p->scan(str,len,pos);
-    QUndoCommand * cmd = new XWTikzAddOption(this,cur+1,p);
-    graphic->push(cmd);
-  }
+  setLabel("pin", PGFpin);
 }
 
 void XWTIKZOptions::setPlotHandler()
@@ -3953,6 +4292,11 @@ void XWTIKZOptions::setPrelength()
   setDecorationExpress(PGFprelength,tr("pre length"),tr("dimension:"));
 }
 
+void XWTIKZOptions::setRadius()
+{
+  setExpress(PGFradius,tr("circle"),tr("radius:"));
+}
+
 void XWTIKZOptions::setRaise()
 {
   setDecorationExpress(PGFraise,tr("raise"),tr("dimension:"));
@@ -4027,6 +4371,34 @@ void XWTIKZOptions::setScopeFading()
     }    
     graphic->push(cmd);
   }
+}
+
+void XWTIKZOptions::setSiemens()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("siemens", "siemens");
+}
+
+void XWTIKZOptions::setSiemensOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("siemens'", "siemens");
+}
+
+void XWTIKZOptions::setSiemensSloped()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("siemens sloped", "siemens");
+}
+
+void XWTIKZOptions::setSiemensSlopedOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("siemens' sloped", "siemens");
 }
 
 void XWTIKZOptions::setShade()
@@ -4228,6 +4600,16 @@ void XWTIKZOptions::setStarPoints()
   setExpress(PGFstarpoints,tr("star points"),tr("integer:"));
 }
 
+void XWTIKZOptions::setStartAngle()
+{
+  setExpress(PGFstartangle,tr("arc"),tr("start angle:"));
+}
+
+void XWTIKZOptions::setStep()
+{
+  setExpress(PGFstep,tr("grid"),tr("step:"));
+}
+
 void XWTIKZOptions::setTapeBendHeight()
 {
   setExpress(PGFtapebendheight,tr("tape bend height"),tr("length:"));
@@ -4258,6 +4640,95 @@ void XWTIKZOptions::setUpperRightColor()
   setColor(PGFupperright,tr("upper right color"));
 }
 
+void XWTIKZOptions::setVolt()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("volt", "volt");
+}
+
+void XWTIKZOptions::setVoltOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("volt'", "volt");
+}
+
+void XWTIKZOptions::setVoltSloped()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("volt sloped", "volt");
+}
+
+void XWTIKZOptions::setVoltSlopedOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("volt' sloped", "volt");
+}
+
+void XWTIKZOptions::setVoltAmpere()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("voltampere", "voltampere");
+}
+
+void XWTIKZOptions::setVoltAmpereOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("voltampere'", "voltampere");
+}
+
+void XWTIKZOptions::setVoltAmpereSloped()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("voltampere sloped", "voltampere");
+}
+
+void XWTIKZOptions::setVoltAmpereSlopedOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("voltampere' sloped", "voltampere");
+}
+
+void XWTIKZOptions::setWatt()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("watt", "watt");
+}
+
+void XWTIKZOptions::setWattOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("watt'", "watt");
+}
+
+void XWTIKZOptions::setWattSloped()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("watt sloped", "watt");
+}
+
+void XWTIKZOptions::setWattSlopedOppsite()
+{
+  XWTikzCircuitSymbol * op = findCircuiteeSymbol();
+  if (op)
+    op->setUnit("watt' sloped", "watt");
+}
+
+void XWTIKZOptions::setXRadius()
+{
+  setExpress(PGFxradius,tr("ellipse"),tr("x radius:"));
+}
+
 void XWTIKZOptions::setXScale()
 {
   setExpress(PGFxscale,tr("x scale"),tr("factor:"));
@@ -4276,6 +4747,11 @@ void XWTIKZOptions::setXSlant()
 void XWTIKZOptions::setXVector()
 {
   setExpress(PGFx,tr("x-vector"),tr("value:"));
+}
+
+void XWTIKZOptions::setYRadius()
+{
+  setExpress(PGFyradius,tr("ellipse"),tr("y radius:"));
 }
 
 void XWTIKZOptions::setYScale()
@@ -4301,6 +4777,358 @@ void XWTIKZOptions::setYVector()
 void XWTIKZOptions::setZVector()
 {
   setExpress(PGFz,tr("z-vector"),tr("value:"));
+}
+
+void XWTIKZOptions::setAround(int keywordA, 
+                       const QString & title,
+                       const QString & ltxt)
+{
+  XWTikzAround * r = getAround(keywordA);
+  XWTikzAroundDialog dlg(title,ltxt);
+  if (r)
+  {
+    QString str = r->getExpress();
+    dlg.setExpress(str);
+    str = r->getCoord();
+    dlg.setCoord(str);
+  }
+
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    QString exp = dlg.getExpress();
+    QString around = dlg.getCoord();
+    QUndoCommand * cmd = 0;
+    if (r)
+      cmd = new XWTikzSetAround(r,exp,around);
+    else
+    {
+      r = new XWTikzAround(graphic,keywordA,this);
+      r->setExpress(exp);
+      r->setCoord(around);
+      cmd = new XWTikzAddOption(this,cur+1,r);
+    }    
+    graphic->push(cmd);
+  }
+}
+
+void XWTIKZOptions::setColor(int keywordA, const QString & title)
+{
+  XWTikzColor * c = getColor(keywordA);
+  XWTikzColorDialog dlg(title);
+  if (c)
+  {
+    int c1A,c2A;double pA;
+    c->getColor(c1A,pA,c2A);
+    dlg.setColor(c1A,pA,c2A);
+  }
+
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    int c1A,c2A;double pA;
+    dlg.getColor(c1A,pA,c2A);
+    QUndoCommand * cmd = 0;
+    if (c)
+      cmd = new XWTikzSetColor(c,c1A,pA,c2A);
+    else
+    {
+      c = new XWTikzColor(graphic,keywordA,this);
+      c->setColor(c1A,pA,c2A);
+      cmd = new XWTikzAddOption(this,cur+1,c);
+    }
+    graphic->push(cmd);
+  }
+}
+
+void XWTIKZOptions::setCoord(int keywordA, const QString & title)
+{
+  XWTikzValue * v = getValue(keywordA);
+  XWTikzCoordDialog dlg(title);
+  if (v)
+  {
+    QString str = v->getCoord();
+    dlg.setCoord(str);
+  }
+
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    QString str = dlg.getCoord();
+    QUndoCommand * cmd = 0;
+    if (v)
+      cmd = new XWTikzSetExpress(v,str);
+    else
+    {
+      v = new  XWTikzValue(graphic,keywordA,this);
+      v->setCoord(str);
+      cmd = new XWTikzAddOption(this,cur+1,v);
+    }
+    graphic->push(cmd);
+  }
+}
+
+void XWTIKZOptions::setDecoration(int keywordA)
+{
+  XWTikzValue * name = 0;
+  XWTikzKey * key = 0;
+  XWTikzOperation * op = find(PGFdecoration);
+  if (op)
+  {
+    XWTIKZOptions * opts = (XWTIKZOptions*)(op);
+    name = opts->getValue(keywordA);
+    if (!name && keywordA == PGFname)
+      key = opts->findDecoration();
+  }
+
+  XWTikzDecorationDialog dlg;
+  if (name)
+  {
+    int d = (int)(name->getValue());
+    dlg.setDecoration(d);
+  }
+  else
+  {
+    if (key)
+      dlg.setDecoration(key->getKeyWord());
+  }
+
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    int d = dlg.getDecoration();
+    QUndoCommand * cmd = 0;
+    if (name)
+      cmd = new XWTikzSetValue(name,d);
+    else if (key)
+      cmd = new XWTikzSetKey(key,d);
+    else
+    {
+      if (op)
+      {
+        name = new XWTikzValue(graphic,keywordA,this);
+        name->setValue(d);
+        cmd = new XWTikzAddOption((XWTIKZOptions*)(op),cur+1,name);
+      }
+      else
+      {
+        XWTikzDecorations * ds = new XWTikzDecorations(graphic,this);
+        XWTikzValue * de = new XWTikzValue(graphic,PGFdecorate,ds);
+        de->setValue(true);
+        ds->ops << de;
+        name = new XWTikzValue(graphic,keywordA,ds);
+        name->setValue(d);
+        ds->ops << name;
+        cmd = new XWTikzAddOption(this,cur+1,ds);
+      }
+    }
+    graphic->push(cmd);
+  }
+}
+
+void XWTIKZOptions::setDecorationExpress(int keywordA,
+                                    const QString & title,
+                                    const QString & ltxt)
+{
+  XWTikzValue * p = 0;
+  XWTikzOperation * op = find(PGFdecoration);
+  if (op)
+  {
+    XWTIKZOptions * opts = (XWTIKZOptions*)(op);
+    p = opts->getValue(keywordA);
+  }
+
+  XWTikzExpressDialog dlg(title,ltxt);
+  if (p)
+  {
+    QString l = p->getExpress();
+    dlg.setExpress(l);
+  }
+
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    QString l = dlg.getExpress();
+    QUndoCommand * cmd = 0;
+    if (p)
+      cmd = new XWTikzSetExpress(p,l);
+    else
+    {
+      if (op)
+      {
+        p = new XWTikzValue(graphic,keywordA,this);
+        p->setExpress(l);
+        cmd = new XWTikzAddOption((XWTIKZOptions*)(op),cur+1,p);
+      }
+      else
+      {
+        XWTikzDecorations * ds = new XWTikzDecorations(graphic,this);
+        p = new XWTikzValue(graphic,keywordA,ds);
+        p->setExpress(l);
+        ds->ops << p;
+        cmd = new XWTikzAddOption(this,cur+1,ds);
+      }
+    }
+    graphic->push(cmd);
+  }
+}
+
+void XWTIKZOptions::setExpress(int keywordA, 
+                       const QString & title,
+                       const QString & ltxt)
+{
+  XWTikzValue * v = getValue(keywordA);
+  XWTikzExpressDialog dlg(title,ltxt);
+  if (v)
+  {
+    QString str = v->getExpress();
+    dlg.setExpress(str);
+  }
+
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    QString str = dlg.getExpress();
+    QUndoCommand * cmd = 0;
+    if (v)
+      cmd = new XWTikzSetExpress(v,str);
+    else
+    {
+      v = new  XWTikzValue(graphic,keywordA,this);
+      v->setExpress(str);
+      cmd = new XWTikzAddOption(this,cur+1,v);
+    }
+    graphic->push(cmd);
+  }
+}
+
+void XWTIKZOptions::setInfo(const QString & title, int kw)
+{
+  XWTikzLabel * op = findInfo();
+  XWTikzLabelDialog dlg(title);
+  if (op)
+  {
+    QString opt = op->getOptions();
+    dlg.setOptions(opt);
+    QString a = op->getAngle();
+    dlg.setAngle(a);
+    QString txt = op->getContent();
+    dlg.setText(txt);
+  }
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    QString str = dlg.getLabel();
+    QUndoCommand * cmd = 0;
+    if (op)
+      cmd = new XWTikzSetLabel(op,kw,str);
+    else
+    {
+      int len = str.length();
+      int pos = 0;
+      op = new XWTikzLabel(graphic, kw, this);
+      op->scan(str,len,pos);
+      cmd = new XWTikzAddOption(this,cur+1,op);
+    }
+    
+    graphic->push(cmd);
+  }
+}
+
+void XWTIKZOptions::setLabel(const QString & title, int kw)
+{
+  XWTikzLabel * op = findLabel();
+  XWTikzLabelDialog dlg(title);
+  if (op)
+  {
+    QString opt = op->getOptions();
+    dlg.setOptions(opt);
+    QString a = op->getAngle();
+    dlg.setAngle(a);
+    QString txt = op->getContent();
+    dlg.setText(txt);
+  }
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    QString str = dlg.getLabel();
+    QUndoCommand * cmd = 0;
+    if (op)
+      cmd = new XWTikzSetLabel(op,kw,str);
+    else
+    {
+      int len = str.length();
+      int pos = 0;
+      op = new XWTikzLabel(graphic, kw, this);
+      op->scan(str,len,pos);
+      cmd = new XWTikzAddOption(this,cur+1,op);
+    }
+    
+    graphic->push(cmd);
+  }
+}
+
+void XWTIKZOptions::setUnit(const QString & title, const QString & u)
+{
+  XWTikzUnit * op = findUnit();
+  QString v,ou;
+  if (op)
+    op->getUnit(ou,v);
+
+  XWTikzExpressDialog dlg(title,u);
+  dlg.setExpress(v);
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    v = dlg.getExpress();
+    QUndoCommand * cmd = 0;
+    if (op)
+      cmd = new XWTikzSetUnit(op,title,v);
+    else
+    {
+      op = new XWTikzUnit(graphic,title,this);
+      op->setValue(v);
+      cmd = new XWTikzAddOption(this,cur+1,op);
+    }
+    graphic->push(cmd);
+  }
+}
+
+void XWTIKZOptions::setTwoValue(const QString & title,
+                           int k1, const QString & title1,
+                           int k2,const QString & title2)
+{
+  XWTikzValue * v1 = getValue(k1);
+  XWTikzValue * v2 = getValue(k2);
+  XWTikzDomainDialog dlg(title,title1,title2);
+  if (v1)
+  {
+    QString tmp = v1->getExpress();
+    dlg.setStart(tmp);
+  }
+
+  if (v2)
+  {
+    QString tmp = v2->getExpress();
+    dlg.setEnd(tmp);
+  }
+
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    QString s1 = dlg.getStart();
+    QString s2 = dlg.getEnd();
+    QUndoCommand * cmd = new QUndoCommand;
+    int i = cur+1;
+    if (v1)
+      new XWTikzSetExpress(v1,s1,cmd);
+    else
+    {
+      v1 = new XWTikzValue(graphic,k1,this);
+      v1->setExpress(s1);
+      new XWTikzAddOption(this,i++,v1,cmd);
+    }
+
+    if (v2)
+      new XWTikzSetExpress(v2,s2,cmd);
+    else
+    {
+      v2 = new XWTikzValue(graphic,k2,this);
+      v2->setExpress(s2);
+      new XWTikzAddOption(this,i++,v2,cmd);
+    }
+    graphic->push(cmd);
+  }
 }
 
 void XWTIKZOptions::doPathDefault(XWTikzState * state, bool showpoint)
@@ -4332,6 +5160,97 @@ XWTikzKey * XWTIKZOptions::findCircuitSymbols()
         kw == PGFtinycircuitsymbols)
     {
       return (XWTikzKey*)(ops[i]);
+    }
+  }
+
+  return 0;
+}
+
+XWTikzCircuitSymbol * XWTIKZOptions::findCircuiteeSymbol()
+{
+  for (int i = 0; i < ops.size(); i++)
+  {
+    int kw = ops[i]->getKeyWord();
+    if (kw == PGFresistor || 
+        kw == PGFinductor ||
+        kw == PGFcapacitor ||
+        kw == PGFcontact ||
+        kw == PGFground || 
+        kw == PGFbattery || 
+        kw == PGFdiode || 
+        kw == PGFZenerdiode || 
+        kw == PGFtunneldiode || 
+        kw == PGFbackwarddiode || 
+        kw == PGFSchottkydiode || 
+        kw == PGFbreakdowndiode || 
+        kw == PGFbulb || 
+        kw == PGFvoltagesource || 
+        kw == PGFcurrentsource || 
+        kw == PGFmakecontact || 
+        kw == PGFbreakcontact || 
+        kw == PGFresistorIEC || 
+        kw == PGFinductorIEC ||
+        kw == PGFcapacitorIEC ||
+        kw == PGFcontactIEC ||
+        kw == PGFgroundIEC || 
+        kw == PGFbatteryIEC || 
+        kw == PGFdiodeIEC || 
+        kw == PGFZenerdiodeIEC || 
+        kw == PGFtunneldiodeIEC || 
+        kw == PGFbackwarddiodeIEC || 
+        kw == PGFSchottkydiodeIEC || 
+        kw == PGFbreakdowndiodeIEC || 
+        kw == PGFbulbIEC || 
+        kw == PGFvoltagesourceIEC || 
+        kw == PGFcurrentsourceIEC || 
+        kw == PGFmakecontactIEC || 
+        kw == PGFbreakcontactIEC || 
+        kw == PGFamperemeter || 
+        kw == PGFvoltmeter || 
+        kw == PGFohmmeter || 
+        kw == PGFacsource || 
+        kw == PGFdcsource)
+    {
+      return (XWTikzCircuitSymbol*)(ops[i]);
+    }
+  }
+
+  return 0;
+}
+
+XWTikzCircuitSymbol * XWTIKZOptions::findCircuitLogicSymbol()
+{
+  for (int i = 0; i < ops.size(); i++)
+  {
+    int kw = ops[i]->getKeyWord();
+    if (kw == PGFandgate || 
+        kw == PGFnandgate || 
+        kw == PGForgate ||
+        kw == PGFnorgate ||
+        kw == PGFxorgate ||
+        kw == PGFxnorgate ||
+        kw == PGFnotgate ||
+        kw == PGFbuffergate ||
+        kw == PGFandgateIEC || 
+        kw == PGFnandgateIEC || 
+        kw == PGForgateIEC ||
+        kw == PGFnorgateIEC ||
+        kw == PGFxorgateIEC ||
+        kw == PGFxnorgateIEC ||
+        kw == PGFnotgateIEC ||
+        kw == PGFbuffergateIEC ||
+        kw == PGFandgateUS || 
+        kw == PGFnandgateUS || 
+        kw == PGForgateUS ||
+        kw == PGFnorgateUS ||
+        kw == PGFxorgateUS ||
+        kw == PGFxnorgateUS ||
+        kw == PGFnotgateUS ||
+        kw == PGFbuffergateUS ||
+        kw == PGFandgateCDH || 
+        kw == PGFnandgateCDH)
+    {
+      return (XWTikzCircuitSymbol*)(ops[i]);
     }
   }
 
@@ -4404,6 +5323,38 @@ XWTikzKey * XWTIKZOptions::findDecoration()
   return 0;
 }
 
+XWTikzLabel * XWTIKZOptions::findInfo()
+{
+  for (int i = 0; i < ops.size(); i++)
+  {
+    int kw = ops[i]->getKeyWord();
+    if (kw == PGFinfo || 
+        kw == PGFinfomissingangle ||
+        kw == PGFinfosloped ||
+        kw == PGFinfomissinganglesloped)
+    {
+      return (XWTikzLabel*)(ops[i]);
+    }
+  }
+
+  return 0;
+}
+
+XWTikzLabel * XWTIKZOptions::findLabel()
+{
+  for (int i = 0; i < ops.size(); i++)
+  {
+    int kw = ops[i]->getKeyWord();
+    if (kw == PGFlabel || 
+        kw == PGFpin)
+    {
+      return (XWTikzLabel*)(ops[i]);
+    }
+  }
+
+  return 0;
+}
+
 XWTikzKey * XWTIKZOptions::findLineWidth()
 {
   for (int i = 0; i < ops.size(); i++)
@@ -4433,6 +5384,27 @@ XWTikzKey * XWTIKZOptions::findMindmap()
         kw == PGFsmallmindmap ||
         kw == PGFlargemindmap ||
         kw == PGFhugemindmap)
+    {
+      return (XWTikzKey*)(ops[i]);
+    }
+  }
+
+  return 0;
+}
+
+XWTikzKey * XWTIKZOptions::findPictureType()
+{
+  for (int i = 0; i < ops.size(); i++)
+  {
+    int kw = ops[i]->getKeyWord();
+    if (kw == PGFcircuit || 
+        kw == PGFcircuits ||
+        kw == PGFcircuitee ||
+        kw == PGFcircuiteeIEC ||
+        kw == PGFcircuitlogic ||
+        kw == PGFcircuitlogicIEC ||
+        kw == PGFcircuitlogicUS ||
+        kw == PGFcircuitlogicCDH)
     {
       return (XWTikzKey*)(ops[i]);
     }
@@ -4535,6 +5507,32 @@ XWTikzKey * XWTIKZOptions::findShape()
   return 0;
 }
 
+XWTikzUnit * XWTIKZOptions::findUnit()
+{
+  for (int i = 0; i < ops.size(); i++)
+  {
+    int kw = ops[i]->getKeyWord();
+    if (kw == PGFampere || 
+        kw == PGFvolt ||
+        kw == PGFohm ||
+        kw == PGFohmtheotherside ||
+        kw == PGFohmsloped ||
+        kw == PGFohmtheothersidesloped ||
+        kw == PGFsiemens ||
+        kw == PGFhenry ||
+        kw == PGFfarad ||
+        kw == PGFcoulomb ||
+        kw == PGFvoltampere ||
+        kw == PGFwatt ||
+        kw == PGFhertz)
+    {
+      return (XWTikzUnit*)(ops[i]);
+    }
+  }
+
+  return 0;
+}
+
 QString XWTIKZOptions::getOptions()
 {
   QString o;
@@ -4560,42 +5558,6 @@ QString XWTIKZOptions::getOptions()
     ret = QString("%1={%2}").arg(ret).arg(o);
 
   return ret;
-}
-
-void XWTIKZOptions::setValueCoord(int keywordA, const QString & str)
-{
-  if (str.isEmpty())
-    return ;
-
-  XWTikzValue * v = getValue(keywordA);
-  QUndoCommand * cmd = 0;
-  if (v)
-    cmd = new XWTikzSetExpress(v,str);
-  else
-  {
-    v = new  XWTikzValue(graphic,keywordA,this);
-    v->setCoord(str);
-    cmd = new XWTikzAddOption(this,cur+1,v);
-  }
-  graphic->push(cmd);
-}
-
-void XWTIKZOptions::setValueExpress(int keywordA, const QString & str)
-{
-  if (str.isEmpty())
-    return ;
-
-  QUndoCommand * cmd = 0;
-  XWTikzValue * v = getValue(keywordA);
-  if (v)
-      cmd = new XWTikzSetExpress(v,str);
-  else
-  {
-    v = new  XWTikzValue(graphic,keywordA,this);
-    v->setExpress(str);
-    cmd = new XWTikzAddOption(this,cur+1,v);
-  }
-  graphic->push(cmd);
 }
 
 XWTikzFadingTransform::XWTikzFadingTransform(XWTikzGraphic * graphicA, QObject * parent)

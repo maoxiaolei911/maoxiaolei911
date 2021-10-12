@@ -38,6 +38,7 @@ public:
   QString getName() {return name;}
 
   virtual QPointF getAnchor(int a, XWTikzState * state);
+  virtual QPointF getAnchor(XWTikzState * state);
   virtual int     getAnchorPosition();
   virtual QPointF getAngle(double a, XWTikzState * state);
   XWTeXBox * getBox() {return box;}
@@ -122,10 +123,6 @@ public:
   void scan(const QString & str, int & len, int & pos);
   void scanText(const QString & str, int & len, int & pos);
   void setText(const QString & str);
-
-private slots:
-  void setAnchor();
-  void setShape();
 };
 
 class XWTikzEdge : public XWTikzOperation
@@ -200,8 +197,11 @@ public:
   bool dropTo(XWTikzState * state);
 
   int     getAnchorPosition();
+  QString getAngle();
+  QString getContent();
   int     getCursorPosition();
   QString getCurrentText();
+  QString getOptions();
   QString getSelectedText();
   virtual QString getText();
   void    goToEnd();
@@ -227,16 +227,6 @@ protected:
   XWTIKZOptions * options;
   double angle;
   XWTeXBox * box;
-};
-
-class XWTikzPin : public XWTikzLabel
-{
-  Q_OBJECT
-
-public:
-  XWTikzPin(XWTikzGraphic * graphicA, QObject * parent = 0);
-
-  void doPath(XWTikzState * state, bool showpoint = false);
 };
 
 class XWTikzChild : public XWTikzCoordinate
@@ -335,46 +325,6 @@ private:
   QString text;
 };
 
-class XWTikzInfo : public XWTikzLabel
-{
-  Q_OBJECT
-
-public:
-  XWTikzInfo(XWTikzGraphic * graphicA, QObject * parent = 0);
-
-  void doPath(XWTikzState * state, bool showpoint = false);
-};
-
-class XWTikzInfoMissingAngle : public XWTikzLabel
-{
-  Q_OBJECT
-
-public:
-  XWTikzInfoMissingAngle(XWTikzGraphic * graphicA, QObject * parent = 0);
-
-  void doPath(XWTikzState * state, bool showpoint = false);
-};
-
-class XWTikzInfoSloped : public XWTikzLabel
-{
-  Q_OBJECT
-
-public:
-  XWTikzInfoSloped(XWTikzGraphic * graphicA, QObject * parent = 0);
-
-  void doPath(XWTikzState * state, bool showpoint = false);
-};
-
-class XWTikzInfoSlopedMissingAngle : public XWTikzLabel
-{
-  Q_OBJECT
-
-public:
-  XWTikzInfoSlopedMissingAngle(XWTikzGraphic * graphicA, QObject * parent = 0);
-
-  void doPath(XWTikzState * state, bool showpoint = false);
-};
-
 class XWTikzUnit : public XWTikzLabel
 {
   Q_OBJECT
@@ -391,6 +341,7 @@ public:
 
   void scan(const QString & str, int & len, int & pos);
   void setUnit(const QString & nameA,const QString & valueA);
+  void setValue(const QString & valueA);
 
 private:
   QString name;

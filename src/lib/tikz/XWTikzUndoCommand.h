@@ -32,6 +32,8 @@ class XWTikzEdge;
 class XWTikzCoordinate;
 class XWTikzSize;
 class XWTikzUnit;
+class XWTikzInpus;
+class XWTikzLabel;
 
 class XWTikzSetCoordinate : public QUndoCommand
 {
@@ -439,6 +441,52 @@ private:
    XWTikzUnit * unit;
    QString name;
    QString value;
+};
+
+class XWTikzAddInput : public QUndoCommand
+{
+public:
+  XWTikzAddInput(XWTikzInpus * inputsA, 
+                 const QChar & cA,
+                 QUndoCommand * parent=0);
+
+  virtual void redo();
+  virtual void undo();
+
+private:
+  XWTikzInpus * inputs;
+  QChar c;
+};
+
+class XWTikzRemoveInput : public QUndoCommand
+{
+public:
+  XWTikzRemoveInput(XWTikzInpus * inputsA,
+                 QUndoCommand * parent=0);
+
+  virtual void redo();
+  virtual void undo();
+
+private:
+  XWTikzInpus * inputs;
+  QChar c;
+};
+
+class XWTikzSetLabel : public QUndoCommand
+{
+public:
+  XWTikzSetLabel(XWTikzLabel * labelA,
+                 int kw,
+                 const QString & newstr,
+                 QUndoCommand * parent=0);
+
+  virtual void redo();
+  virtual void undo();
+
+private:
+  XWTikzLabel * label;
+  int keyword;
+  QString str;
 };
 
 #endif //XWTIKZUNDOCOMMAND_H

@@ -6,6 +6,7 @@
 #ifndef XWTIKZOPTION_H
 #define XWTIKZOPTION_H
 
+#include <QList>
 #include <QStringList>
 #include <QVector>
 #include <QColor>
@@ -569,6 +570,45 @@ public:
 private:
   QString name;
   QString unit;
+};
+
+class XWTikzInpus : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzInpus(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void append(const QChar & c);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+
+  QChar remove();
+
+  void scan(const QString & str, int & len, int & pos);
+  int  size();
+
+private:
+  QList<QChar> inputs;
+};
+
+class XWTikzLogicGateInpus : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzLogicGateInpus(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+
+  void scan(const QString & str, int & len, int & pos);
+
+private:
+  QList<QChar> inputs;
 };
 
 #endif //XWTIKZOPTION_H

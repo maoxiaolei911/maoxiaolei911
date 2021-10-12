@@ -94,7 +94,6 @@ private:
   void roundedRectangleShape(bool dopath = true);
   void strikeoutShape(bool dopath = true);
   
-  
   void circleeeShape(bool dopath = true);
   void directioneeShape(bool dopath = true);
   void rectangleeeShape(bool dopath = true);
@@ -110,6 +109,27 @@ private:
   void makecontactIECShape(bool dopath = true);
   void varmakecontactIECShape(bool dopath = true);
   void varresistorIECShape(bool dopath = true);
+
+  void andGateIECShape(bool dopath = true);
+  void bufferGateIECShape(bool dopath = true);
+  void nandGateIECShape(bool dopath = true);
+  void norGateIECShape(bool dopath = true);
+  void notGateIECShape(bool dopath = true);
+  void orGateIECShape(bool dopath = true);  
+  void xnorGateIECShape(bool dopath = true);
+  void xorGateIECShape(bool dopath = true);
+
+  void andGateUSShape(bool dopath = true);
+  void bufferGateUSShape(bool dopath = true);
+  void nandGateUSShape(bool dopath = true);
+  void norGateUSShape(bool dopath = true);
+  void notGateUSShape(bool dopath = true);
+  void orGateUSShape(bool dopath = true);
+  void xnorGateUSShape(bool dopath = true);
+  void xorGateUSShape(bool dopath = true);
+
+  void andGateCDHShape(bool dopath = true);
+  void nandGateCDHShape(bool dopath = true);
 
   QPointF pointIntersectionOfLineAndArc(const QPointF & p1,
                                         const QPointF & p2,

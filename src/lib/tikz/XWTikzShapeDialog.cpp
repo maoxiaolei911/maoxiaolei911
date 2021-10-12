@@ -203,7 +203,35 @@ style(styleA)
   connect(buttonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(buttonGroupClicked(QAbstractButton*)));
 
   QGridLayout *layout = new QGridLayout;
-  layout->addWidget(createButton("rectangle"),0,0);
+  layout->addWidget(createButton("resistor"),0,0);
+  layout->addWidget(createButton("inductor"),0,1);
+  layout->addWidget(createButton("capacitor"),0,2);
+  layout->addWidget(createButton("contact"),0,3);
+
+  layout->addWidget(createButton("ground"),2,0);
+  layout->addWidget(createButton("battery"),2,1);
+  layout->addWidget(createButton("diode"),2,2);
+  layout->addWidget(createButton("Zener diode"),2,3);
+
+  layout->addWidget(createButton("Schottky diode"),3,0);
+  layout->addWidget(createButton("tunnel diode"),3,1);
+  layout->addWidget(createButton("backward diode"),3,2);
+  layout->addWidget(createButton("breakdown diode"),3,3);
+
+  layout->addWidget(createButton("bulb"),4,0);
+  layout->addWidget(createButton("current source"),4,1);
+  layout->addWidget(createButton("voltage source"),4,2);
+  layout->addWidget(createButton("current direction"),4,3);
+
+  layout->addWidget(createButton("current direction'"),5,0);
+  layout->addWidget(createButton("make contact"),5,1);
+  layout->addWidget(createButton("break contact"),5,2);
+  layout->addWidget(createButton("amperemeter"),5,3);
+
+  layout->addWidget(createButton("voltmeter"),6,0);
+  layout->addWidget(createButton("ohmmeter"),6,1);
+  layout->addWidget(createButton("ac source"),6,2);
+  layout->addWidget(createButton("dc source"),6,3);
 
   setLayout(layout);
 }
@@ -287,7 +315,16 @@ style(styleA)
   connect(buttonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(buttonGroupClicked(QAbstractButton*)));
 
   QGridLayout *layout = new QGridLayout;
-  layout->addWidget(createButton("rectangle"),0,0);
+  layout->addWidget(createButton("and gate"),0,0);
+  layout->addWidget(createButton("nand gate"),0,1);
+  layout->addWidget(createButton("or gate"),0,2);
+
+  layout->addWidget(createButton("nor gate"),1,0);
+  layout->addWidget(createButton("xor gate"),1,1);
+  layout->addWidget(createButton("xnor gate"),1,2);
+
+  layout->addWidget(createButton("not gate"),2,0);
+  layout->addWidget(createButton("buffer gate"),2,1);
 
   setLayout(layout);
 }

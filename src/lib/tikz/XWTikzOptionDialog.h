@@ -220,6 +220,10 @@ public:
 
   QString getLabel();
 
+  void setAngle(const QString & a);
+  void setOptions(const QString & o);
+  void setText(const QString & txt);
+
 private:
   QLabel * aLabel;
   QLineEdit * aEdit;

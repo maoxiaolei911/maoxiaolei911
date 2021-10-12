@@ -98,9 +98,6 @@ double XWTikzShape::angleOnEllipse(const QPointF & p, const QPointF & ur)
 
 void XWTikzShape::doShape(bool dopath)
 {
-  if (state->pictureType == PGFcircuit)
-    setCircuitShape();
-
   if (box)
   {
     boxWidth = box->getWidth(state->textWidth);
@@ -348,6 +345,78 @@ void XWTikzShape::doShape(bool dopath)
     case PGFbreakcontactIEC:
       breakcontactIECShape(dopath);
       break;
+
+    case PGFandgateIEC:
+      andGateIECShape(dopath);
+      break;
+
+    case PGFnandgateIEC:
+      nandGateIECShape(dopath);
+      break;
+
+    case PGForgateIEC:
+      orGateIECShape(dopath);
+      break;
+
+    case PGFnorgateIEC:
+      norGateIECShape(dopath);
+      break;
+
+    case PGFxorgateIEC:
+      xorGateIECShape(dopath);
+      break;
+
+    case PGFxnorgateIEC:
+      xnorGateIECShape(dopath);
+      break;
+
+    case PGFbuffergateIEC:
+      bufferGateIECShape(dopath);
+      break;
+
+    case PGFnotgateIEC:
+      notGateIECShape(dopath);
+      break;
+
+    case PGFandgateUS:
+      andGateUSShape(dopath);
+      break;
+
+    case PGFnandgateUS:
+      nandGateUSShape(dopath);
+      break;
+
+    case PGForgateUS:
+      orGateUSShape(dopath);
+      break;
+
+    case PGFnorgateUS:
+      norGateUSShape(dopath);
+      break;
+
+    case PGFxorgateUS:
+      xorGateUSShape(dopath);
+      break;
+
+    case PGFxnorgateUS:
+      xnorGateUSShape(dopath);
+      break;
+
+    case PGFnotgateUS:
+      notGateUSShape(dopath);
+      break;
+
+    case PGFbuffergateUS:
+      bufferGateUSShape(dopath);
+      break;
+
+    case PGFandgateCDH:
+      andGateCDHShape(dopath);
+      break;
+
+    case PGFnandgateCDH:
+      nandGateCDHShape(dopath);
+      break;
   }
 
   if (dopath && state->annotation)
@@ -356,6 +425,8 @@ void XWTikzShape::doShape(bool dopath)
 
 void XWTikzShape::init()
 {
+  setCircuitShape();
+
   switch (state->shape)
   {
     default:
@@ -549,7 +620,7 @@ void XWTikzShape::init()
       state->setDraw(true);
       state->setCircuitSymbolSize(2,2);
       state->setTransformShape();
-      option = new XWTikzInfo(state->graphic,state);
+      option = new XWTikzLabel(state->graphic,PGFinfo,state);
       {
         QString str("center:A");
         int len = str.length();
@@ -563,7 +634,7 @@ void XWTikzShape::init()
       state->setDraw(true);
       state->setCircuitSymbolSize(2,2);
       state->setTransformShape();
-      option = new XWTikzInfo(state->graphic,state);
+      option = new XWTikzLabel(state->graphic,PGFinfo,state);
       {
         QString str("center:V");
         int len = str.length();
@@ -577,7 +648,7 @@ void XWTikzShape::init()
       state->setDraw(true);
       state->setCircuitSymbolSize(2,2);
       state->setTransformShape();
-      option = new XWTikzInfo(state->graphic,state);
+      option = new XWTikzLabel(state->graphic,PGFinfo,state);
       {
         QString str("center:$\\Omega$");
         int len = str.length();
@@ -599,6 +670,150 @@ void XWTikzShape::init()
       state->setCircuitSymbolSize(2,2);
       state->setTransformShape();
       sh_beforebackground = &XWTikzShape::beforeBgDCSource;
+      break;
+
+    case PGFandgateIEC:
+      state->setDraw(true);
+      state->setInnerXSep(5);
+      state->setInnerYSep(5);
+      state->setCircuitSymbolSize(2.5,4);
+      state->setTransformShape();
+      state->logicGateInvertedRadius = 0.25 * state->circuitsSizeUnit;
+      box = new XWTikzTextBox(state->graphic,state);
+      {
+        int len = state->andGateIECSymbol.length();
+        int pos = 0;
+        box->scan(state->andGateIECSymbol,len,pos);
+      }
+      break;
+
+    case PGFnandgateIEC:
+      state->setDraw(true);
+      state->setInnerXSep(5);
+      state->setInnerYSep(5);
+      state->setCircuitSymbolSize(2.5,4);
+      state->setTransformShape();
+      state->logicGateInvertedRadius = 0.25 * state->circuitsSizeUnit;
+      box = new XWTikzTextBox(state->graphic,state);
+      {
+        int len = state->nandGateIECSymbol.length();
+        int pos = 0;
+        box->scan(state->nandGateIECSymbol,len,pos);
+      }
+      break;
+
+    case PGForgateIEC:
+      state->setDraw(true);
+      state->setInnerXSep(5);
+      state->setInnerYSep(5);
+      state->setCircuitSymbolSize(2.5,4);
+      state->setTransformShape();
+      state->logicGateInvertedRadius = 0.25 * state->circuitsSizeUnit;
+      box = new XWTikzTextBox(state->graphic,state);
+      {
+        int len = state->orGateIECSymbol.length();
+        int pos = 0;
+        box->scan(state->orGateIECSymbol,len,pos);
+      }
+      break;
+
+    case PGFnorgateIEC:
+      state->setDraw(true);
+      state->setInnerXSep(5);
+      state->setInnerYSep(5);
+      state->setCircuitSymbolSize(2.5,4);
+      state->setTransformShape();
+      state->logicGateInvertedRadius = 0.25 * state->circuitsSizeUnit;
+      box = new XWTikzTextBox(state->graphic,state);
+      {
+        int len = state->norGateIECSymbol.length();
+        int pos = 0;
+        box->scan(state->norGateIECSymbol,len,pos);
+      }
+      break;
+
+    case PGFxorgateIEC:
+      state->setDraw(true);
+      state->setInnerXSep(5);
+      state->setInnerYSep(5);
+      state->setCircuitSymbolSize(2.5,4);
+      state->setTransformShape();
+      state->logicGateInvertedRadius = 0.25 * state->circuitsSizeUnit;
+      box = new XWTikzTextBox(state->graphic,state);
+      {
+        int len = state->xorGateIECSymbol.length();
+        int pos = 0;
+        box->scan(state->xorGateIECSymbol,len,pos);
+      }
+      break;
+
+    case PGFxnorgateIEC:
+      state->setDraw(true);
+      state->setInnerXSep(5);
+      state->setInnerYSep(5);
+      state->setCircuitSymbolSize(2.5,4);
+      state->setTransformShape();
+      state->logicGateInvertedRadius = 0.25 * state->circuitsSizeUnit;
+      box = new XWTikzTextBox(state->graphic,state);
+      {
+        int len = state->xnorGateIECSymbol.length();
+        int pos = 0;
+        box->scan(state->xnorGateIECSymbol,len,pos);
+      }
+      break;
+
+    case PGFbuffergateIEC:
+      state->setDraw(true);
+      state->setInnerXSep(5);
+      state->setInnerYSep(5);
+      state->setCircuitSymbolSize(2.5,4);
+      state->setTransformShape();
+      state->logicGateInvertedRadius = 0.25 * state->circuitsSizeUnit;
+      box = new XWTikzTextBox(state->graphic,state);
+      {
+        int len = state->bufferGateIECSymbol.length();
+        int pos = 0;
+        box->scan(state->bufferGateIECSymbol,len,pos);
+      }
+      break;
+
+    case PGFnotgateIEC:
+      state->setDraw(true);
+      state->setInnerXSep(5);
+      state->setInnerYSep(5);
+      state->setCircuitSymbolSize(2.5,4);
+      state->setTransformShape();
+      state->logicGateInvertedRadius = 0.25 * state->circuitsSizeUnit;
+      box = new XWTikzTextBox(state->graphic,state);
+      {
+        int len = state->notGateIECSymbol.length();
+        int pos = 0;
+        box->scan(state->notGateIECSymbol,len,pos);
+      }
+      break;
+
+    case PGFandgateUS:
+    case PGFnandgateUS:
+    case PGForgateUS:
+    case PGFnorgateUS:
+    case PGFxorgateUS:
+    case PGFxnorgateUS:
+    case PGFandgateCDH:
+    case PGFnandgateCDH:
+      state->setDraw(true);
+      state->setCircuitSymbolSize(0,2.5);
+      state->setTransformShape();
+      state->logicGateInvertedRadius = 0.25 * state->circuitsSizeUnit;
+      break;
+
+    case PGFnotgateUS:
+    case PGFbuffergateUS:
+      state->setDraw(true);
+      state->setCircuitSymbolSize(0,2.5);
+      state->setTransformShape();
+      state->logicGateInvertedRadius = 0.25 * state->circuitsSizeUnit;
+      if (state->inputs.size() == 0)
+        state->inputs << QChar('n');
       break;
   }
 }
@@ -1274,15 +1489,143 @@ void XWTikzShape::setCircuitShape()
       break;
 
 	  case PGFcurrentsource:
-      state->shape = PGFresistorIEC;
+      state->shape = PGFcurrentsourceIEC;
       break;
 
 	  case PGFmakecontact:
-      state->shape = PGFresistorIEC;
+      state->shape = PGFmakecontactIEC;
       break;
 
 	  case PGFbreakcontact:
-      state->shape = PGFresistorIEC;
+      state->shape = PGFbreakcontactIEC;
+      break;
+
+    case PGFandgate:
+      {
+        switch (state->pictureType)
+        {
+          default:
+            state->shape = PGFandgateUS;
+            break;
+
+          case PGFcircuitlogicCDH:
+            state->shape = PGFandgateCDH;
+            break;
+
+          case PGFcircuitlogicIEC:
+            state->shape = PGFandgateIEC;
+            break;
+        }
+      }
+      break;
+
+    case PGFnandgate:
+      {
+        switch (state->pictureType)
+        {
+          default:
+            state->shape = PGFnandgateUS;
+            break;
+
+          case PGFcircuitlogicCDH:
+            state->shape = PGFnandgateCDH;
+            break;
+
+          case PGFcircuitlogicIEC:
+            state->shape = PGFnandgateIEC;
+            break;
+        }
+      }
+      break;
+
+    case PGForgate:
+      {
+        switch (state->pictureType)
+        {
+          default:
+            state->shape = PGForgateUS;
+            break;
+
+          case PGFcircuitlogicIEC:
+            state->shape = PGForgateIEC;
+            break;
+        }
+      }
+      break;
+
+    case PGFnorgate:
+      {
+        switch (state->pictureType)
+        {
+          default:
+            state->shape = PGFnorgateUS;
+            break;
+
+          case PGFcircuitlogicIEC:
+            state->shape = PGFnorgateIEC;
+            break;
+        }
+      }
+      break;
+
+    case PGFxorgate:
+      {
+        switch (state->pictureType)
+        {
+          default:
+            state->shape = PGFxorgateUS;
+            break;
+
+          case PGFcircuitlogicIEC:
+            state->shape = PGFxorgateIEC;
+            break;
+        }
+      }
+      break;
+
+    case PGFxnorgate:
+      {
+        switch (state->pictureType)
+        {
+          default:
+            state->shape = PGFxnorgateUS;
+            break;
+
+          case PGFcircuitlogicIEC:
+            state->shape = PGFxnorgateIEC;
+            break;
+        }
+      }
+      break;
+
+    case PGFnotgate:
+      {
+        switch (state->pictureType)
+        {
+          default:
+            state->shape = PGFnotgateUS;
+            break;
+
+          case PGFcircuitlogicIEC:
+            state->shape = PGFnotgateIEC;
+            break;
+        }
+      }
+      break;
+
+    case PGFbuffergate:
+      {
+        switch (state->pictureType)
+        {
+          default:
+            state->shape = PGFbuffergateUS;
+            break;
+
+          case PGFcircuitlogicIEC:
+            state->shape = PGFbuffergateIEC;
+            break;
+        }
+      }
       break;
   }
 }

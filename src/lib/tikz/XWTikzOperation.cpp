@@ -84,6 +84,11 @@ QPointF XWTikzOperation::getAnchor(int , XWTikzState * )
   return QPointF();
 }
 
+QPointF XWTikzOperation::getAnchor(XWTikzState * )
+{
+  return QPointF();
+}
+
 int XWTikzOperation::getAnchorPosition()
 {
   return -1;
@@ -191,18 +196,18 @@ void XWTikzOperation::scanKey(const QString & str, int & len,
 {
   key.clear();
   if (pos >= len || 
-      str[pos] == QChar(')') || 
       str[pos] == QChar(']') || 
-      str[pos] == QChar('}'))
+      str[pos] == QChar('}') || 
+      str[pos] == QChar(')'))
     return ;
 
   int i = pos;
   while ((pos < len) && 
         str[pos] != QChar('=') && 
         str[pos] != QChar(',') && 
-        str[pos] != QChar(')') && 
         str[pos] != QChar(']') && 
-        str[pos] != QChar('}'))
+        str[pos] != QChar('}') && 
+        str[pos] != QChar(')'))
     pos++;
 
   key = str.mid(i, pos - i);
@@ -224,9 +229,10 @@ void XWTikzOperation::scanValue(const QString & str, int & len,
 {
   value.clear();
   if (pos >= len ||
-      str[pos] == QChar(')') || 
+      str[pos] == QChar(',') || 
       str[pos] == QChar(']') || 
-      str[pos] == QChar('}'))
+      str[pos] == QChar('}') || 
+      str[pos] == QChar(')'))
     return ;
 
   while (str[pos].isSpace())
@@ -242,12 +248,12 @@ void XWTikzOperation::scanValue(const QString & str, int & len,
   int i = pos;
   while ((pos < len) && 
          str[pos] != QChar(',') && 
-         str[pos] != QChar(')') && 
          str[pos] != QChar(']') && 
-         str[pos] != QChar('}'))
+         str[pos] != QChar('}') && 
+         str[pos] != QChar(')'))
     pos++;
 
-  if (b && str[pos] == QChar(')'))
+  if (b && str[pos] == QChar('}'))
     pos++;
   value = str.mid(i, pos - i);
   value = value.simplified();
@@ -1227,22 +1233,15 @@ XWTikzEllipse::XWTikzEllipse(XWTikzGraphic * graphicA, int idA,QObject * parent)
 bool XWTikzEllipse::addAction(QMenu & menu, XWTikzState * state)
 {
   options->doPath(state,false);
-  QAction * a = 0;
   if (keyWord == PGFcircle)
-  {
-    a = menu.addAction(tr("radius"));
-    connect(a, SIGNAL(triggered()), this, SLOT(setCoord()));
-  }
+    options->addRadiusAction(menu);
   else
   {
-    a = menu.addAction(tr("x radius"));
-    connect(a, SIGNAL(triggered()), this, SLOT(setXRadius()));
-    a = menu.addAction(tr("y radius"));
-    connect(a, SIGNAL(triggered()), this, SLOT(setYRadius()));
+    options->addXRadiusAction(menu);
+    options->addYRadiusAction(menu);
   }
   
-  a = menu.addAction(tr("center at"));
-  connect(a, SIGNAL(triggered()), this, SLOT(setAt()));
+  options->addAtAction(menu);
   
   return true;
 }
@@ -1291,42 +1290,22 @@ void XWTikzEllipse::scan(const QString & str, int & len, int & pos)
 
 void XWTikzEllipse::setAt(const QString & str)
 {
-  options->setAt(str);
+  options->addValueCoord(PGFat,str);
 }
 
 void XWTikzEllipse::setRadius(const QString & str)
 {
-  options->setRadius(str);
+  options->addValueExpress(PGFradius,str);
 }
 
 void XWTikzEllipse::setXRadius(const QString & str)
 {
-  options->setXRadius(str);
+  options->addValueExpress(PGFxradius,str);
 }
 
 void XWTikzEllipse::setYRadius(const QString & str)
 {
-  options->setYRadius(str);
-}
-
-void XWTikzEllipse::setAt()
-{
-  options->setCoord(PGFat,tr("center at"));
-}
-
-void XWTikzEllipse::setRadius()
-{
-  options->setExpress(PGFradius,tr("circle"),tr("radius:"));
-}
-
-void XWTikzEllipse::setXRadius()
-{
-  options->setExpress(PGFxradius,tr("ellipse"),tr("x radius:"));
-}
-
-void XWTikzEllipse::setYRadius()
-{
-  options->setExpress(PGFyradius,tr("ellipse"),tr("y radius:"));
+  options->addValueExpress(PGFyradius,str);
 }
 
 XWTikzArc::XWTikzArc(XWTikzGraphic * graphicA, QObject * parent)
@@ -1338,10 +1317,7 @@ XWTikzArc::XWTikzArc(XWTikzGraphic * graphicA, QObject * parent)
 bool XWTikzArc::addAction(QMenu & menu, XWTikzState * state)
 {
   options->doPath(state,false);
-  QAction * a = menu.addAction(tr("start angle"));
-  connect(a, SIGNAL(triggered()), this, SLOT(setStartAngle()));
-  a = menu.addAction(tr("end angle"));
-  connect(a, SIGNAL(triggered()), this, SLOT(setEndAngle()));
+  options->addAngleAction(menu);
   return true;
 }
 
@@ -1385,22 +1361,12 @@ void XWTikzArc::scan(const QString & str, int & len, int & pos)
 
 void XWTikzArc::setEndAngle(const QString & str)
 {
-  options->setEndAngle(str);
+  options->addValueExpress(PGFendangle,str);
 }
 
 void XWTikzArc::setStartAngle(const QString & str)
 {
-  options->setStartAngle(str);
-}
-
-void XWTikzArc::setEndAngle()
-{
-  options->setExpress(PGFyradius,tr("arc"),tr("end angle:"));
-}
-
-void XWTikzArc::setStartAngle()
-{
-  options->setExpress(PGFyradius,tr("arc"),tr("start angle:"));
+  options->addValueExpress(PGFstartangle,str);
 }
 
 XWTikzGrid::XWTikzGrid(XWTikzGraphic * graphicA, QObject * parent)
@@ -1415,8 +1381,7 @@ bool XWTikzGrid::addAction(QMenu & menu, XWTikzState * state)
   options->doPath(state,false);
   QAction * a = menu.addAction(tr("corner"));
   connect(a, SIGNAL(triggered()), this, SLOT(setCoord()));
-  a = menu.addAction(tr("step"));
-  connect(a, SIGNAL(triggered()), this, SLOT(setStep()));
+  options->addStepAction(menu);
   return true;
 }
 
@@ -1490,17 +1455,12 @@ void XWTikzGrid::setCorner(const QString & str)
 
 void XWTikzGrid::setStep(const QString & str)
 {
-  options->setStep(str);
+  options->addValueExpress(PGFstep,str);
 }
 
 void XWTikzGrid::setCoord()
 {
   coord->setCoord(tr("corner"));
-}
-
-void XWTikzGrid::setStep()
-{
-  options->setExpress(PGFyradius,tr("grid"),tr("step:"));
 }
 
 XWTikzParabola::XWTikzParabola(XWTikzGraphic * graphicA, QObject * parent)
@@ -2146,9 +2106,8 @@ options(opt)
 bool XWTikzPlotFunction::addAction(QMenu & menu, XWTikzState * state)
 {
   options->doPath(state,false);
-  QAction * a = menu.addAction(tr("domain"));
-  connect(a, SIGNAL(triggered()), this, SLOT(setDomain()));
-  a = menu.addAction(tr("function"));
+  options->addDomainAction(menu);
+  QAction * a = menu.addAction(tr("function"));
   connect(a, SIGNAL(triggered()), this, SLOT(setExpress()));
   return true;
 }
@@ -2191,17 +2150,12 @@ void XWTikzPlotFunction::scan(const QString & str, int & len, int & pos)
 
 void XWTikzPlotFunction::setDomain(const QString & s,const QString & e)
 {
-  options->setDomain(s,e);
+  options->addDomain(s,e);
 }
 
 void XWTikzPlotFunction::setExpress(const QString & str)
 {
   coordExp->setText(str);
-}
-
-void XWTikzPlotFunction::setDomain()
-{
-  options->setDomain();
 }
 
 void XWTikzPlotFunction::setExpress()
@@ -2252,12 +2206,16 @@ bool XWTikzTo::del(XWTikzState * state)
 
 void XWTikzTo::doPath(XWTikzState * state, bool showpoint)
 {
-  state->toPath(coord);
-  if (coord && showpoint)
-    coord->draw(state);
-
+  options->doPath(state,showpoint);
   for (int i = 0; i < nodes.size(); i++)
     nodes[i]->doPath(state,showpoint);
+
+  if (coord)
+  {
+    state->toPath(coord);
+    if (showpoint)
+      coord->draw(state);
+  }
 }
 
 void XWTikzTo::dragTo(XWTikzState * state)

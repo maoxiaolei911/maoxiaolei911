@@ -47,6 +47,7 @@ public:
   virtual bool dropTo(XWTikzState * state);
 
   virtual QPointF getAnchor(int a, XWTikzState * state);
+  virtual QPointF getAnchor(XWTikzState * state);
   virtual int getAnchorPosition();
   virtual QPointF getAngle(double a, XWTikzState * state);
   virtual XWTikzCoord * getCurrentPoint();
@@ -333,12 +334,6 @@ public:
   void setXRadius(const QString & str);
   void setYRadius(const QString & str);
 
-private slots:
-  void setAt();
-  void setRadius();
-  void setXRadius();
-  void setYRadius();
-
 private:
   XWTIKZOptions * options;
 };
@@ -363,10 +358,6 @@ public:
   void scan(const QString & str, int & len, int & pos);
   void setEndAngle(const QString & str);
   void setStartAngle(const QString & str);
-
-private slots:
-  void setEndAngle();
-  void setStartAngle();
 
 private:
   XWTIKZOptions * options;
@@ -396,7 +387,6 @@ public:
 
 private slots:
   void setCoord();
-  void setStep();
 
 private:
   XWTIKZOptions * options;
@@ -570,7 +560,6 @@ public:
   void setExpress(const QString & str);
 
 private slots:
-  void setDomain();
   void setExpress();
 
 private:

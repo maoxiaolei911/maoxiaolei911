@@ -724,3 +724,18 @@ QString XWTikzLabelDialog::getLabel()
   ret += c;
   return ret; 
 }
+
+void XWTikzLabelDialog::setAngle(const QString & a)
+{
+  bEdit->setText(a);
+}
+
+void XWTikzLabelDialog::setOptions(const QString & o)
+{
+  aEdit->setText(o);
+}
+
+void XWTikzLabelDialog::setText(const QString & txt)
+{
+  cEdit->setText(txt);
+}

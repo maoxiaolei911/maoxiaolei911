@@ -296,6 +296,7 @@ public:
   void setAlign(int a);
   void setAllowUpsideDown() {isAllowUpsideDown=true;}
   void setAnchor(int a) {anchor=a;}
+  void setAndGateIECSymbol(const QString & t) {andGateIECSymbol=t;}
   void setAngle(double a) {angle=a;}
   void setAnnotationArrow(XWTikzArrowSpecification * e);
   void setAnnotation(XWTikzAnnotation * a) {annotation=a;}
@@ -338,6 +339,7 @@ public:
   void setBendHeight(double h);
   void setBendPos(double v) {bendPosIsSet=true;bendPos=v;}
   void setBottomColor(const QColor & c) {bottomColor=c;}
+  void setBufferGateIECSymbol(const QString & t) {bufferGateIECSymbol=t;}
   void setCalloutPointerArc(double a) {calloutPointerArc=a;}
   void setCalloutPointerEndSize(const QPointF & s) {calloutPointerEndSize=s;}
   void setCalloutPointerSegments(int s) {calloutPointerSegments=s;}
@@ -407,6 +409,7 @@ public:
   void setInnerLineWidth(double w) {innerLineWidth=w;}
   void setInnerXSep(double s) {innerXSep=s;}
   void setInnerYSep(double s) {innerYSep=s;}
+  void setInputs(const QList<QChar> & ins);
   void setIsoscelesTriangleApexAngle(double a) {isoscelesTriangleApexAngle=a;}
   void setIsoscelesTriangleStretches(double s) {isoscelesTriangleStretches=s;}
   void setKiteLowerVertexAngle(double a) {kiteLowerVertexAngle=a;}
@@ -422,6 +425,11 @@ public:
   void setLineJoin(int j);
   void setLineWidth(double w);
   void setLocation(int l) {location=l;}
+  void setLogicGateAnchorsUseBoundingBox(bool e) {logicGateAnchorsUseBoundingBox=e;}
+  void setLogicGateIECSymbolAlign(int a) {logicGateIECSymbolAlign=a;}
+  void setLogicGateIECSymbolColor(const QColor & c) {logicGateIECSymbolColor=c;}
+  void setLogicGateInputSep(double s) {logicGateInputSep=s;}
+  void setLogicGateInvertedRadius(double r) {logicGateInvertedRadius=r;}
   void setLowerLeftColor(const QColor & c) {lowerLeftColor=c;}
   void setLowerRightColor(const QColor & c) {lowerRightColor=c;}
   void setMagneticTapeTail(double p) {magneticTapeTail=p;}
@@ -448,10 +456,14 @@ public:
   void setMousePoint(const QPointF & p) {mousePoint = p;}
   void setNamePrefix(const QString & n) {namePrefix=n;}
   void setNameSuffix(const QString & n) {nameSuffix=n;}
+  void setNAndGateIECSymbol(const QString & t) {nandGateIECSymbol=t;}
   void setNodeContents(const QString & str);
   void setNodeType(int shapeA,int nt);
+  void setNorGateIECSymbol(const QString & t) {norGateIECSymbol=t;}
+  void setNotGateIECSymbol(const QString & t) {notGateIECSymbol=t;}
   void setOnNode(bool e) {onNode=e;}
   void setOpacity(double v);
+  void setOrGateIECSymbol(const QString & t) {orGateIECSymbol=t;}
   void setOuterColor(const QColor & c) {outerColor=c;}
   void setOuterXSep(double s) {outerXSep=s;}
   void setOuterYSep(double s) {outerYSep=s;}
@@ -544,6 +556,8 @@ public:
   void setUpperRightColor(const QColor & c) {upperRightColor=c;}
   void setUseAsBoundingBox(bool e) {isUseAsBoundingBoxSet=e;}
   void setVariables(const QString & nameA,const QString & var);
+  void setXNorGateIECSymbol(const QString & t) {xnorGateIECSymbol=t;}
+  void setXorGateIECSymbol(const QString & t) {xorGateIECSymbol=t;}
   void setXRadius(double r) {xradius=r;}
   void setXStep(double sx) {xstep = sx;}
   void setXVec(double v) {xVec=v;}
@@ -724,11 +738,23 @@ private:
   int curLabel;
 
   int    pictureType;
-  int    circuitType;
   double circuitsSizeUnit;
   double circuitSymbolWidth;
   double circuitSymbolHeight;
   XWTikzAnnotation *  annotation;
+  double logicGateInvertedRadius;
+  double logicGateInputSep;
+  bool   logicGateAnchorsUseBoundingBox;
+  QString andGateIECSymbol;
+  QString nandGateIECSymbol;
+  QString orGateIECSymbol;
+  QString norGateIECSymbol;
+  QString xorGateIECSymbol;
+  QString xnorGateIECSymbol;
+  QString notGateIECSymbol;
+  QString bufferGateIECSymbol;
+  int     logicGateIECSymbolAlign;
+  QColor  logicGateIECSymbolColor;
 
   double lineWidth;
   double innerLineWidth;
@@ -1040,6 +1066,8 @@ private:
   XWTikzState * saved;
 
   QString markNode;
+
+  QList<QChar> inputs;
 
   QList<XWTikzCoord*> coords;
   QList<int> operations;

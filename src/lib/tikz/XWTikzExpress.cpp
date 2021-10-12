@@ -6,6 +6,7 @@
 #include <math.h>
 #include <QHash>
 #include <QStack>
+#include "PGFKeyWord.h"
 #include "XWTikzGraphic.h"
 #include "XWTikzState.h"
 #include "XWTikzExpress.h"
@@ -684,6 +685,44 @@ void XWTikzExpress::calculate(XWTikzState * state)
             stack.push(oprd1);
           }
           break;
+
+        case PGFabove:
+        case PGFup:
+        case PGFnorth:
+          result = 90;
+          break;
+
+        case PGFbelow:
+        case PGFdown:
+        case PGFsouth:
+          result = 270;
+          break;
+
+        case PGFleft:
+        case PGFwest:
+          result = 180;
+          break;
+
+        case PGFright:
+        case PGFeast:
+          result = 0;
+          break;
+
+        case PGFnortheast:
+          result = 45;
+          break;
+
+        case PGFnorthwest:
+          result = 135;
+          break;
+
+        case PGFsoutheast:
+          result = -45;
+          break;
+
+        case PGFsouthwest:
+          result = -135;
+          break;
       }
     }
   }
@@ -731,6 +770,8 @@ hasaname:
             p.setY(XW_TIKZ_ATAN);
           else if (key == "atan2")
             p.setY(XW_TIKZ_ATAN2);
+          else if (key == "above")
+            p.setY(PGFabove);
           else 
             goto hasaname;
           break;
@@ -738,6 +779,8 @@ hasaname:
         case 'b':
           if (key == "bin")
             p.setY(XW_TIKZ_BIN);
+          else if (key == "below")
+            p.setY(PGFbelow);
           else 
             goto hasaname;
           break;
@@ -775,6 +818,8 @@ hasaname:
             p.setY(XW_TIKZ_DIV);
           else if (key == "divide")
             p.setY(XW_TIKZ_DIV);
+          else if (key == "down")
+            p.setY(PGFdown);
           else
             goto hasaname;
           break;
@@ -786,6 +831,8 @@ hasaname:
             p.setY(XW_TIKZ_EQU);
           else if (key == "exp")
             p.setY(XW_TIKZ_EXP);
+          else if (key == "east")
+            p.setY(PGFeast);
           else
             goto hasaname;
           break;
@@ -847,6 +894,8 @@ hasaname:
             p.setY(XW_TIKZ_LOG10);
           else if (key == "log2")
             p.setY(XW_TIKZ_LOG2);
+          else if (key == "left")
+            p.setY(PGFleft);
           else
             goto hasaname;
           break;
@@ -891,6 +940,12 @@ hasaname:
             p.setY(XW_TIKZ_NGRE);
           else if (key == "notless")
             p.setY(XW_TIKZ_NLESS);
+          else if (key == "north")
+            p.setY(PGFnorth);
+          else if (key == "north east")
+            p.setY(PGFnortheast);
+          else if (key == "north west")
+            p.setY(PGFnorthwest);
           else
             goto hasaname;
           break;
@@ -932,6 +987,8 @@ hasaname:
             p.setY(XW_TIKZ_RND);
           else if (key == "round")
             p.setY(XW_TIKZ_ROUND);
+          else if (key == "right")
+            p.setY(PGFright);
           else
             goto hasaname;
           break;
@@ -947,6 +1004,12 @@ hasaname:
             p.setY(XW_TIKZ_SQRT);
           else if (key == "subtract")
             p.setY(XW_TIKZ_SUB);
+          else if (key == "south")
+            p.setY(PGFsouth);
+          else if (key == "south east")
+            p.setY(PGFsoutheast);
+          else if (key == "south west")
+            p.setY(PGFsouthwest);
           else
             goto hasaname;
           break;
@@ -975,6 +1038,8 @@ hasaname:
         case 'w':
           if (key == "width")
             p.setY(XW_TIKZ_WIDTH);
+          else if (key == "west")
+            p.setY(PGFwest);
           else 
             goto hasaname;
           break;

@@ -111,7 +111,7 @@ bool XWTikzGraphic::addMenuAction(QMenu & menu)
             options->addRotateAction(*submenu);
             options->addSlantAction(*submenu);
             menu.addSeparator();
-            options->adddCircuitAction(menu); 
+            options->addCircuitAction(menu); 
             break;
 
           case PGFmindmap:
@@ -127,7 +127,20 @@ bool XWTikzGraphic::addMenuAction(QMenu & menu)
             break;
 
           case PGFcircuit:
-            options->adddCircuitSymbolAction(menu);
+          case PGFcircuiteeIEC:
+          case PGFcircuitlogic:
+          case PGFcircuitlogicIEC:
+          case PGFcircuitlogicUS:
+          case PGFcircuitlogicCDH:
+            options->addCircuitAction(menu); 
+            menu.addSeparator();
+            options->addCircuitSymbolAction(menu);
+            menu.addSeparator();
+            submenu = menu.addMenu(tr("draw"));
+            options->addLineAction(*submenu);
+            submenu = menu.addMenu(tr("color"));
+            options->addColorAction(*submenu);
+            options->addOpacityAction(*submenu);
             break;
         }      
       }      
@@ -1988,15 +2001,45 @@ void XWTikzGraphic::initUnits()
     return ;
 
   units["ampere"] = "A";
+  units["ampere'"] = "A";
+  units["ampere sloped"] = "A";
+  units["ampere' sloped"] = "A";
   units["volt"] = "V";
+  units["volt'"] = "V";
+  units["volt sloped"] = "V";
+  units["volt' sloped"] = "V";
   units["ohm"] = "\\Omega";
+  units["ohm'"] = "\\Omega";
+  units["ohm sloped"] = "\\Omega";
+  units["ohm' sloped"] = "\\Omega";
   units["siemens"] = "S";
+  units["siemens'"] = "S";
+  units["siemens sloped"] = "S";
+  units["siemens' sloped"] = "S";
   units["henry"] = "H";
+  units["henry'"] = "H";
+  units["henry sloped"] = "H";
+  units["henry' sloped"] = "H";
   units["farad"] = "F";
+  units["farad'"] = "F";
+  units["farad sloped"] = "F";
+  units["farad' sloped"] = "F";
   units["coulomb"] = "C";
+  units["coulomb'"] = "C";
+  units["coulomb sloped"] = "C";
+  units["coulomb' sloped"] = "C";
   units["voltampere"] = "VA";
+  units["voltampere'"] = "VA";
+  units["voltampere sloped"] = "VA";
+  units["voltampere' sloped"] = "VA";
   units["watt"] = "W";
+  units["watt'"] = "W";
+  units["watt sloped"] = "W";
+  units["watt' sloped"] = "W";
   units["hertz"] = "Hz";
+  units["hertz'"] = "Hz";
+  units["hertz sloped"] = "Hz";
+  units["hertz' sloped"] = "Hz";
 }
 
 void XWTikzGraphic::newTikz()

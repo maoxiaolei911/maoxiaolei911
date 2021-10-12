@@ -399,10 +399,22 @@ void XWTikzState::copy(XWTikzState * newstate,bool n)
   newstate->curLabel = curLabel++;
   newstate->circuitsSizeUnit = circuitsSizeUnit;
   newstate->pictureType = pictureType;
-  newstate->circuitType = circuitType;
   newstate->circuitSymbolWidth = circuitSymbolWidth;
   newstate->circuitSymbolHeight = circuitSymbolHeight;
   newstate->annotation = annotation;
+  newstate->logicGateInvertedRadius = logicGateInvertedRadius;
+  newstate->logicGateInputSep = logicGateInputSep;
+  newstate->logicGateAnchorsUseBoundingBox = logicGateAnchorsUseBoundingBox;
+  newstate->andGateIECSymbol = andGateIECSymbol;
+  newstate->nandGateIECSymbol = nandGateIECSymbol;
+  newstate->orGateIECSymbol = orGateIECSymbol;
+  newstate->norGateIECSymbol = norGateIECSymbol;
+  newstate->xorGateIECSymbol = xorGateIECSymbol;
+  newstate->xnorGateIECSymbol = xnorGateIECSymbol;
+  newstate->notGateIECSymbol = notGateIECSymbol;
+  newstate->bufferGateIECSymbol = bufferGateIECSymbol;
+  newstate->logicGateIECSymbolAlign = logicGateIECSymbolAlign;
+  newstate->logicGateIECSymbolColor = logicGateIECSymbolColor;
   if (driver)
   {
     newstate->roundedCorners = roundedCorners;
@@ -2305,6 +2317,11 @@ void XWTikzState::setGrowOpposite(int g)
   growRight = tmp;
 }
 
+void XWTikzState::setInputs(const QList<QChar> & ins)
+{
+  inputs = ins;
+}
+
 void XWTikzState::setLineCap(int c)
 {
   if (driver)
@@ -4025,11 +4042,22 @@ bool XWTikzState::hitTestLines()
 void XWTikzState::init()
 {
   pictureType = -1;
-  circuitType = -1;
   circuitsSizeUnit = 7;
   circuitSymbolWidth = 5;
   circuitSymbolHeight = 5;
   annotation = 0;
+  logicGateInvertedRadius = 2;
+  logicGateInputSep = 3.557;
+  logicGateAnchorsUseBoundingBox = false;
+  andGateIECSymbol = "&";
+  nandGateIECSymbol = "&";
+  orGateIECSymbol = "\\geq1";
+  norGateIECSymbol = "\\geq1";
+  xorGateIECSymbol = "$=1$";
+  xnorGateIECSymbol = "$=1$";
+  notGateIECSymbol = "1";
+  bufferGateIECSymbol = "1";
+  logicGateIECSymbolAlign = PGFtop;
   lineWidth = 0.4;
   innerLineWidth = 0;
   anchor = PGFcenter;

@@ -1207,12 +1207,11 @@ QPointF XWTikzPath::getPoint(const QString & nameA, XWTikzState * state)
     ops[i]->doPath(state,false);
     if (ops[i]->isMe(nameA,state))
     {
-      if (i > 0)
-      {
-        ops[i]->getAnchor(PGFcenter,state);
+      if (nameA.contains("."))
+        ret = ops[i]->getAnchor(state);
+      else
         ret = state->getCurrentPoint();
-        break;
-      }        
+      break;
     }
   }
   state = state->restore();
@@ -1229,16 +1228,19 @@ QVector3D XWTikzPath::getPoint3D(const QString & nameA,XWTikzState * state)
     ops[i]->doPath(state,false);
     if (ops[i]->isMe(nameA,state))
     {
-      if (i > 0)
+      if (nameA.contains("."))
+      {
+        QPointF p = ops[i]->getAnchor(state);
+        ret.setX(p.x());
+        ret.setY(p.y());
+      }
+      else
       {
         XWTikzCoord * c = state->getCurrentCoord();
         if (c)
-        {
-          ops[i]->getAnchor(PGFcenter,state);
           ret = c->getPoint3D(state);
-        }
-        break;
-      }        
+      }
+      break;
     }
   }
   state = state->restore();
@@ -2011,7 +2013,7 @@ void XWTikzScope::addScopeAction(QMenu & menu, XWTikzState * state)
       menu.addSeparator();
       options->addDomainAction(menu);
       menu.addSeparator();
-      options->adddCircuitAction(menu);
+      options->addCircuitAction(menu);
       break;
 
     case PGFmindmap:
@@ -2026,7 +2028,20 @@ void XWTikzScope::addScopeAction(QMenu & menu, XWTikzState * state)
       break;
 
     case PGFcircuit:
-      options->adddCircuitSymbolAction(menu);
+    case PGFcircuiteeIEC:
+    case PGFcircuitlogic:
+    case PGFcircuitlogicIEC:
+    case PGFcircuitlogicUS:
+    case PGFcircuitlogicCDH:
+      options->addCircuitAction(menu); 
+      menu.addSeparator();
+      options->addCircuitSymbolAction(menu);
+      menu.addSeparator();
+      submenu = menu.addMenu(tr("draw"));
+      options->addLineAction(*submenu);
+      submenu = menu.addMenu(tr("color"));
+      options->addColorAction(*submenu);
+      options->addOpacityAction(*submenu);
       break;
   }
    
@@ -2662,7 +2677,7 @@ QPointF XWTikzScope::getPoint(const QString & nameA, XWTikzState * state)
   if (names.contains(n))
   {
     int i = names[n];
-    ret = cmds[i]->getPoint(n,state);
+    ret = cmds[i]->getPoint(nameA,state);
   }
 
   state = state->restore();
@@ -2684,7 +2699,7 @@ QVector3D XWTikzScope::getPoint3D(const QString & nameA,XWTikzState * state)
   if (names.contains(n))
   {
     int i = names[nameA];
-    ret = cmds[i]->getPoint3D(n,state);
+    ret = cmds[i]->getPoint3D(nameA,state);
   }
 
   state = state->restore();
@@ -3942,7 +3957,12 @@ QPointF XWTikzCoordinatePath::getPoint(const QString & nameA, XWTikzState * stat
   coord->doPath(state,false);
   QPointF ret;
   if (node->isMe(nameA,state))
-    ret = coord->getPoint(state);
+  {
+    if (nameA.contains("."))
+      ret = node->getAnchor(state);
+    else
+      ret = coord->getPoint(state);
+  }
 
   state = state->restore();
   return ret;
@@ -3955,7 +3975,17 @@ QVector3D XWTikzCoordinatePath::getPoint3D(const QString & nameA, XWTikzState * 
   coord->doPath(state,false);
   QVector3D ret;
   if (node->isMe(nameA,state))
-    ret = coord->getPoint3D(state);
+  {
+    if (nameA.contains("."))
+    {
+      QPointF p = node->getAnchor(state);
+      ret.setX(p.x());
+      ret.setY(p.y());
+    }
+    else
+      ret = coord->getPoint3D(state);
+  }
+    
   state = state->restore();
   return ret;
 }

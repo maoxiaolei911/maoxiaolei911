@@ -16,6 +16,9 @@ class XWTikzArrows;
 class XWTikzColor;
 class XWTikzValue;
 class XWTikzDomain;
+class XWTikzUnit;
+class XWTikzLabel;
+class XWTikzCircuitSymbol;
 
 class XWTIKZOptions : public XWTikzOperation
 {
@@ -29,10 +32,17 @@ public:
                 int subk,
                 QObject * parent = 0);
 
+  bool addAction(QMenu & menu, XWTikzState * state);
+
   void addAnchorAction(QMenu & menu);
+  void addAngleAction(QMenu & menu);
   void addArrowsAction(QMenu & menu);
-  void adddCircuitAction(QMenu & menu);
-  void adddCircuitSymbolAction(QMenu & menu);
+  void addAtAction(QMenu & menu);
+  void addCircuitAction(QMenu & menu);
+  void addCircuiteeSymbolAction(QMenu & menu);
+  void addCircuiteeUnitAction(QMenu & menu);
+  void addCircuitLogicSymbolAction(QMenu & menu);
+  void addCircuitSymbolAction(QMenu & menu);
   void addCMAction(QMenu & menu);
   void addColorAction(QMenu & menu);
   void addConceptAction(QMenu & menu);
@@ -42,7 +52,8 @@ public:
   void addDomainAction(QMenu & menu);
   void addDoubleAction(QMenu & menu);
   void addDoubleDistanceAction(QMenu & menu);
-  void setInfoAction(QMenu & menu);
+  void addInfoAction(QMenu & menu);
+  void addInputAction(QMenu & menu);
   void addIntersectionsAction(QMenu & menu);
   void addLabelAction(QMenu & menu);
   void addLineAction(QMenu & menu);
@@ -53,6 +64,7 @@ public:
   void addPatternAction(QMenu & menu);
   void addPlotAction(QMenu & menu);
   void addPointAction(QMenu & menu);
+  void addRadiusAction(QMenu & menu);
   void addRoundedCornersAction(QMenu & menu);
   void addRotateAction(QMenu & menu);
   void addScaleAction(QMenu & menu);
@@ -63,9 +75,16 @@ public:
   void addSizeAction(QMenu & menu);
   void addSlantAction(QMenu & menu);
   void addSpyAction(QMenu & menu);
+  void addStepAction(QMenu & menu);
   void addTextColorAction(QMenu & menu);
   void addTransformShapeAction(QMenu & menu);
+  void addXRadiusAction(QMenu & menu);
   void addXYZAction(QMenu & menu);
+  void addYRadiusAction(QMenu & menu);
+
+  void addDomain(const QString & s,const QString & e);
+  void addValueCoord(int keywordA, const QString & str);
+  void addValueExpress(int keywordA, const QString & str);
 
   virtual bool back(XWTikzState * state);
 
@@ -107,6 +126,7 @@ public:
   XWTikzAround * getAround(int keywordA);
   XWTikzArrows * getArrows();
   XWTikzColor  * getColor(int keywordA);
+  virtual QString getContent();
   XWTikzDomain * getDomain();
   XWTikzKey    * getKey(int keywordA);
   virtual QPointF getPoint(XWTikzState * stateA);
@@ -128,46 +148,26 @@ public:
   virtual bool paste(XWTikzState * state);
 
   virtual void scan(const QString & str, int & len, int & pos);
-  virtual void setAround(int keywordA, 
-                       const QString & title,
-                       const QString & ltxt);
-  virtual void setAt(const QString & str);
-  virtual void setColor(int keywordA, const QString & title);
-  virtual void setCoord(int keywordA, const QString & title);
-  
-          void setDecoration(int keywordA);
-          void setDecorationExpress(int keywordA,
-                                    const QString & title,
-                                    const QString & ltxt);
-  virtual void setDomain(const QString & s,const QString & e);
-  virtual void setEndAngle(const QString & str);  
-  virtual void setExpress(int keywordA, 
-                       const QString & title,
-                       const QString & ltxt);
-  virtual void setRadius(const QString & str);
-  virtual void setStartAngle(const QString & str);
-  virtual void setStep(const QString & str);
-  virtual void setTwoValue(const QString & title,
-                           int k1, const QString & title1,
-                           int k2,const QString & title2);
-  virtual void setXRadius(const QString & str);
-  virtual void setYRadius(const QString & str);
 
   XWTikzOperation * takeAt(int i);
 
 public slots:
   void addCircuit();
+  void addCircuiteeIEC();
+  void addCircuitLogicCDH();
+  void addCircuitLogicIEC();
+  void addCircuitLogicUS();
   void addConcept();
   void addConnectSpies();
   void addExtraConcept();
   void addHugeCircuitSymbols();
   void addHugeMindmap();
-  void addLabel();
+  void addInputInverted();
+  void addInputNormal();
   void addLargeCircuitSymbols();
   void addLargeMindmap();
   void addMediumCircuitSymbols();
   void addMindmap();
-  void addPin();
   void addPointDown();
   void addPointLeft();
   void addPointRight();
@@ -179,8 +179,13 @@ public slots:
   void addTinyCircuitSymbols();
   void addTransformShape();
 
+  void removeInput();
   void removeTransformShape();
 
+  void setAmpere();
+  void setAmpereOppsite();
+  void setAmpereSloped();
+  void setAmpereSlopedOppsite();
   void setAnchor();
   void setAngle();
   void setArrowBoxTipAngle();
@@ -192,6 +197,7 @@ public slots:
   void setArrowBoxEastArrow();
   void setArrowBoxWestArrow();
   void setArrows();
+  void setAt();
   void setBallColor();
   void setBottomColor();
   void setCalloutAbsolutePointer();
@@ -202,6 +208,8 @@ public slots:
   void setCalloutPointerWidth();
   void setChamferedRectangleAngle();
   void setChamferedRectangleSep();  
+  void setCircuiteeSymbol();
+  void setCircuitLogicSymbol();
   void setCircuitSymbolSize();
   void setCircuitSymbolUnit();
   void setCircularSectorAngle();
@@ -211,6 +219,10 @@ public slots:
   void setColor();
   void setConceptColor();
   void setConnectSpies();
+  void setCoulomb();
+  void setCoulombOppsite();
+  void setCoulombSloped();
+  void setCoulombSlopedOppsite();
   void setCylinderEndFill();
   void setCylinderBodyFill();
   void setDartAngles();
@@ -225,9 +237,22 @@ public slots:
   void setDoubleDistanceBetweenLineCenters();
   void setDrawColor();
   void setDrawOpacity();
+  void setEndAngle();
   void setFadingAngle();
+  void setFarad();
+  void setFaradOppsite();
+  void setFaradSloped();
+  void setFaradSlopedOppsite();
   void setFillColor();
   void setFillOpacity();
+  void setHenry();
+  void setHenryOppsite();
+  void setHenrySloped();
+  void setHenrySlopedOppsite();
+  void setHertz();
+  void setHertzOppsite();
+  void setHertzSloped();
+  void setHertzSlopedOppsite();
   void setInfo();
   void setInfoMissingAngle();
   void setInfoSloped();
@@ -255,6 +280,10 @@ public slots:
   void setName();
   void setNamePath();
   void setOf();
+  void setohm();
+  void setohmOppsite();
+  void setohmSloped();
+  void setohmSlopedOppsite();
   void setOuterColor();
   void setOuterSep();
   void setPathFading();
@@ -268,6 +297,7 @@ public slots:
   void setPostlength();
   void setPre();
   void setPrelength();
+  void setRadius();
   void setRaise();
   void setRandomStarburst();
   void setRegularPolygonSides();
@@ -279,6 +309,10 @@ public slots:
   void setScale();
   void setScaleAround();
   void setScopeFading();
+  void setSiemens();
+  void setSiemensOppsite();
+  void setSiemensSloped();
+  void setSiemensSlopedOppsite();
   void setShade();
   void setShadeAngle();
   void setShape();
@@ -298,16 +332,32 @@ public slots:
   void setStarPointHeight();
   void setStarPointRatio();
   void setStarPoints();
+  void setStartAngle();
+  void setStep();
   void setTapeBendHeight();
   void setTextColor();
   void setTopColor();
   void setTrapeziumAngle();
   void setUpperLeftColor();
   void setUpperRightColor();
+  void setVolt();
+  void setVoltOppsite();
+  void setVoltSloped();
+  void setVoltSlopedOppsite();
+  void setVoltAmpere();
+  void setVoltAmpereOppsite();
+  void setVoltAmpereSloped();
+  void setVoltAmpereSlopedOppsite();
+  void setWatt();
+  void setWattOppsite();
+  void setWattSloped();
+  void setWattSlopedOppsite();
+  void setXRadius();
   void setXScale();
   void setXShift();
   void setXSlant();
   void setXVector();
+  void setYRadius();
   void setYScale();
   void setYShift();
   void setYSlant();
@@ -315,23 +365,47 @@ public slots:
   void setZVector();
 
 protected:
+  virtual void setAround(int keywordA, 
+                       const QString & title,
+                       const QString & ltxt);
+  virtual void setColor(int keywordA, const QString & title);
+  virtual void setCoord(int keywordA, const QString & title);
+  
+          void setDecoration(int keywordA);
+          void setDecorationExpress(int keywordA,
+                                    const QString & title,
+                                    const QString & ltxt);
+  virtual void setExpress(int keywordA, 
+                       const QString & title,
+                       const QString & ltxt);
+  virtual void setInfo(const QString & title, int kw);
+  virtual void setLabel(const QString & title, int kw);
+  virtual void setTwoValue(const QString & title,
+                           int k1, const QString & title1,
+                           int k2,const QString & title2);
+  virtual void setUnit(const QString & title, const QString & u);
+
+protected:
   void doPathDefault(XWTikzState * state, bool showpoint = false);
 
   XWTikzOperation * find(int keywordA);
   XWTikzKey * findCircuitSymbols();
+  XWTikzCircuitSymbol * findCircuiteeSymbol();
+  XWTikzCircuitSymbol * findCircuitLogicSymbol();
   XWTikzKey * findConcept();
   XWTikzKey * findDash();
   XWTikzKey * findDecoration();
+  XWTikzLabel * findInfo();
+  XWTikzLabel * findLabel();
   XWTikzKey * findLineWidth();
   XWTikzKey * findMindmap();
+  XWTikzKey * findPictureType();
   XWTikzKey * findPlotHandler();
   XWTikzKey * findPoint();
   XWTikzKey * findShape();
+  XWTikzUnit * findUnit();
 
   QString getOptions();
-
-  void setValueCoord(int keywordA, const QString & str);
-  void setValueExpress(int keywordA, const QString & str);
 
 protected:
   int cur;
