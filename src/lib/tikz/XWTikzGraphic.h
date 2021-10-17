@@ -49,13 +49,17 @@ public:
   void doDecoration(XWTikzState * state);
   void doEdgeFromParent(XWTikzState * state);
   void doEdgeFromParentPath(XWTikzState * state);
+  void doEveryAcceptingByArrow(XWTikzState * state);
+  void doEveryAttribute(XWTikzState * state);
   void doEveryChild(XWTikzState * state);
   void doEveryChildNode(XWTikzState * state);
   void doEveryCircuitAnnotation(XWTikzState * state);
   void doEveryCircuitSymbol(XWTikzState * state);
   void doEveryConcept(XWTikzState * state);
   void doEveryEdge(XWTikzState * state);
+  void doEveryEntity(XWTikzState * state);
   void doEveryInfo(XWTikzState * state);
+  void doEveryInitialByArrow(XWTikzState * state);
   void doEveryLabel(XWTikzState * state);
   void doEveryMark(XWTikzState * state);
   void doEveryMatrix(XWTikzState * state);
@@ -63,7 +67,9 @@ public:
   void doEveryNode(XWTikzState * state);
   void doEveryPin(XWTikzState * state);
   void doEveryPinEdge(XWTikzState * state);
+  void doEveryRelationship(XWTikzState * state);
   void doEveryShape(XWTikzState * state);
+  void doEveryState(XWTikzState * state);
   void doGraphic(XWPDFDriver * driver);
   void doLevel(XWTikzState * state);
   void doLevelConcept(XWTikzState * state);
@@ -75,6 +81,7 @@ public:
   void doScope(XWPDFDriver * driver);
   void doSpyConnection(XWTikzState * state);
   void doSpyNode(XWTikzState * state);  
+  void doState(XWTikzState * state);
   void doToPath(XWTikzState * state);
   void dragTo(XWPDFDriver * driver,const QPointF & p);
   void dropTo(const QPointF & p);

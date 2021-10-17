@@ -408,6 +408,119 @@ void XWTikzKey::doPath(XWTikzState * state, bool)
     case PGFcircuitlogicCDH:
       state->setPictureType(keyWord);
       break;
+
+    case PGFcanvasisplane:
+      state->setPlane();
+      break;
+
+    case PGFstatewithoutoutput:
+    case PGFstate:
+      state->setShape(PGFcircle);
+      state->setDraw(true);
+      state->seiMinimumWidth(25);
+      state->seiMinimumHeight(25);
+      graphic->doEveryState(state);
+      break;
+
+    case PGFstatewithoutput:
+      state->setShape(PGFcirclesplit);
+      state->setDraw(true);
+      state->seiMinimumWidth(25);
+      state->seiMinimumHeight(25);
+      graphic->doEveryState(state);
+      break;
+
+    case PGFacceptingbydouble:
+      state->acceptingByDouble();
+      break;
+
+    case PGFinitialbydiamond:
+      state->setShape(PGFdiamond);
+      break;
+
+    case PGFinitialabove:
+      state->initialByArrow();
+      state->setInitialAngle(90);
+      state->setInitialAnchor(PGFsouth);
+      break;
+
+    case PGFinitialbelow:
+      state->initialByArrow();
+      state->setInitialAngle(270);
+      state->setInitialAnchor(PGFnorth);
+      break;
+
+    case PGFinitialleft:
+      state->initialByArrow();
+      state->setInitialAngle(180);
+      state->setInitialAnchor(PGFeast);
+      break;
+
+    case PGFinitialright:
+      state->initialByArrow();
+      state->setInitialAngle(0);
+      state->setInitialAnchor(PGFwest);
+      break;
+
+    case PGFacceptingabove:
+      state->acceptingByArrow();
+      state->setAcceptingAngle(90);
+      state->setAcceptingAnchor(PGFsouth);
+      break;
+
+    case PGFacceptingbelow:
+      state->acceptingByArrow();
+      state->setAcceptingAngle(270);
+      state->setAcceptingAnchor(PGFnorth);
+      break;
+
+    case PGFacceptingleft:
+      state->acceptingByArrow();
+      state->setAcceptingAngle(180);
+      state->setAcceptingAnchor(PGFeast);
+      break;
+
+    case PGFacceptingright:
+      state->acceptingByArrow();
+      state->setAcceptingAngle(0);
+      state->setAcceptingAnchor(PGFwest);
+      break;
+
+    case PGFaccepting:
+      state->acceptingByDouble();
+      break;
+
+    case PGFinitial:
+      state->initialByArrow();
+      break;
+
+    case PGFentity:
+      state->setShape(PGFrectangle);
+      state->setDraw(true);
+      state->seiMinimumHeight(20);
+      state->seiMinimumWidth(40);
+      graphic->doEveryEntity(state);
+      break;
+
+    case PGFrelationship:
+      state->setShape(PGFdiamond);
+      state->setDraw(true);
+      state->seiMinimumHeight(15);
+      state->seiMinimumWidth(15);
+      state->setInnerXSep(1);
+      state->setInnerYSep(1);
+      graphic->doEveryRelationship(state);
+      break;
+
+    case PGFattribute:
+      state->setShape(PGFellipse);
+      state->setDraw(true);
+      state->seiMinimumHeight(15);
+      state->seiMinimumWidth(15);
+      state->setInnerXSep(1);
+      state->setInnerYSep(1);
+      graphic->doEveryAttribute(state);
+      break;
   }
 }
 
@@ -464,6 +577,10 @@ void XWTikzValue::doPath(XWTikzState * state, bool)
   switch (keyWord)
   {
     default:
+      break;
+
+    case PGFarrowdefault:
+      state->setArrowDefault((int)v.expv->getResult(state));
       break;
 
     case PGFroundedcorners:
@@ -1271,6 +1388,145 @@ void XWTikzValue::doPath(XWTikzState * state, bool)
     case PGFbuffergateIECsymbol:
       state->setBufferGateIECSymbol(text);
       break;
+
+    case PGFplaneorigin:
+      {
+        QPointF p = v.coordv->getPoint(state);
+        state->setPlaneOrigin(p);
+      }
+      break;
+
+    case PGFplanex:
+      {
+        QPointF p = v.coordv->getPoint(state);
+        state->setPlaneX(p);
+      }
+      break;
+
+    case PGFplaney:
+      {
+        QPointF p = v.coordv->getPoint(state);
+        state->setPlaneY(p);
+      }
+      break;
+
+    case PGFcanvasisxyplaneatz:
+      {
+        state->setPlane(1,0,0,1,0,0);
+      }
+      break;
+
+    case PGFcanvasisyxplaneatz:
+      {
+        state->setPlane(0,1,1,0,0,0);
+      }
+      break;
+
+    case PGFcanvasisxzplaneaty:
+      {
+        double x = v.expv->getResult(state);
+        state->setPlane(1,x,0,x,0,x);
+      }
+      break;
+
+    case PGFcanvasiszxplaneaty:
+      {
+        double x = v.expv->getResult(state);
+        state->setPlane(0,x,x,1,0,x);
+      }
+      break;
+
+    case PGFcanvasisyzplaneatx:
+      {
+        double x = v.expv->getResult(state);
+        state->setPlane(x,1,x,0,x,0);
+      }
+      break;
+
+    case PGFcanvasiszyplaneatx:
+      {
+        double x = v.expv->getResult(state);
+        state->setPlane(x,0,x,1,x,0);
+      }
+      break;
+
+    case PGFinitialtext:
+      state->setInitialText(text);
+      break;
+
+    case PGFacceptingtext:
+      state->setAcceptingText(text);
+      break;
+
+    case PGFinitialdistance:
+      state->setInitialDistance(v.expv->getResult(state));
+      break;
+
+    case PGFacceptingdistance:
+      state->setAcceptingDistance(v.expv->getResult(state));
+      break;
+
+    case PGFinitialwhere:
+      {
+        int a = (int)v.expv->getResult(state);
+        switch (a)
+        {
+          default:
+            break;
+
+          case PGFabove:
+            state->setInitialAngle(90);
+            state->setInitialAnchor(PGFsouth);
+            break;
+
+          case PGFbelow:
+            state->setInitialAngle(270);
+            state->setInitialAnchor(PGFnorth);
+            break;
+
+          case PGFleft:
+            state->setInitialAngle(180);
+            state->setInitialAnchor(PGFeast);
+            break;
+
+          case PGFright:
+            state->setInitialAngle(0);
+            state->setInitialAnchor(PGFwest);
+            break;
+        }
+      }
+      break;
+
+    case PGFacceptingwhere:
+      {
+        int a = (int)v.expv->getResult(state);
+        switch (a)
+        {
+          default:
+            break;
+
+          case PGFabove:
+            state->setAcceptingAngle(90);
+            state->setAcceptingAnchor(PGFsouth);
+            break;
+
+          case PGFbelow:
+            state->setAcceptingAngle(270);
+            state->setAcceptingAnchor(PGFnorth);
+            break;
+
+          case PGFleft:
+            state->setAcceptingAngle(180);
+            state->setAcceptingAnchor(PGFeast);
+            break;
+
+          case PGFright:
+            state->setAcceptingAngle(0);
+            state->setAcceptingAnchor(PGFwest);
+            break;
+        }
+      }
+      break;
   }
 }
 
@@ -1408,13 +1664,6 @@ QString XWTikzValue::getText()
   switch (keyWord)
   {
     case PGFroundedcorners:
-      {
-        ret += "=";
-        QString tmp = v.coordv->getText();
-        ret += tmp;
-      }
-      break;
-
     case PGFstep:
       {
         ret += "=";
@@ -1423,7 +1672,13 @@ QString XWTikzValue::getText()
       }
       break;
 
-    case PGFshift:
+    case PGFshift:    
+    case PGFcalloutrelativepointer:
+    case PGFcalloutabsolutepointer:
+    case PGFchamferedrectanglesep:
+    case PGFplaneorigin:
+    case PGFplanex:
+    case PGFplaney:
       {
         ret += "={";
         QString tmp = v.coordv->getText();
@@ -1500,8 +1755,22 @@ QString XWTikzValue::getText()
     case PGFxnorgateIECsymbol:
     case PGFnotgateIECsymbol:
     case PGFbuffergateIECsymbol:
+    case PGFinitialtext:
+    case PGFacceptingtext:
       ret += "=";
       ret += text;
+      break;
+
+    case PGFarrowdefault:
+    case PGFinitialwhere:
+    case PGFacceptingwhere:
+      {
+        ret += "=";
+        XWTikzState state;
+        int a = (int)v.expv->getResult(&state);
+        QString tmp = getPGFString(a);
+        ret += tmp;
+      }
       break;
 
     default:
@@ -1712,9 +1981,6 @@ void XWTikzValue::scan(const QString & str, int & len, int & pos)
       break;
 
     case PGFstep:
-    case PGFcalloutrelativepointer:
-    case PGFcalloutabsolutepointer:
-    case PGFchamferedrectanglesep:
       scanValue(str,len,pos,value);
       if (value[0] == QChar('('))
         v.coordv = new XWTikzCoord(graphic,value,this);
@@ -1726,6 +1992,12 @@ void XWTikzValue::scan(const QString & str, int & len, int & pos)
       break;
 
     case PGFshift:
+    case PGFcalloutrelativepointer:
+    case PGFcalloutabsolutepointer:
+    case PGFchamferedrectanglesep:
+    case PGFplaneorigin:
+    case PGFplanex:
+    case PGFplaney:
       scanValue(str,len,pos,value);
       v.coordv = new XWTikzCoord(graphic,value,this);
       break;
@@ -1757,6 +2029,8 @@ void XWTikzValue::scan(const QString & str, int & len, int & pos)
     case PGFxnorgateIECsymbol:
     case PGFnotgateIECsymbol:
     case PGFbuffergateIECsymbol:
+    case PGFinitialtext:
+    case PGFacceptingtext:
       scanValue(str,len,pos,text);
       break;
 
@@ -1806,8 +2080,11 @@ void XWTikzValue::scan(const QString & str, int & len, int & pos)
       }
       break;
 
+    case PGFarrowdefault:
     case PGFlabelposition:
     case PGFpinposition:
+    case PGFinitialwhere:
+    case PGFacceptingwhere:
       scanValue(str,len,pos,value);
       if (value[0].isLetter())
       {
@@ -2590,7 +2867,7 @@ void XWTikzArrowDependent::scan(const QString & str, int & , int & pos)
 
 XWTikzArrowTipSpecification::XWTikzArrowTipSpecification(XWTikzGraphic * graphicA, QObject * parent)
 :XWTikzOperation(graphicA, PGFarrow,parent),
-arrow(-1)
+arrow(PGFarrowdefault)
 {}
 
 void XWTikzArrowTipSpecification::doPath(XWTikzState * state, bool showpoint)

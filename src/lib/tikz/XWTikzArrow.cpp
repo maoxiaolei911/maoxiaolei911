@@ -39,6 +39,9 @@ void XWTikzArrow::setup(XWTikzState * state)
 
 void XWTikzArrow::doArrow(XWTikzState * state)
 {
+  if (shape == PGFarrowdefault)
+    shape = state->arrowDefault;
+    
   switch (shape)
   {
     default:

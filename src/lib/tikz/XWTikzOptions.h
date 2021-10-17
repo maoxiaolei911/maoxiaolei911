@@ -52,6 +52,7 @@ public:
   void addDomainAction(QMenu & menu);
   void addDoubleAction(QMenu & menu);
   void addDoubleDistanceAction(QMenu & menu);
+  void addEntityRelationshipAction(QMenu & menu);
   void addInfoAction(QMenu & menu);
   void addInputAction(QMenu & menu);
   void addIntersectionsAction(QMenu & menu);
@@ -62,6 +63,7 @@ public:
   void addOpacityAction(QMenu & menu);
   void addPathFading(QMenu & menu);
   void addPatternAction(QMenu & menu);
+  void addPlaneAction(QMenu & menu);
   void addPlotAction(QMenu & menu);
   void addPointAction(QMenu & menu);
   void addRadiusAction(QMenu & menu);
@@ -75,6 +77,7 @@ public:
   void addSizeAction(QMenu & menu);
   void addSlantAction(QMenu & menu);
   void addSpyAction(QMenu & menu);
+  void addStateAction(QMenu & menu);
   void addStepAction(QMenu & menu);
   void addTextColorAction(QMenu & menu);
   void addTransformShapeAction(QMenu & menu);
@@ -93,13 +96,17 @@ public:
   virtual void doDecoration(XWTikzState * state);
   virtual void doEdgeFromParent(XWTikzState * state);
   virtual void doEdgeFromParentPath(XWTikzState * state);
+  virtual void doEveryAttribute(XWTikzState * state);
+  virtual void doEveryAcceptingByArrow(XWTikzState * state);
   virtual void doEveryChild(XWTikzState * state);
   virtual void doEveryChildNode(XWTikzState * state);
   virtual void doEveryCircuitAnnotation(XWTikzState * state);
   virtual void doEveryCircuitSymbol(XWTikzState * state);
   virtual void doEveryConcept(XWTikzState * state);
   virtual void doEveryEdge(XWTikzState * state);
+  virtual void doEveryEntity(XWTikzState * state);
   virtual void doEveryInfo(XWTikzState * state);
+  virtual void doEveryInitialByArrow(XWTikzState * state);
   virtual void doEveryLabel(XWTikzState * state);
   virtual void doEveryMark(XWTikzState * state);
   virtual void doEveryMatrix(XWTikzState * state);
@@ -107,7 +114,9 @@ public:
   virtual void doEveryNode(XWTikzState * state);
   virtual void doEveryPin(XWTikzState * state);
   virtual void doEveryPinEdge(XWTikzState * state);
+  virtual void doEveryRelationship(XWTikzState * state);
   virtual void doEveryShape(XWTikzState * state);
+  virtual void doEveryState(XWTikzState * state);
   virtual void doLevel(XWTikzState * state);
   virtual void doLevelConcept(XWTikzState * state);
   virtual void doLevelNumber(XWTikzState * state);
@@ -118,6 +127,7 @@ public:
   virtual void doRootConcept(XWTikzState * state);
   virtual void doSpyConnection(XWTikzState * state);
   virtual void doSpyNode(XWTikzState * state);
+  virtual void doState(XWTikzState * state);
   virtual void doToPath(XWTikzState * state);
   virtual void dragTo(XWTikzState * state);
   virtual bool dropTo(XWTikzState * state);
@@ -152,6 +162,13 @@ public:
   XWTikzOperation * takeAt(int i);
 
 public slots:
+  void addAccepting();
+  void addAcceptingAbove();
+  void addAcceptingBelow();
+  void addAcceptingByDouble();
+  void addAcceptingLeft();
+  void addAcceptingRight();
+  void addAttribute();
   void addCircuit();
   void addCircuiteeIEC();
   void addCircuitLogicCDH();
@@ -159,9 +176,16 @@ public slots:
   void addCircuitLogicUS();
   void addConcept();
   void addConnectSpies();
+  void addEntity();
   void addExtraConcept();
   void addHugeCircuitSymbols();
   void addHugeMindmap();
+  void addInitial();
+  void addInitialAbove();
+  void addInitialBelow();
+  void addInitialByDiamond();
+  void addInitialLeft();
+  void addInitialRight();
   void addInputInverted();
   void addInputNormal();
   void addLargeCircuitSymbols();
@@ -172,10 +196,14 @@ public slots:
   void addPointLeft();
   void addPointRight();
   void addPointUp();
+  void addRelationship();
   void addSmallCircuitSymbols();
   void addSmallMindmap();
   void addSpyUsingOutlines();
   void addspyUsingOverlays();
+  void addState();
+  void addStateWithoutOutput();
+  void addStateWithOutput();
   void addTinyCircuitSymbols();
   void addTransformShape();
 
@@ -228,6 +256,7 @@ public slots:
   void setDartAngles();
   void setDash();
   void setDecoration();
+  void setDefaultArrow();
   void setDomain();
   void setDouble();
   void setDoubleArrowTipAngle();
@@ -290,6 +319,16 @@ public slots:
   void setPattern();
   void setPatternColor();
   void setPin();
+  void setPlane();
+  void setPlaneOrigin();
+  void setPlaneX();
+  void setPlaneXYAtZ();
+  void setPlaneXZAtY();
+  void setPlaneY();
+  void setPlaneYXAtZ();
+  void setPlaneYZAtX();
+  void setPlaneZXAtY();
+  void setPlaneZYAtX();
   void setPlotHandler();
   void setPlotMark();
   void setPos();
@@ -395,6 +434,7 @@ protected:
   XWTikzKey * findConcept();
   XWTikzKey * findDash();
   XWTikzKey * findDecoration();
+  XWTikzKey * findEntityRelationship();
   XWTikzLabel * findInfo();
   XWTikzLabel * findLabel();
   XWTikzKey * findLineWidth();
@@ -403,6 +443,7 @@ protected:
   XWTikzKey * findPlotHandler();
   XWTikzKey * findPoint();
   XWTikzKey * findShape();
+  XWTikzKey * findState();
   XWTikzUnit * findUnit();
 
   QString getOptions();
@@ -1035,6 +1076,78 @@ public:
 
 private:
   bool b;
+};
+
+class XWTikzEveryState : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzEveryState(XWTikzGraphic * graphicA, int id, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzEveryAcceptingByArrow : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzEveryAcceptingByArrow(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzEveryInitialByArrow : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzEveryInitialByArrow(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzEveryEntity : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzEveryEntity(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzEveryRelationship : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzEveryRelationship(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzEveryAttribute : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzEveryAttribute(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
 };
 
 #endif //XWTIKZOPTIONS_H

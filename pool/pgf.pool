@@ -603,9 +603,9 @@ every child /.style
 every child node /.style
 every plot
 every mark /.style
-every state
-every initial by arrow
-every accepting by arrow
+every state /.style
+every initial by arrow /.style
+every accepting by arrow /.style
 every calendar
 every day
 every month
@@ -620,9 +620,9 @@ every circuit ee
 every circuit annotation
 every circuit annotation /.style
 every light emitting
-every entity
-every relationship
-every attribute
+every entity /.style
+every relationship /.style
+every attribute /.style
 every fit
 every delimiter
 every left delimiter
@@ -652,10 +652,24 @@ xy polar
 barycentric
 tangent
 perpendicular
+xyz cylindrical
+xyz spherical
 angle
 angle'
 point
 solution
+longitude
+latitude
+plane origin
+plane x
+plane y
+canvas is plane
+canvas is xy plane at z
+canvas is yx plane at z
+canvas is xz plane at y
+canvas is zx plane at y
+canvas is yz plane at x
+canvas is zy plane at x
 horizontal line through
 vertical line through
 +
@@ -1239,6 +1253,7 @@ transform canvas
 current point is local
 state without output
 state with output
+state /.style
 initial
 initial by arrow
 initial text
@@ -1253,6 +1268,7 @@ accepting
 accepting by double
 accepting by arrow
 accepting text
+accepting distance
 accepting where
 accepting above
 accepting below

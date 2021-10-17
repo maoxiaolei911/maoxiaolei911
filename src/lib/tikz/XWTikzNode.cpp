@@ -640,12 +640,20 @@ XWTikzNode::XWTikzNode(XWTikzGraphic * graphicA, QObject * parent)
 bool XWTikzNode::addAction(QMenu & menu, XWTikzState * state)
 {
   options->doPath(state,false);
+  QMenu * submenu;
   switch (state->getPictureType())
   {
     default:
       options->addAnchorAction(menu);
       menu.addSeparator();     
       options->addShapeAction(menu);
+      menu.addSeparator();
+      submenu = menu.addMenu(tr("automata"));
+      options->addStateAction(*submenu);
+      menu.addSeparator();
+      submenu = menu.addMenu(tr("entity relationship"));
+      options->addEntityRelationshipAction(*submenu);
+      menu.addSeparator();
       options->addColorAction(menu);
       menu.addSeparator();      
       options->addLabelAction(menu);

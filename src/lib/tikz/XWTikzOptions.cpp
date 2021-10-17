@@ -110,7 +110,9 @@ void XWTIKZOptions::addAngleAction(QMenu & menu)
 
 void XWTIKZOptions::addArrowsAction(QMenu & menu)
 {
-  QAction * a = menu.addAction(tr("arrows"));
+  QAction * a = menu.addAction(tr("default arrow"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setDefaultArrow()));
+  a = menu.addAction(tr("arrows"));
   connect(a, SIGNAL(triggered()), this, SLOT(setArrows()));
 }
 
@@ -493,6 +495,41 @@ void XWTIKZOptions::addDoubleDistanceAction(QMenu & menu)
   connect(a, SIGNAL(triggered()), this, SLOT(setDoubleDistanceBetweenLineCenters()));
 }
 
+void XWTIKZOptions::addEntityRelationshipAction(QMenu & menu)
+{
+  XWTikzKey * op = findEntityRelationship();
+  QAction * a;
+  if (!op)
+  {
+    a = menu.addAction(tr("entity"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addEntity()));
+    a = menu.addAction(tr("relationship"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addRelationship()));
+    a = menu.addAction(tr("attribute"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addAttribute()));
+  }
+  else
+  {
+    if (op->getKeyWord() != PGFentity)
+    {
+      a = menu.addAction(tr("entity"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addEntity()));
+    }
+
+    if (op->getKeyWord() != PGFrelationship)
+    {
+      a = menu.addAction(tr("relationship"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addRelationship()));
+    }
+
+    if (op->getKeyWord() != PGFattribute)
+    {
+      a = menu.addAction(tr("attribute"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addAttribute()));
+    }
+  }
+}
+
 void XWTIKZOptions::addInfoAction(QMenu & menu)
 {
   QAction * a = menu.addAction(tr("info"));
@@ -653,6 +690,34 @@ void XWTIKZOptions::addPatternAction(QMenu & menu)
   connect(a, SIGNAL(triggered()), this, SLOT(setPattern()));
   a = menu.addAction(tr("pattern color"));
   connect(a, SIGNAL(triggered()), this, SLOT(setPatternColor()));
+}
+
+void XWTIKZOptions::addPlaneAction(QMenu & menu)
+{
+  QAction * a = menu.addAction(tr("canvas is xy plane at z"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setPlaneXYAtZ()));
+  a = menu.addAction(tr("canvas is yx plane at z"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setPlaneYXAtZ()));
+  a = menu.addAction(tr("canvas is xz plane at y"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setPlaneXZAtY()));
+  a = menu.addAction(tr("canvas is zx plane at y"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setPlaneZXAtY()));
+  a = menu.addAction(tr("canvas is yz plane at x"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setPlaneYZAtX()));
+  a = menu.addAction(tr("canvas is zy plane at x"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setPlaneZYAtX()));
+  if (xwApp->getLicenseState() == APP_STATE_NORMAL)
+  {
+    menu.addSeparator();
+    a = menu.addAction(tr("plane x"));
+    connect(a, SIGNAL(triggered()), this, SLOT(setPlaneX()));
+    a = menu.addAction(tr("plane y"));
+    connect(a, SIGNAL(triggered()), this, SLOT(setPlaneY()));
+    a = menu.addAction(tr("plane origin"));
+    connect(a, SIGNAL(triggered()), this, SLOT(setPlaneOrigin()));
+    a = menu.addAction(tr("canvas is plane"));
+    connect(a, SIGNAL(triggered()), this, SLOT(setPlane()));
+  }
 }
 
 void XWTIKZOptions::addPlotAction(QMenu & menu)
@@ -1031,6 +1096,143 @@ void XWTIKZOptions::addSpyAction(QMenu & menu)
   }
 }
 
+void XWTIKZOptions::addStateAction(QMenu & menu)
+{
+  XWTikzKey * op = findState();
+  QAction * a;
+  if (!op)
+  {
+    a = menu.addAction(tr("initial"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addInitial()));
+    a = menu.addAction(tr("initial above"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addInitialAbove()));
+    a = menu.addAction(tr("initial below"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addInitialBelow()));
+    a = menu.addAction(tr("initial left"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addInitialLeft()));
+    a = menu.addAction(tr("initial right"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addInitialRight()));
+    a = menu.addAction(tr("initial by diamond"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addInitialByDiamond()));
+    menu.addSeparator(); 
+    a = menu.addAction(tr("accepting"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addAccepting()));
+    a = menu.addAction(tr("accepting above"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addAcceptingAbove()));
+    a = menu.addAction(tr("accepting below"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addAcceptingBelow()));
+    a = menu.addAction(tr("accepting left"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addAcceptingLeft()));
+    a = menu.addAction(tr("accepting right"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addAcceptingRight()));
+    a = menu.addAction(tr("accepting by double"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addAcceptingByDouble()));
+    menu.addSeparator();
+    a = menu.addAction(tr("state"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addState()));
+    a = menu.addAction(tr("state without output"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addStateWithoutOutput()));
+    a = menu.addAction(tr("state with output"));
+    connect(a, SIGNAL(triggered()), this, SLOT(addStateWithOutput()));
+  }
+  else
+  {
+    if (op->getKeyWord() != PGFinitial)
+    {
+      a = menu.addAction(tr("initial"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addInitial()));
+    }
+
+    if (op->getKeyWord() != PGFinitialabove)
+    {
+      a = menu.addAction(tr("initial above"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addInitialAbove()));
+    }
+
+    if (op->getKeyWord() != PGFinitialbelow)
+    {
+      a = menu.addAction(tr("initial below"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addInitialBelow()));
+    }
+
+    if (op->getKeyWord() != PGFinitialleft)
+    {
+      a = menu.addAction(tr("initial left"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addInitialLeft()));
+    }
+
+    if (op->getKeyWord() != PGFinitialright)
+    {
+      a = menu.addAction(tr("initial right"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addInitialRight()));
+    }
+
+    if (op->getKeyWord() != PGFinitialbydiamond)
+    {
+      a = menu.addAction(tr("initial by diamond"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addInitialByDiamond()));
+    }
+
+    menu.addSeparator();
+
+    if (op->getKeyWord() != PGFaccepting)
+    {
+      a = menu.addAction(tr("accepting"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addAccepting()));
+    }
+
+    if (op->getKeyWord() != PGFacceptingabove)
+    {
+      a = menu.addAction(tr("accepting above"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addAcceptingAbove()));
+    }
+
+    if (op->getKeyWord() != PGFacceptingbelow)
+    {
+      a = menu.addAction(tr("accepting below"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addAcceptingBelow()));
+    }
+
+    if (op->getKeyWord() != PGFacceptingleft)
+    {
+      a = menu.addAction(tr("accepting left"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addAcceptingLeft()));
+    }
+
+    if (op->getKeyWord() != PGFacceptingright)
+    {
+      a = menu.addAction(tr("accepting right"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addAcceptingRight()));
+    }
+
+    if (op->getKeyWord() != PGFacceptingbydouble)
+    {
+      a = menu.addAction(tr("accepting by double"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addAcceptingByDouble()));
+    }
+
+    menu.addSeparator();
+
+    if (op->getKeyWord() != PGFstate)
+    {
+      a = menu.addAction(tr("state"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addState()));
+    }
+
+    if (op->getKeyWord() != PGFstatewithoutoutput)
+    {
+      a = menu.addAction(tr("state with output"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addStateWithoutOutput()));
+    }
+
+    if (op->getKeyWord() != PGFstatewithoutoutput)
+    {
+      a = menu.addAction(tr("state with output"));
+      connect(a, SIGNAL(triggered()), this, SLOT(addStateWithOutput()));
+    }
+  }
+}
+
 void XWTIKZOptions::addStepAction(QMenu & menu)
 {
   QAction * a = menu.addAction(tr("step"));
@@ -1148,6 +1350,27 @@ void XWTIKZOptions::doEdgeFromParentPath(XWTikzState * state)
   }
 }
 
+void XWTIKZOptions::doEveryAttribute(XWTikzState * state)
+{
+  XWTikzOperation  * op = find(PGFeveryattribute);
+  if (op)
+    op->doPath(state,false);
+}
+
+void XWTIKZOptions::doEveryEntity(XWTikzState * state)
+{
+  XWTikzOperation  * op = find(PGFeveryentity);
+  if (op)
+    op->doPath(state,false);
+}
+
+void XWTIKZOptions::doEveryAcceptingByArrow(XWTikzState * state)
+{
+  XWTikzOperation  * op = find(PGFeveryacceptingbyarrowstyle);
+  if (op)
+    op->doPath(state,false);
+}
+
 void XWTIKZOptions::doEveryChild(XWTikzState * state)
 {
   XWTikzOperation  * op = find(PGFeverychild);
@@ -1193,6 +1416,13 @@ void XWTIKZOptions::doEveryEdge(XWTikzState * state)
 void XWTIKZOptions::doEveryInfo(XWTikzState * state)
 {
   XWTikzOperation  * op = find(PGFeveryinfo);
+  if (op)
+    op->doPath(state,false);
+}
+
+void XWTIKZOptions::doEveryInitialByArrow(XWTikzState * state)
+{
+  XWTikzOperation  * op = find(PGFeveryinitialbyarrowstyle);
   if (op)
     op->doPath(state,false);
 }
@@ -1246,6 +1476,13 @@ void XWTIKZOptions::doEveryPinEdge(XWTikzState * state)
     op->doPath(state,false);
 }
 
+void XWTIKZOptions::doEveryRelationship(XWTikzState * state)
+{
+  XWTikzOperation  * op = find(PGFeveryrelationship);
+  if (op)
+    op->doPath(state,false);
+}
+
 void XWTIKZOptions::doEveryShape(XWTikzState * state)
 {
   int k = state->getShape();
@@ -1255,6 +1492,13 @@ void XWTIKZOptions::doEveryShape(XWTikzState * state)
     if (op)
       op->doPath(state,false);
   }
+}
+
+void XWTIKZOptions::doEveryState(XWTikzState * state)
+{
+   XWTikzOperation  * op = find(PGFeverystatestyle);
+  if (op)
+    op->doPath(state,false);
 }
 
 void XWTIKZOptions::doLevel(XWTikzState * state)
@@ -1390,6 +1634,13 @@ void XWTIKZOptions::doPath(XWTikzState * state, bool showpoint)
       case PGFeveryinfo:
       case PGFeverycircuitsymbolstyle:
       case PGFeverycircuitannotationstyle:
+      case PGFeverystatestyle:
+      case PGFstatestyle:
+      case PGFeveryinitialbyarrowstyle:
+      case PGFeveryacceptingbyarrowstyle:
+      case PGFeveryentity:
+      case PGFeveryrelationship:
+      case PGFeveryattribute:
         break;
     }
   }
@@ -1448,6 +1699,13 @@ void XWTIKZOptions::doSpyNode(XWTikzState * state)
     if (op)
       op->doPath(state,false);
   }
+}
+
+void XWTIKZOptions::doState(XWTikzState * state)
+{
+  XWTikzOperation  * op = find(PGFstatestyle);
+  if (op)
+    op->doPath(state,false);
 }
 
 void XWTIKZOptions::doToPath(XWTikzState * state)
@@ -1513,6 +1771,13 @@ void XWTIKZOptions::dragTo(XWTikzState * state)
       case PGFeveryinfo:
       case PGFeverycircuitsymbolstyle:
       case PGFeverycircuitannotationstyle:
+      case PGFeverystatestyle:
+      case PGFstatestyle:
+      case PGFeveryinitialbyarrowstyle:
+      case PGFeveryacceptingbyarrowstyle:
+      case PGFeveryentity:
+      case PGFeveryrelationship:
+      case PGFeveryattribute:
         break;
     }
   }
@@ -1877,12 +2142,33 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFcircuitlogicIEC:
         case PGFcircuitlogicUS:
         case PGFcircuitlogicCDH:
+        case PGFcanvasisplane:
+        case PGFstatewithoutoutput:
+        case PGFstatewithoutput:
+        case PGFacceptingbydouble:
+        case PGFinitialbydiamond:
+        case PGFinitialabove:
+        case PGFinitialbelow:
+        case PGFinitialleft:
+        case PGFinitialright:
+        case PGFacceptingabove:
+        case PGFacceptingbelow:
+        case PGFacceptingleft:
+        case PGFacceptingright:
+        case PGFstate:
+        case PGFaccepting:
+        case PGFinitial:
+        case PGFentity:
+        case PGFrelationship:
+        case PGFattribute:
+        case PGFkeyattribute:
           {
             XWTikzKey * k = new XWTikzKey(graphic,id,this);
             ops << k;
           }
           break;
 
+        case PGFarrowdefault:
         case PGFbaseline:
         case PGFroundedcorners:
         case PGFradius:
@@ -2071,6 +2357,21 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFxnorgateIECsymbol:
         case PGFnotgateIECsymbol:
         case PGFbuffergateIECsymbol:
+        case PGFplaneorigin:
+        case PGFplanex:
+        case PGFplaney:
+        case PGFcanvasisxyplaneatz:
+        case PGFcanvasisyxplaneatz:
+        case PGFcanvasisxzplaneaty:
+        case PGFcanvasiszxplaneaty:
+        case PGFcanvasisyzplaneatx:
+        case PGFcanvasiszyplaneatx:
+        case PGFinitialtext:
+        case PGFacceptingtext:
+        case PGFinitialdistance:
+        case PGFacceptingdistance:
+        case PGFinitialwhere:
+        case PGFacceptingwhere:
           {
             XWTikzValue * v= new XWTikzValue(graphic,id,this);
             ops << v;
@@ -2795,6 +3096,55 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
           }
           break;
 
+        case PGFeverystatestyle:
+        case PGFstatestyle:
+          {
+            XWTikzEveryState * s = new XWTikzEveryState(graphic,id,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFeveryacceptingbyarrowstyle:
+          {
+            XWTikzEveryAcceptingByArrow * s = new XWTikzEveryAcceptingByArrow(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFeveryinitialbyarrowstyle:
+          {
+            XWTikzEveryInitialByArrow * s = new XWTikzEveryInitialByArrow(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFeveryentity:
+          {
+            XWTikzEveryEntity * s = new XWTikzEveryEntity(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFeveryrelationship:
+          {
+            XWTikzEveryRelationship * s = new XWTikzEveryRelationship(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFeveryattribute:
+          {
+            XWTikzEveryAttribute * s = new XWTikzEveryAttribute(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
         default:
           if (graphic->isUnit(key))
           {
@@ -2877,6 +3227,111 @@ XWTikzOperation * XWTIKZOptions::takeAt(int i)
 {
   cur = i - 1;
   return ops.takeAt(i);
+}
+
+void XWTIKZOptions::addAccepting()
+{
+  XWTikzKey * key = findState();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFaccepting);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFaccepting,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+    
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addAcceptingAbove()
+{
+  XWTikzKey * key = findState();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFacceptingabove);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFacceptingabove,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+    
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addAcceptingBelow()
+{
+  XWTikzKey * key = findState();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFacceptingbelow);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFacceptingbelow,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+    
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addAcceptingByDouble()
+{
+  XWTikzKey * key = findState();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFacceptingbydouble);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFacceptingbydouble,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+    
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addAcceptingLeft()
+{
+  XWTikzKey * key = findState();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFacceptingleft);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFacceptingleft,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+    
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addAcceptingRight()
+{
+  XWTikzKey * key = findState();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFacceptingright);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFacceptingright,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+    
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addAttribute()
+{
+  XWTikzKey * key = findEntityRelationship();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFattribute);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFattribute,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+    
+  graphic->push(cmd);
 }
 
 void XWTIKZOptions::addCircuit()
@@ -2975,6 +3430,21 @@ void XWTIKZOptions::addConnectSpies()
   }
 }
 
+void XWTIKZOptions::addEntity()
+{
+  XWTikzKey * key = findEntityRelationship();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFentity);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFentity,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+    
+  graphic->push(cmd);
+}
+
 void XWTIKZOptions::addExtraConcept()
 {
   XWTikzKey * key = findConcept();
@@ -3012,6 +3482,90 @@ void XWTIKZOptions::addHugeMindmap()
   else 
   {
     key = new XWTikzKey(graphic, PGFhugemindmap,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addInitial()
+{
+  XWTikzKey * key = findState();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFinitial);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFinitial,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addInitialAbove()
+{
+  XWTikzKey * key = findState();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFinitialabove);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFinitialabove,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addInitialBelow()
+{
+  XWTikzKey * key = findState();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFinitialbelow);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFinitialbelow,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addInitialByDiamond()
+{
+  XWTikzKey * key = findState();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFinitialbydiamond);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFinitialbydiamond,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addInitialLeft()
+{
+  XWTikzKey * key = findState();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFinitialleft);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFinitialleft,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addInitialRight()
+{
+  XWTikzKey * key = findState();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFinitialright);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFinitialright,this);
     cmd = new XWTikzAddOption(this,cur+1,key);
   }
   graphic->push(cmd);
@@ -3163,6 +3717,20 @@ void XWTIKZOptions::addPointUp()
   graphic->push(cmd);
 }
 
+void XWTIKZOptions::addRelationship()
+{
+  XWTikzKey * key = findEntityRelationship();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFrelationship);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFrelationship,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+  graphic->push(cmd);
+}
+
 void XWTIKZOptions::addSmallCircuitSymbols()
 {
   XWTikzKey * key = findCircuitSymbols();
@@ -3215,6 +3783,48 @@ void XWTIKZOptions::addspyUsingOverlays()
   {
     op = new XWTikzSpyUsing(graphic,PGFspyusingoverlays,this);
     cmd = new XWTikzAddOption(this,cur+1,op);
+  }
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addState()
+{
+  XWTikzKey * key = findState();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFstate);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFstate,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addStateWithoutOutput()
+{
+  XWTikzKey * key = findState();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFstatewithoutoutput);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFstatewithoutoutput,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addStateWithOutput()
+{
+  XWTikzKey * key = findState();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFstatewithoutput);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFstatewithoutput,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
   }
   graphic->push(cmd);
 }
@@ -3684,6 +4294,35 @@ void XWTIKZOptions::setDash()
 void XWTIKZOptions::setDecoration()
 {
   setDecoration(PGFname);
+}
+
+void XWTIKZOptions::setDefaultArrow()
+{
+  XWTikzValue * a = getValue(PGFarrowdefault);
+  XWTikzArrowDialog dlg;
+  if (a)
+  {
+    int i = a->getValue();
+    dlg.setEndArrow(i);
+    dlg.setStartArrow(i);
+  }
+
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    int e = dlg.getEndArrow();
+    int s = dlg.getStartArrow();
+    QString ar = QString("%1").arg(s);
+    QUndoCommand * cmd = 0;
+    if (a)
+      cmd = new XWTikzSetExpress(a,ar);
+    else
+    {
+      a = new XWTikzValue(graphic,PGFarrowdefault,this);
+      a->setValue(s);
+      cmd = new XWTikzAddOption(this,cur+1,a);
+    }
+    graphic->push(cmd);
+  }
 }
 
 void XWTIKZOptions::setDomain()
@@ -4214,6 +4853,62 @@ void XWTIKZOptions::setPatternColor()
 void XWTIKZOptions::setPin()
 {
   setLabel("pin", PGFpin);
+}
+
+void XWTIKZOptions::setPlane()
+{
+  XWTikzOperation * op = find(PGFcanvasisplane);
+  if (op)
+    return ;
+
+  op = new XWTikzKey(graphic, PGFcanvasisplane,this);
+  QUndoCommand * cmd = new XWTikzAddOption(this,cur+1,op);
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::setPlaneOrigin()
+{
+  setCoord(PGFplaneorigin,tr("plane origin"));
+}
+
+void XWTIKZOptions::setPlaneX()
+{
+  setCoord(PGFplanex,tr("plane x"));
+}
+
+void XWTIKZOptions::setPlaneXYAtZ()
+{
+  setCoord(PGFcanvasisxyplaneatz,tr("canvas is xy plane at z"));
+}
+
+void XWTIKZOptions::setPlaneXZAtY()
+{
+  setCoord(PGFcanvasisxzplaneaty,tr("canvas is xz plane at y"));
+}
+
+void XWTIKZOptions::setPlaneY()
+{
+  setCoord(PGFplaney,tr("plane y"));
+}
+
+void XWTIKZOptions::setPlaneYXAtZ()
+{
+  setCoord(PGFcanvasisyxplaneatz,tr("canvas is yx plane at z"));
+}
+
+void XWTIKZOptions::setPlaneYZAtX()
+{
+  setCoord(PGFcanvasisyzplaneatx,tr("canvas is yz plane at x"));
+}
+
+void XWTIKZOptions::setPlaneZXAtY()
+{
+  setCoord(PGFcanvasiszxplaneaty,tr("canvas is zx plane at y"));
+}
+
+void XWTIKZOptions::setPlaneZYAtX()
+{
+  setCoord(PGFcanvasiszxplaneaty,tr("canvas is zy plane at x"));
 }
 
 void XWTIKZOptions::setPlotHandler()
@@ -5323,6 +6018,23 @@ XWTikzKey * XWTIKZOptions::findDecoration()
   return 0;
 }
 
+XWTikzKey * XWTIKZOptions::findEntityRelationship()
+{
+  for (int i = 0; i < ops.size(); i++)
+  {
+    int kw = ops[i]->getKeyWord();
+    if (kw == PGFentity ||
+        kw == PGFrelationship ||
+        kw == PGFattribute ||
+        kw == PGFkeyattribute)
+    {
+      return (XWTikzKey*)(ops[i]);
+    }
+  }
+
+  return 0;
+}
+
 XWTikzLabel * XWTIKZOptions::findInfo()
 {
   for (int i = 0; i < ops.size(); i++)
@@ -5499,6 +6211,34 @@ XWTikzKey * XWTIKZOptions::findShape()
         kw == PGFcirclesolidus ||
         kw == PGFrectanglesplit ||
         kw == PGFellipsesplit)
+    {
+      return (XWTikzKey*)(ops[i]);
+    }
+  }
+
+  return 0;
+}
+
+XWTikzKey * XWTIKZOptions::findState()
+{
+  for (int i = 0; i < ops.size(); i++)
+  {
+    int kw = ops[i]->getKeyWord();
+    if (kw == PGFstatewithoutoutput || 
+        kw == PGFstatewithoutput ||
+        kw == PGFacceptingbydouble ||
+        kw == PGFinitialbydiamond ||
+        kw == PGFinitialabove ||
+        kw == PGFinitialbelow ||
+        kw == PGFinitialleft ||
+        kw == PGFinitialright ||
+        kw == PGFacceptingabove ||
+        kw == PGFacceptingbelow ||
+        kw == PGFacceptingleft ||
+        kw == PGFacceptingright ||
+        kw == PGFstate ||
+        kw == PGFaccepting ||
+        kw == PGFinitial)
     {
       return (XWTikzKey*)(ops[i]);
     }
@@ -6762,6 +7502,90 @@ void XWTikzAnnotation::doPath(XWTikzState * state, bool showpoint)
 }
 
 QString XWTikzAnnotation::getText()
+{
+  return getOptions();
+}
+
+XWTikzEveryState::XWTikzEveryState(XWTikzGraphic * graphicA, int id,QObject * parent)
+:XWTIKZOptions(graphicA, id,parent)
+{}
+
+void XWTikzEveryState::doPath(XWTikzState * state, bool showpoint)
+{
+  doPathDefault(state,showpoint);
+}
+
+QString XWTikzEveryState::getText()
+{
+  return getOptions();
+}
+
+XWTikzEveryAcceptingByArrow::XWTikzEveryAcceptingByArrow(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFeveryacceptingbyarrowstyle,parent)
+{}
+
+void XWTikzEveryAcceptingByArrow::doPath(XWTikzState * state, bool showpoint)
+{
+  doPathDefault(state,showpoint);
+}
+
+QString XWTikzEveryAcceptingByArrow::getText()
+{
+  return getOptions();
+}
+
+XWTikzEveryInitialByArrow::XWTikzEveryInitialByArrow(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFeveryinitialbyarrowstyle,parent)
+{}
+
+void XWTikzEveryInitialByArrow::doPath(XWTikzState * state, bool showpoint)
+{
+  doPathDefault(state,showpoint);
+}
+
+QString XWTikzEveryInitialByArrow::getText()
+{
+  return getOptions();
+}
+
+XWTikzEveryEntity::XWTikzEveryEntity(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFeveryentity,parent)
+{}
+
+void XWTikzEveryEntity::doPath(XWTikzState * state, bool showpoint)
+{
+  doPathDefault(state,showpoint);
+}
+
+QString XWTikzEveryEntity::getText()
+{
+  return getOptions();
+}
+
+XWTikzEveryRelationship::XWTikzEveryRelationship(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFeveryrelationship,parent)
+{}
+
+void XWTikzEveryRelationship::doPath(XWTikzState * state, bool showpoint)
+{
+  doPathDefault(state,showpoint);
+}
+
+QString XWTikzEveryRelationship::getText()
+{
+  return getOptions();
+}
+
+XWTikzEveryAttribute::XWTikzEveryAttribute(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFeveryattribute,parent)
+{}
+
+void XWTikzEveryAttribute::doPath(XWTikzState * state, bool showpoint)
+{
+  doPathDefault(state,showpoint);
+}
+
+QString XWTikzEveryAttribute::getText()
 {
   return getOptions();
 }

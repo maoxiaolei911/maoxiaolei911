@@ -112,6 +112,9 @@ bool XWTikzGraphic::addMenuAction(QMenu & menu)
             options->addSlantAction(*submenu);
             menu.addSeparator();
             options->addCircuitAction(menu); 
+            menu.addSeparator();
+            submenu = menu.addMenu(tr("3D"));
+            options->addPlaneAction(*submenu);
             break;
 
           case PGFmindmap:
@@ -276,6 +279,24 @@ void XWTikzGraphic::doEdgeFromParentPath(XWTikzState * state)
   cmds[cur]->doEdgeFromParentPath(state);
 }
 
+void XWTikzGraphic::doEveryAcceptingByArrow(XWTikzState * state)
+{
+  options->doEveryAcceptingByArrow(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryAcceptingByArrow(state);
+}
+
+void XWTikzGraphic::doEveryAttribute(XWTikzState * state)
+{
+  options->doEveryAttribute(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryAttribute(state);
+}
+
 void XWTikzGraphic::doEveryChild(XWTikzState * state)
 {
   options->doEveryChild(state);
@@ -330,6 +351,15 @@ void XWTikzGraphic::doEveryEdge(XWTikzState * state)
   cmds[cur]->doEveryEdge(state);
 }
 
+void XWTikzGraphic::doEveryEntity(XWTikzState * state)
+{
+  options->doEveryEntity(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryEntity(state);
+}
+
 void XWTikzGraphic::doEveryInfo(XWTikzState * state)
 {
   options->doEveryInfo(state);
@@ -337,6 +367,15 @@ void XWTikzGraphic::doEveryInfo(XWTikzState * state)
     return ;
 
   cmds[cur]->doEveryInfo(state);
+}
+
+void XWTikzGraphic::doEveryInitialByArrow(XWTikzState * state)
+{
+  options->doEveryInitialByArrow(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryInitialByArrow(state);
 }
 
 void XWTikzGraphic::doEveryLabel(XWTikzState * state)
@@ -402,6 +441,15 @@ void XWTikzGraphic::doEveryPinEdge(XWTikzState * state)
   cmds[cur]->doEveryPinEdge(state);
 }
 
+void XWTikzGraphic::doEveryRelationship(XWTikzState * state)
+{
+  options->doEveryRelationship(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryRelationship(state);
+}
+
 void XWTikzGraphic::doEveryShape(XWTikzState * state)
 {
   options->doEveryShape(state);
@@ -409,6 +457,15 @@ void XWTikzGraphic::doEveryShape(XWTikzState * state)
     return ;
 
   cmds[cur]->doEveryShape(state);
+}
+
+void XWTikzGraphic::doEveryState(XWTikzState * state)
+{
+  options->doEveryState(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryState(state);
 }
 
 void XWTikzGraphic::doGraphic(XWPDFDriver * driver)
@@ -561,6 +618,15 @@ void XWTikzGraphic::doSpyNode(XWTikzState * state)
     return ;
 
   cmds[cur]->doSpyNode(state);
+}
+
+void XWTikzGraphic::doState(XWTikzState * state)
+{
+  options->doState(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doState(state);
 }
 
 void XWTikzGraphic::doToPath(XWTikzState * state)

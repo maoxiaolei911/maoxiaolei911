@@ -101,8 +101,7 @@ bool XWTikzCoord::dropTo(XWTikzState * state)
     default:
       break;
 
-    case XW_TIKZ_CS_CANVAS:
-    case XW_TIKZ_CS_POLAR_CANVAS_XY:      
+    case XW_TIKZ_CS_CANVAS:  
       if (csc.compEx.c1 && !csc.compEx.c1->isVar())
       {
         newp.setX(oldp.x() + mp.x() - pm.x());
@@ -116,7 +115,6 @@ bool XWTikzCoord::dropTo(XWTikzState * state)
       break;
 
     case XW_TIKZ_CS_XY:
-    case XW_TIKZ_CS_POLAR_XYZ_XY:
       if (csc.compEx.c1 && !csc.compEx.c1->isVar())
       {
         newp.setX(oldp.x() + (mp.x() - pm.x()) / state->getXVec());
@@ -166,108 +164,6 @@ bool XWTikzCoord::dropTo(XWTikzState * state)
         }
       }
       break;
-
-    case XW_TIKZ_CS_POLAR_CANVAS:
-      if (csc.compEx.c1 && !csc.compEx.c1->isVar())
-      {
-        if (mp.x() != 0 && pm.x() != 0)
-        {
-          newp.setX(oldp.x()+ atan(mp.y() / mp.x()) - atan(pm.y() / pm.x()));
-          ret = true;
-        }
-        else if (mp.x() == 0)
-        {
-          if (mp.y() > 0)
-          {
-            newp.setX(oldp.x() + 90 - atan(pm.y() / pm.x()));
-            ret = true;
-          }     
-          else
-          {
-            newp.setX(oldp.x() + 270 - atan(pm.y() / pm.x()));
-            ret = true;
-          }
-        }
-        else
-        {
-          if (pm.y() > 0)
-          {
-            newp.setX(oldp.x() + atan(pm.y() / pm.x()) - 90);
-            ret = true;
-          }     
-          else
-          {
-            newp.setX(oldp.x() + atan(pm.y() / pm.x()) - 270);
-            ret = true;;
-          }
-        }
-      }          
-      if (csc.compEx.c2 && !csc.compEx.c2->isVar())
-      {
-        double d = sqrt((mp.x()-pm.x())*(mp.x()-pm.x()) + (mp.y()-pm.y())*(mp.y()-pm.y()));
-        if (qAbs(mp.y()) > qAbs(pm.y()))
-        {
-          newp.setY(oldp.y() + d);
-          ret = true;
-        }
-        else
-        {
-          newp.setY(oldp.y() - d);
-          ret = true;
-        }
-      }          
-      break;
-
-    case XW_TIKZ_CS_POLAR_XYZ:
-      if (csc.compEx.c1 && !csc.compEx.c1->isVar())
-      {
-        if (mp.x() != 0 && pm.x() != 0)
-        {
-          newp.setX(oldp.x() + atan(mp.y() / mp.x()) - atan(pm.y() / pm.x()));
-          ret = true;
-        }
-        else if (mp.x() == 0)
-        {
-          if (mp.y() > 0)
-          {
-            newp.setX(oldp.x() + 90 - atan(pm.y() / pm.x()));
-            ret = true;
-          }     
-          else
-          {
-            newp.setX(oldp.x() + 270 - atan(pm.y() / pm.x()));
-            ret = true;
-          }
-        }
-        else
-        {
-          if (pm.y() > 0)
-          {
-            newp.setX(oldp.x() + atan(pm.y() / pm.x()) - 90);
-            ret = true;
-          }     
-          else
-          {
-            newp.setX(oldp.x() + atan(pm.y() / pm.x()) - 270);
-            ret = true;
-          }
-        }  
-      }          
-      if (csc.compEx.c2 && !csc.compEx.c2->isVar())
-      {
-        double d = sqrt((mp.x()-pm.x())*(mp.x()-pm.x()) + (mp.y()-pm.y())*(mp.y()-pm.y())) / state->getXVec();
-        if (qAbs(mp.y()) > qAbs(pm.y()))
-        {
-          newp.setY(oldp.y() + d);
-          ret = true;
-        }
-        else
-        {
-          newp.setY(oldp.y() - d);
-          ret = true;
-        }
-      }  
-      break;
   }
 
   if (ret)
@@ -291,30 +187,11 @@ QPointF XWTikzCoord::getPoint(XWTikzState * state)
       p.setY(p3.y());
       break;
 
-    case XW_TIKZ_CS_XY:
-      p.setX(state->getXVec() * p3.x());
-      p.setY(state->getYVec() * p3.y());
-      break;
-
     case XW_TIKZ_CS_XYZ:
-      {
-        double cz = state->getZVec() * p3.z();
-        double cx = state->getXVec() * p3.x() + cz;
-        double cy = state->getYVec() * p3.y() + cz;
-        p.setX(cx);
-        p.setX(cy);
-      }
-      break;
-
-    case XW_TIKZ_CS_POLAR_CANVAS:
-      p.setX(p3.y() * cos(p3.x()));
-      p.setY(p3.y() * sin(p3.x()));
-      break;
-
-    case XW_TIKZ_CS_POLAR_XYZ:
-    case XW_TIKZ_CS_POLAR_XYZ_XY:
-      p.setX(state->getXVec() * p3.y() * cos(p3.x()));
-      p.setY(state->getYVec() * p3.y() * sin(p3.x()));
+    case XW_TIKZ_CS_XYZ_CYLINDRICAL:
+    case XW_TIKZ_CS_XYZ_SPHERICAL:
+      p.setX(p3.x() + p3.z());
+      p.setX(p3.y() + p3.z());
       break;
   }
 
@@ -365,13 +242,47 @@ QVector3D XWTikzCoord::getRelPoint3D(XWTikzState * state)
         p.setY(csc.compEx.c2->getResult(state));
       break;
 
+    case XW_TIKZ_CS_XY:
+      if (csc.compEx.c1)
+        p.setX(state->getXVec() * csc.compEx.c1->getResult(state));
+      if (csc.compEx.c2)
+        p.setY(state->getYVec() * csc.compEx.c2->getResult(state));
+      break;
+
     case XW_TIKZ_CS_XYZ:    
       if (csc.compEx.c1)
-        p.setX(csc.compEx.c1->getResult(state));
+        p.setX(state->getXVec() * csc.compEx.c1->getResult(state));
       if (csc.compEx.c2)
-        p.setY(csc.compEx.c2->getResult(state));
+        p.setY(state->getYVec() * csc.compEx.c2->getResult(state));
       if (csc.compEx.c3)
-        p.setZ(csc.compEx.c3->getResult(state));
+        p.setZ(state->getZVec() * csc.compEx.c3->getResult(state));
+      break;
+
+    case XW_TIKZ_CS_POLAR_CANVAS:
+      {
+        double a = 0;
+        if (csc.compEx.c1)
+          a = csc.compEx.c1->getResult(state);
+        double r = 0;
+        if (csc.compEx.c2)
+          r = csc.compEx.c2->getResult(state);
+        p.setX(r * cos(a));
+        p.setY(r * sin(a));
+      }
+      break;
+
+    case XW_TIKZ_CS_POLAR_XYZ:
+    case XW_TIKZ_CS_POLAR_XYZ_XY:
+      {
+        double a = 0;
+        if (csc.compEx.c1)
+          a = csc.compEx.c1->getResult(state);
+        double r = 0;
+        if (csc.compEx.c2)
+          r = csc.compEx.c2->getResult(state);
+        p.setX(state->getXVec() * r * cos(a));
+        p.setY(state->getYVec() * r * sin(a));
+      }
       break;
 
     case XW_TIKZ_CS_BARYCENTRIC:
@@ -478,6 +389,41 @@ QVector3D XWTikzCoord::getRelPoint3D(XWTikzState * state)
     case XW_TIKZ_CS_CALCU:
       if (csc.coordEx.coord)
         p = csc.coordEx.coord->getResult(state);
+      break;
+
+    case XW_TIKZ_CS_XYZ_CYLINDRICAL:
+      {
+        double a = 0;
+        if (csc.cylindrical.angle)
+          a = csc.cylindrical.angle->getResult(state);
+        double r = 0;
+        if (csc.cylindrical.radius)
+          r = csc.cylindrical.radius->getResult(state);
+        double z = 0;
+        if (csc.cylindrical.z)
+          z = csc.cylindrical.z->getResult(state);
+        p.setX(state->getXVec() * r * cos(a));
+        p.setY(state->getYVec() *r * sin(a));
+        p.setZ(state->getZVec() * z);
+      }
+      break;
+
+    case XW_TIKZ_CS_XYZ_SPHERICAL:
+      {
+        double lo = 0;
+        if (csc.spherical.longitude)
+          lo = csc.spherical.longitude->getResult(state);
+        double la = 0;
+        if (csc.spherical.latitude)
+          la = csc.spherical.latitude->getResult(state);
+        double r = 0;
+        if (csc.spherical.radius)
+          r = csc.spherical.radius->getResult(state);
+        
+        p.setX(state->getXVec() * r * cos(lo) * cos(la));
+        p.setY(state->getYVec() * r * sin(lo) * cos(la));
+        p.setZ(state->getZVec() * r * sin(la));
+      }
       break;
   }
 
@@ -735,6 +681,54 @@ QString XWTikzCoord::getText()
       }
       ret += "$";
       break;
+
+    case XW_TIKZ_CS_XYZ_CYLINDRICAL:
+      ret += "xyz cylindrical cs:";
+      if (csc.cylindrical.angle)
+      {
+        ret += "angle=";
+        QString tmp = csc.cylindrical.angle->getText();
+        ret += tmp;
+        ret += ",";
+      }
+      if (csc.cylindrical.radius)
+      {
+        ret += "radius=";
+        QString tmp = csc.cylindrical.radius->getText();
+        ret += tmp;
+        ret += ",";
+      }
+      if (csc.cylindrical.z)
+      {
+        ret += "z=";
+        QString tmp = csc.cylindrical.z->getText();
+        ret += tmp;
+      }
+      break;
+
+    case XW_TIKZ_CS_XYZ_SPHERICAL:
+      ret += "xyz spherical cs:";
+      if (csc.spherical.longitude)
+      {
+        ret += "longitude=";
+        QString tmp = csc.spherical.longitude->getText();
+        ret += tmp;
+        ret += ",";
+      }
+      if (csc.spherical.latitude)
+      {
+        ret += "latitude=";
+        QString tmp = csc.spherical.latitude->getText();
+        ret += tmp;
+        ret += ",";
+      }
+      if (csc.spherical.radius)
+      {
+        ret += "radius=";
+        QString tmp = csc.spherical.radius->getText();
+        ret += tmp;
+      }
+      break;
   }
 
   ret += ")";
@@ -779,6 +773,11 @@ bool XWTikzCoord::hitTest(XWTikzState * state)
   return ret;
 }
 
+bool XWTikzCoord::isNull()
+{
+  return cs == XW_TIKZ_CS_NULL;
+}
+
 void XWTikzCoord::moveTo(const QVector3D & p)
 {
   switch (cs)
@@ -787,9 +786,7 @@ void XWTikzCoord::moveTo(const QVector3D & p)
       break;
 
     case XW_TIKZ_CS_CANVAS:
-    case XW_TIKZ_CS_POLAR_CANVAS_XY:  
     case XW_TIKZ_CS_XY:
-    case XW_TIKZ_CS_POLAR_XYZ_XY:    
       if (csc.compEx.c1 && !csc.compEx.c1->isVar())
         csc.compEx.c1->setValue(p.x());
       if (csc.compEx.c2 && !csc.compEx.c2->isVar())
@@ -828,6 +825,12 @@ void XWTikzCoord::scan(const QString & str, int & len, int & pos)
 
   pos++;
   options->scan(str,len,pos);
+  if (str[pos] == QChar(')'))
+  {
+    pos++;
+    return ;
+  }
+
   int i = pos;
   while (str[pos].isLetter() || str[pos].isSpace())
     pos++;
@@ -1161,6 +1164,124 @@ void XWTikzCoord::scan(const QString & str, int & len, int & pos)
     csc.coordEx.coord = new XWTikzCoordExpress(graphic,key,this);
     pos++;
   }
+  else if (key == "xyz cylindrical cs:")
+  {
+    cs = XW_TIKZ_CS_XYZ_CYLINDRICAL;
+    csc.cylindrical.angle = 0;
+    csc.cylindrical.radius = 0;
+    csc.cylindrical.z = 0;
+    QString a,av,r,rv,z,zv;
+    scanKeyValue(str,len,pos,a,av);
+    scanKeyValue(str,len,pos,r,rv);
+    scanKeyValue(str,len,pos,z,zv);
+    if (a == "angle")
+    {
+      csc.cylindrical.angle = new XWTikzExpress(graphic,av,this);
+      if (r == "radius")
+      {
+        csc.cylindrical.radius = new XWTikzExpress(graphic,rv,this);
+        if (!z.isEmpty())
+          csc.cylindrical.z = new XWTikzExpress(graphic,zv,this);
+      }
+      else if (r == "z")
+      {
+        csc.cylindrical.z = new XWTikzExpress(graphic,rv,this);
+        if (!z.isEmpty())
+          csc.cylindrical.radius = new XWTikzExpress(graphic,zv,this);
+      }
+    }
+    else if (a == "radius")
+    {
+      csc.cylindrical.radius = new XWTikzExpress(graphic,av,this);
+      if (r == "angle")
+      {
+        csc.cylindrical.angle = new XWTikzExpress(graphic,rv,this);
+        if (!z.isEmpty())
+          csc.cylindrical.z = new XWTikzExpress(graphic,zv,this);
+      }
+      else if (r == "z")
+      {
+        csc.cylindrical.z = new XWTikzExpress(graphic,rv,this);
+        if (!z.isEmpty())
+          csc.cylindrical.angle = new XWTikzExpress(graphic,zv,this);
+      }
+    }
+    else if (a == "z")
+    {
+      csc.cylindrical.z = new XWTikzExpress(graphic,av,this);
+      if (r == "radius")
+      {
+        csc.cylindrical.radius = new XWTikzExpress(graphic,rv,this);
+        if (!z.isEmpty())
+          csc.cylindrical.angle = new XWTikzExpress(graphic,zv,this);
+      }
+      else if (r == "angle")
+      {
+        csc.cylindrical.angle = new XWTikzExpress(graphic,rv,this);
+        if (!z.isEmpty())
+          csc.cylindrical.radius = new XWTikzExpress(graphic,zv,this);
+      }
+    }
+  }
+  else if (key == "xyz spherical cs:")
+  {
+    cs = XW_TIKZ_CS_XYZ_SPHERICAL;
+    csc.spherical.longitude = 0;
+    csc.spherical.latitude = 0;
+    csc.spherical.radius = 0;
+    QString lo,lov,la,lav,ra,rav;
+    scanKeyValue(str,len,pos,lo,lov);
+    scanKeyValue(str,len,pos,la,lav);
+    scanKeyValue(str,len,pos,ra,rav);
+    if (lo == "longitude" || lo == "angle")
+    {
+      csc.spherical.longitude = new XWTikzExpress(graphic,lov,this);
+      if (la == "latitude")
+      {
+        csc.spherical.latitude = new XWTikzExpress(graphic,lav,this);
+        if (!ra.isEmpty())
+          csc.spherical.radius = new XWTikzExpress(graphic,rav,this);
+      }
+      else if (la == "radius")
+      {
+        csc.spherical.radius = new XWTikzExpress(graphic,lav,this);
+        if(!ra.isEmpty())
+          csc.spherical.latitude = new XWTikzExpress(graphic,rav,this);
+      }
+    }
+    else if (lo == "latitude")
+    {
+      csc.spherical.latitude = new XWTikzExpress(graphic,lov,this);
+      if (la == "longitude" || la == "angle")
+      {
+        csc.spherical.longitude = new XWTikzExpress(graphic,lav,this);
+        if (!ra.isEmpty())
+          csc.spherical.radius = new XWTikzExpress(graphic,rav,this);
+      }
+      else if (la == "radius")
+      {
+        csc.spherical.radius = new XWTikzExpress(graphic,lav,this);
+        if (!ra.isEmpty())
+          csc.spherical.longitude = new XWTikzExpress(graphic,rav,this);
+      }
+    }
+    else if (lo == "radius")
+    {
+      csc.spherical.radius = new XWTikzExpress(graphic,lov,this);
+      if (la == "latitude")
+      {
+        csc.spherical.latitude = new XWTikzExpress(graphic,lav,this);
+        if (!ra.isEmpty())
+          csc.spherical.longitude = new XWTikzExpress(graphic,rav,this);
+      }
+      else if (la == "longitude" || la == "angle")
+      {
+        csc.spherical.longitude = new XWTikzExpress(graphic,lav,this);
+        if (!ra.isEmpty())
+          csc.spherical.latitude = new XWTikzExpress(graphic,rav,this);
+      }
+    }
+  }
   else
   {
     QString x,y;
@@ -1340,6 +1461,37 @@ void XWTikzCoord::clear()
         delete csc.coordEx.coord;
         csc.coordEx.coord = 0;
       }        
+      break;
+
+    case XW_TIKZ_CS_XYZ_CYLINDRICAL:
+      if (csc.cylindrical.radius)
+      {
+        delete csc.cylindrical.radius;
+        csc.cylindrical.radius = 0;
+      }
+      if (csc.cylindrical.z)
+      {
+        delete csc.cylindrical.z;
+        csc.cylindrical.z = 0;
+      }
+      break;
+
+    case XW_TIKZ_CS_XYZ_SPHERICAL:
+      if (csc.spherical.longitude)
+      {
+        delete csc.spherical.longitude;
+        csc.spherical.longitude = 0;
+      }
+      if (csc.spherical.latitude)
+      {
+        delete csc.spherical.latitude;
+        csc.spherical.latitude = 0;
+      }
+      if (csc.spherical.radius)
+      {
+        delete csc.spherical.radius;
+        csc.spherical.radius = 0;
+      }
       break;
   }
 }

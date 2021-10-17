@@ -17,6 +17,7 @@
 #include "XWTikzGraphic.h"
 #include "XWTikzCommand.h"
 #include "XWTikzExpress.h"
+#include "XWTikzNode.h"
 #include "XWTikzOption.h"
 #include "XWTikzOptions.h"
 #include "XWTikzTextBox.h"
@@ -58,6 +59,20 @@ XWTikzState::~XWTikzState()
 {
   while (!nodes.isEmpty())
     delete nodes.takeFirst();
+}
+
+void XWTikzState::acceptingByArrow()
+{
+  to_path = &XWTikzState::toPathAcceptingByArrow;
+  after_node = &XWTikzState::addEdge;
+}
+
+void XWTikzState::acceptingByDouble()
+{
+  lineWidth = 2 * lineWidth + 0.6;
+  innerLineWidth = 0.6;
+  outerXSep = 0.5 * lineWidth + 0.3;
+  outerYSep = 0.5 * lineWidth + 0.3;
 }
 
 void XWTikzState::addArc()
@@ -119,14 +134,27 @@ void XWTikzState::addCosine(const QPointF & p)
 
 void XWTikzState::addEdge(XWTikzCoord * p)
 {
-  coords << p;
-  QPointF p1 = p->getPoint(this);
-  addEdge(p1);
+  if (p->isNull())
+    addEdge();
+  else
+  {
+    coords << p;
+    QPointF p1 = p->getPoint(this);
+    addEdge(p1);
+  }
 }
 
 void XWTikzState::addEdge(const QPointF & p)
 {
   toTarget = map(p);
+  XWTikzState * state = save(false);
+  graphic->doToPath(state);
+  state = restore();
+}
+
+void XWTikzState::addEdge()
+{
+  toTarget = toStart;
   XWTikzState * state = save(false);
   graphic->doToPath(state);
   state = restore();
@@ -479,6 +507,7 @@ void XWTikzState::copy(XWTikzState * newstate,bool n)
     newstate->endRadius = endRadius;
     newstate->decorationAngle = decorationAngle;
     newstate->isUseAsBoundingBoxSet = isUseAsBoundingBoxSet;
+    newstate->arrowDefault = arrowDefault;
     newstate->startArrow = startArrow;
     newstate->endArrow = endArrow;
     newstate->isEnd = isEnd;
@@ -636,6 +665,15 @@ void XWTikzState::copy(XWTikzState * newstate,bool n)
     newstate->chamferedRectangleCorners = chamferedRectangleCorners;
 
     newstate->siblingAngle = siblingAngle;
+
+    newstate->acceptingText = acceptingText;
+    newstate->initialText = initialText;
+    newstate->initialDistance = initialDistance;
+    newstate->acceptingDistance = acceptingDistance;
+    newstate->initialAngle = initialAngle;
+    newstate->acceptingAngle = acceptingAngle;
+    newstate->initialAnchor = initialAnchor;
+    newstate->acceptingAnchor = acceptingAnchor;
   }
 
   newstate->lineWidth = lineWidth;
@@ -754,6 +792,10 @@ void XWTikzState::copy(XWTikzState * newstate,bool n)
   newstate->startPosition = startPosition;
   newstate->endPosition = endPosition;
   newstate->step = step;
+
+  newstate->planeX = planeX;
+  newstate->planeY = planeY;
+  newstate->planeOrigin = planeOrigin;
 
   newstate->markNode = markNode;
 
@@ -879,7 +921,8 @@ void XWTikzState::doEdgeFromParentPath()
 
 void XWTikzState::doToPath()
 {
-  (this->*(to_path))();
+  if (to_path != NULL)
+    (this->*(to_path))();
 }
 
 void XWTikzState::dragTo(XWTeXBox * box)
@@ -1752,6 +1795,12 @@ bool XWTikzState::hitTestVHLine()
   return hitTestLine(p2,p3);
 }
 
+void XWTikzState::initialByArrow()
+{
+  to_path = &XWTikzState::toPathInitialByArrow;
+  after_node = &XWTikzState::addEdge;
+}
+
 void XWTikzState::inverted()
 {
   transform = transform.inverted();
@@ -2453,10 +2502,49 @@ void XWTikzState::setPictureType(int t)
       break;
 
     case PGFcircuit:
+    case PGFcircuiteeIEC:
+    case PGFcircuitlogic:
+    case PGFcircuitlogicIEC:
+    case PGFcircuitlogicUS:
+    case PGFcircuitlogicCDH:
       minWidth = circuitsSizeUnit * circuitSymbolWidth;
       minHeight = circuitsSizeUnit * circuitSymbolHeight;
       break;
   }
+}
+
+void XWTikzState::setPlane()
+{
+  setPlane(planeX.x(), planeX.y(),planeY.x(),planeY.y(),planeOrigin.x(),planeOrigin.y());
+}
+
+void XWTikzState::setPlane(double xa, double ya,
+                           double xb, double yb,
+                           double x, double y)
+{
+  transformTriangle(x,y,xa,ya,xb,yb);
+  transform.scale(0.035146,0.035146);
+  xVec = 28.4527559;
+  yVec = 28.4527559;
+  zVec = 0;
+}
+
+void XWTikzState::setPlaneX(const QPointF & p)
+{
+  planeX.setX(p.x());
+  planeX.setY(p.y());
+}
+
+void XWTikzState::setPlaneY(const QPointF & p)
+{
+  planeY.setX(p.x());
+  planeY.setY(p.y());
+}
+
+void XWTikzState::setPlaneOrigin(const QPointF & p)
+{
+  planeOrigin.setX(p.x());
+  planeOrigin.setY(p.y());
 }
 
 void XWTikzState::setPos(double p)
@@ -3667,9 +3755,6 @@ void XWTikzState::decorateTransformLine(const QPointF & c,
   transform *= decorateTransform;
 }
 
-void XWTikzState::defaultCode()
-{}
-
 void XWTikzState::doNodes()
 {
   for (int i = 0; i < nodes.size(); i++)
@@ -3817,6 +3902,9 @@ void XWTikzState::doNodes()
         }
         break;
     }
+
+    if (after_node != NULL)
+      (this->*(after_node))();    
   }
 }
 
@@ -4213,6 +4301,7 @@ void XWTikzState::init()
 
   transformShape = false;
 
+  arrowDefault = PGFto;
   startArrow = 0;
   endArrow = 0;
   isEnd = false;
@@ -4253,6 +4342,8 @@ void XWTikzState::init()
   samples = 25;
   domainStart = -5;
   domainEnd = 5;
+
+  initialText = "start";
 
   pathMinX = 16000;
   pathMinY = 16000;
@@ -4377,17 +4468,34 @@ void XWTikzState::init()
   spyUsing = 0;
   onNode = true;
 
+  initialDistance = 27.27;
+  acceptingDistance = 27.27;
+  initialAngle = 180;
+  acceptingAngle = 0;
+  initialAnchor = PGFeast;
+  acceptingAnchor = PGFwest;
+
   position = 0;
   startPosition = 0;
   endPosition = 0;
   step = 0;
+  planeX.setX(1);
+  planeX.setY(0);
+  planeX.setZ(0);
+  planeY.setX(0);
+  planeY.setY(1);
+  planeY.setZ(0);
+  planeOrigin.setX(0);
+  planeOrigin.setY(0);
+  planeOrigin.setZ(0);
 
   tikzTimer = &XWTikzState::timerLine;
-  before_code = &XWTikzState::defaultCode;
-  after_code = &XWTikzState::defaultCode;
+  before_code = NULL;
+  after_code = NULL;
 
   to_path = &XWTikzState::toPathDefault;
   nolinear_map = NULL;
+  after_node = NULL;
 
   myNode = 0;
   myBox = 0;
@@ -4955,7 +5063,8 @@ void XWTikzState::invokeDecorate()
   decoratedPathLength = decoratedRemainingDistance;
   decoratedCompletedDistance = 0;
 
-  (this->*(before_code))();
+  if (before_code != NULL)
+    (this->*(before_code))();
 
   XWTikzDecoration mydecoration(decoration);
 
@@ -5182,7 +5291,8 @@ void XWTikzState::invokeDecorate()
   if (decoratedRemainingDistance >= 1)
     mydecoration.doFinalState(this);
 
-  (this->*(after_code))();
+  if (after_code != NULL)
+    (this->*(after_code))();
 }
 
 bool XWTikzState::isLinesIntersect(const QPointF & p1,
@@ -5671,6 +5781,25 @@ void XWTikzState::timerVHLine()
   }
 }
 
+void XWTikzState::toPathAcceptingByArrow()
+{
+  endArrow = new XWTikzArrowSpecification(graphic,this);
+  endArrow->setArrow(PGFarrowdefault);
+  lineWidth = 2 * lineWidth + 0.6;
+  innerLineWidth = 0.6;
+  graphic->doEveryAcceptingByArrow(this);
+  double x = acceptingDistance * cos(acceptingAngle) + toStart.x();
+  double y = acceptingDistance * sin(acceptingAngle) + toStart.y();
+  toStart.setX(x);
+  toStart.setY(y);
+  moveTo(toStart);
+  XWTikzNode * node = new XWTikzNode(graphic,this);
+  node->setText(acceptingText);
+  shape = PGFrectangle;
+  anchor = acceptingAnchor;
+  node->doPath(this);
+}
+
 void XWTikzState::toPathDefault()
 {
   QTransform oldtranform = transform;
@@ -5678,6 +5807,26 @@ void XWTikzState::toPathDefault()
   moveTo(toStart);
   lineTo(toTarget);
   transform = oldtranform;
+}
+
+void XWTikzState::toPathInitialByArrow()
+{
+  endArrow = new XWTikzArrowSpecification(graphic,this);
+  endArrow->setArrow(PGFarrowdefault);
+  lineWidth = 2 * lineWidth + 0.6;
+  innerLineWidth = 0.6;
+  graphic->doEveryInitialByArrow(this);
+  double x = initialDistance * cos(initialAngle) + toStart.x();
+  double y = initialDistance * sin(initialAngle) + toStart.y();
+  toStart.setX(x);
+  toStart.setY(y);
+  moveTo(toStart);
+  XWTikzNode * node = new XWTikzNode(graphic,this);
+  node->setText(initialText);
+  shape = PGFrectangle;
+  anchor = acceptingAnchor;
+  node->doPath(this);
+  lineTo(toStart);
 }
 
 void XWTikzState::transformArrow(const QPointF & p1,const QPointF & p2)
@@ -5910,6 +6059,17 @@ void XWTikzState::transformNode()
   }
   else
     (this->*(tikzTimer))();
+}
+
+void XWTikzState::transformTriangle(double xa,double ya,
+                                    double xb,double yb,
+                                    double x,double y)
+{
+  double a = xa - x;
+  double b = ya - y;
+  double c = xb - x;
+  double d = yb - y;
+  transform.setMatrix(a,b,0,c,d,0,x,y,1);
 }
 
 double XWTikzState::veclen(double xA,double yA)

@@ -58,6 +58,7 @@ public:
   void scan(const QString & str, int & len, int & pos);
   void setCoord(const QString & str);
   void setExpress(const QString & str);
+  void setText(const QString & str) {text=str;}
   void setValue(double r);
 
 private:

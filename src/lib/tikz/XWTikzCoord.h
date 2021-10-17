@@ -38,6 +38,8 @@ public:
 
   bool hitTest(XWTikzState * state);
 
+  bool isNull();
+
   void moveTo(const QVector3D & p);
 
   void scan(const QString & str, int & len, int & pos);  
@@ -106,6 +108,20 @@ private:
     XWTikzCoordExpress * coord2;
   };
 
+  struct _CS_Cylindrical
+  {
+    XWTikzExpress * angle;
+    XWTikzExpress * radius;
+    XWTikzExpress * z;
+  };
+
+  struct _CS_Spherical
+  {
+    XWTikzExpress * longitude;
+    XWTikzExpress * latitude;
+    XWTikzExpress * radius;
+  };
+
   union _CSComponent
   {
     _CS_Express compEx;
@@ -114,6 +130,8 @@ private:
     _CS_Node nodeEx;
     _CS_Tangent tangent;
     _CS_Perpendicular perpendicular;
+    _CS_Cylindrical cylindrical;
+    _CS_Spherical spherical;
   } csc;
 };
 

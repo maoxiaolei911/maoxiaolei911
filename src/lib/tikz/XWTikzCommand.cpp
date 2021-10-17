@@ -194,6 +194,12 @@ void XWTikzCommand::doEdgeFromParentPath(XWTikzState * state)
   options->doEdgeFromParentPath(state);
 }
 
+void XWTikzCommand::doEveryAcceptingByArrow(XWTikzState *)
+{}
+
+void XWTikzCommand::doEveryAttribute(XWTikzState * )
+{}
+
 void XWTikzCommand::doEveryChild(XWTikzState * state)
 {
   options->doEveryChild(state);
@@ -224,10 +230,16 @@ void XWTikzCommand::doEveryEdge(XWTikzState * state)
   options->doEveryEdge(state);
 }
 
+void XWTikzCommand::doEveryEntity(XWTikzState * )
+{}
+
 void XWTikzCommand::doEveryInfo(XWTikzState * state)
 {
   options->doEveryInfo(state);
 }
+
+void XWTikzCommand::doEveryInitialByArrow(XWTikzState *)
+{}
 
 void XWTikzCommand::doEveryLabel(XWTikzState * state)
 {
@@ -264,10 +276,16 @@ void XWTikzCommand::doEveryPinEdge(XWTikzState * state)
   options->doEveryPinEdge(state);
 }
 
+void XWTikzCommand::doEveryRelationship(XWTikzState * )
+{}
+
 void XWTikzCommand::doEveryShape(XWTikzState * state)
 {
   options->doEveryShape(state);
 }
+
+void XWTikzCommand::doEveryState(XWTikzState *)
+{}
 
 void XWTikzCommand::doLevel(XWTikzState * state)
 {
@@ -302,6 +320,9 @@ void XWTikzCommand::doSpyConnection(XWTikzState * state)
 {
   options->doSpyConnection(state);
 }
+
+void XWTikzCommand::doState(XWTikzState * )
+{}
 
 void XWTikzCommand::doSpyNode(XWTikzState * state)
 {
@@ -2014,6 +2035,9 @@ void XWTikzScope::addScopeAction(QMenu & menu, XWTikzState * state)
       options->addDomainAction(menu);
       menu.addSeparator();
       options->addCircuitAction(menu);
+      menu.addSeparator();
+      submenu = menu.addMenu(tr("3D"));
+      options->addPlaneAction(*submenu);
       break;
 
     case PGFmindmap:
@@ -2217,6 +2241,24 @@ void XWTikzScope::doEdgeFromParentPath(XWTikzState * state)
   cmds[cur]->doEdgeFromParentPath(state);
 }
 
+void XWTikzScope::doEveryAcceptingByArrow(XWTikzState * state)
+{
+  options->doEveryAcceptingByArrow(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryAcceptingByArrow(state);
+}
+
+void XWTikzScope::doEveryAttribute(XWTikzState * state)
+{
+  options->doEveryAttribute(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryAttribute(state);
+}
+
 void XWTikzScope::doEveryChild(XWTikzState * state)
 {
   options->doEveryChild(state);
@@ -2271,6 +2313,15 @@ void XWTikzScope::doEveryEdge(XWTikzState * state)
   cmds[cur]->doEveryEdge(state);
 }
 
+void XWTikzScope::doEveryEntity(XWTikzState * state)
+{
+  options->doEveryEntity(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryEntity(state);
+}
+
 void XWTikzScope::doEveryInfo(XWTikzState * state)
 {
   options->doEveryInfo(state);
@@ -2278,6 +2329,15 @@ void XWTikzScope::doEveryInfo(XWTikzState * state)
     return ;
 
   cmds[cur]->doEveryInfo(state);
+}
+
+void XWTikzScope::doEveryInitialByArrow(XWTikzState * state)
+{
+  options->doEveryInitialByArrow(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryInitialByArrow(state);
 }
 
 void XWTikzScope::doEveryLabel(XWTikzState * state)
@@ -2343,6 +2403,15 @@ void XWTikzScope::doEveryPinEdge(XWTikzState * state)
   cmds[cur]->doEveryPinEdge(state);
 }
 
+void XWTikzScope::doEveryRelationship(XWTikzState * state)
+{
+  options->doEveryRelationship(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryRelationship(state);
+}
+
 void XWTikzScope::doEveryShape(XWTikzState * state)
 {
   options->doEveryShape(state);
@@ -2350,6 +2419,15 @@ void XWTikzScope::doEveryShape(XWTikzState * state)
     return ;
 
   cmds[cur]->doEveryShape(state);
+}
+
+void XWTikzScope::doEveryState(XWTikzState * state)
+{
+  options->doEveryState(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryState(state);
 }
 
 void XWTikzScope::doLevel(XWTikzState * state)
@@ -2474,6 +2552,15 @@ void XWTikzScope::doSpyNode(XWTikzState * state)
     return ;
 
   cmds[cur]->doSpyNode(state);
+}
+
+void XWTikzScope::doState(XWTikzState * state)
+{
+  options->doState(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doState(state);
 }
 
 void XWTikzScope::dragTo(XWTikzState * state)

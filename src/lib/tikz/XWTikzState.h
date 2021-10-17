@@ -12,6 +12,7 @@
 #include <QPointF>
 #include <QRectF>
 #include <QVector>
+#include <QVector3D>
 #include <QBrush>
 #include <QPen>
 
@@ -82,6 +83,8 @@ public:
   XWTikzState(bool ispathA = false, QObject * parent = 0);
   ~XWTikzState();
 
+  void acceptingByArrow();
+  void acceptingByDouble();
   void addArc();
   void addCircle(const QPointF & c,double r);
   void addCircle();
@@ -90,6 +93,7 @@ public:
   void addCosine(const QPointF & p);
   void addEdge(XWTikzCoord * p);
   void addEdge(const QPointF & p);
+  void addEdge();
   void addEllipse();
   void addEllipse(const QPointF & c,const QPointF & a,const QPointF & b);
   void addGrid(XWTikzCoord * p);
@@ -246,6 +250,7 @@ public:
   bool hitTestVHLine();
 
   void incLevel() {level++;}
+  void initialByArrow();
   void inverted();
   bool isAuto() {return isAutoSet;}
   bool isMatrix() {return matrix;}
@@ -293,6 +298,10 @@ public:
   XWTikzState *saveNode(XWTeXBox * boxA,int nt);
   void scale(double sx,double sy) {transform.scale(sx,sy);}
   void setAbsolute(bool e) {absolute=e;}
+  void setAcceptingAnchor(int a) {acceptingAnchor=a;}
+  void setAcceptingAngle(double a) {acceptingAngle=a;}
+  void setAcceptingDistance(double d) {acceptingDistance=d;}
+  void setAcceptingText(const QString & t) {acceptingText=t;}
   void setAlign(int a);
   void setAllowUpsideDown() {isAllowUpsideDown=true;}
   void setAnchor(int a) {anchor=a;}
@@ -310,6 +319,7 @@ public:
   void setArrowBoxShaftWidth(double w) {arrowBoxShaftWidth=w;}
   void setArrowBoxSouthArrow(const QPointF & s) {arrowBoxSouthArrow=s;}
   void setArrowBoxWestArrow(const QPointF & w) {arrowBoxWestArrow=w;}
+  void setArrowDefault(int a) {arrowDefault=a;}
   void setArrowDrawColor(const QColor & c) {isArrowDrawSet=true;arrowDrawColor=c;}
   void setArrowFill(bool e) {isArrowFillSet=e;}
   void setArrowFillColor(const QColor & c) {isArrowFillSet=true;arrowFillColor=c;}
@@ -405,6 +415,10 @@ public:
   void setGrowOpposite(int g);
   void setGrowthParentAnchor(int a) {growthParentAnchor=a;}
   void setHelpLines(bool h) {helpLines=h;}
+  void setInitialAnchor(int a) {initialAnchor=a;}
+  void setInitialAngle(double a) {initialAngle=a;}
+  void setInitialDistance(double d) {initialDistance=d;}
+  void setInitialText(const QString & t) {initialText=t;}
   void setInnerColor(const QColor & c) {innerColor=c;}
   void setInnerLineWidth(double w) {innerLineWidth=w;}
   void setInnerXSep(double s) {innerXSep=s;}
@@ -473,6 +487,13 @@ public:
   void setPatternColor(const QColor & c);
   void setPatternName(int n);
   void setPictureType(int t);
+  void setPlane();
+  void setPlane(double xa, double ya,
+                double xb, double yb,
+                double x, double y);
+  void setPlaneX(const QPointF & p);
+  void setPlaneY(const QPointF & p);
+  void setPlaneOrigin(const QPointF & p);
   void setPlotHandler(int h) {handler=h;}
   void setPos(double p);
   void setPost(int p) {post=p;}
@@ -644,7 +665,6 @@ private:
                                 const QPointF & c2,
                                 const QPointF & endpoint);
   void   decorateTransformLine(const QPointF & c,double decorateangle,double decoratedistance);
-  void   defaultCode();
   void   doNodes();
 
   void   edgeFromParentForkDown();
@@ -711,7 +731,9 @@ private:
   void timerHVLine();
   void timerLine();
   void timerVHLine();
+  void toPathAcceptingByArrow();
   void toPathDefault();
+  void toPathInitialByArrow();
   void transformArrow(const QPointF & p1,const QPointF & p2);
   void transformArrowBend();
   void transformArrowCurved(XWTikzArrow * a,
@@ -728,6 +750,9 @@ private:
                       const QPointF & c2,const QPointF & endpoint);
   void transformLineAtTime(double t, const QPointF & p1,const QPointF & p2);
   void transformNode();
+  void transformTriangle(double xa,double ya,
+                         double xb,double yb,
+                         double x,double y);
 
   double veclen(double xA,double yA);
 
@@ -874,6 +899,7 @@ private:
   int    markPhase;
   double markSize;
 
+  int arrowDefault;
   XWTikzArrowSpecification * startArrow;
   XWTikzArrowSpecification * endArrow;
   double shortenStart,shortenEnd;
@@ -1010,6 +1036,10 @@ private:
   int spyUsing;
   bool onNode;
 
+  double initialDistance, acceptingDistance;
+  double initialAngle, acceptingAngle;
+  int    initialAnchor, acceptingAnchor;
+
   double curveXA, curveYA;
   double curveXB, curveYB;
   double curveXC, curveYC;
@@ -1025,18 +1055,21 @@ private:
   QPointF firstOnPath,secondOnPath,thirdOnPath,fourthOnPath;
   QPointF lastOnPath,secondLastOnPath,thirdLastOnPath,fourthLastOnPath;
 
+  QVector3D planeX,planeY,planeOrigin;
+
   void (XWTikzState::*tikzTimer)();
   void (XWTikzState::*before_code)();
   void (XWTikzState::*after_code)();
   void (XWTikzState::*to_path)();
   void (XWTikzState::*nolinear_map)(double & x, double & y);
+  void (XWTikzState::*after_node)();
 
   int samples;
   double domainStart;
   double domainEnd;
   QList<double> samplesAt;
 
-  QString text,namePrefix,nameSuffix;
+  QString text,namePrefix,nameSuffix,acceptingText,initialText;
 
   double dashPhase;
   QVector<qreal> dashPattern;
