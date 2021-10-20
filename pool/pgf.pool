@@ -639,7 +639,7 @@ every fold
 every place
 every transition
 every token
-every shadow
+every shadow /.style
 every spy in node /.style
 every spy on node /.style
 every loop

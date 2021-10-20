@@ -24,6 +24,95 @@ XWTikzKey::XWTikzKey(XWTikzGraphic * graphicA, int idA, QObject * parent)
 :XWTikzOperation(graphicA, idA,parent)
 {}
 
+void XWTikzKey::doCompute(XWTikzState * state)
+{
+  switch (keyWord)
+  {
+    default:
+      break;
+
+    case PGFbendatstart:
+      state->setBendAtStart();
+      break;
+
+    case PGFbendatend:
+      state->setBendAtEnd();
+      break;
+
+    case PGFshiftonly:
+      state->shiftOnly();
+      break;
+
+    case PGFresetcm:
+      state->resetTransform();
+      break;
+
+    case PGFtransformshape:
+      state->setTransformShape();
+      break;
+
+    case PGFcoordinate:
+    case PGFrectangle:
+    case PGFcircle:
+    case PGFellipse:
+    case PGFdiamond:
+    case PGFstar:
+    case PGFregularpolygon:
+    case PGFtrapezium:
+    case PGFsemicircle:
+    case PGFisoscelestriangle:
+    case PGFkite:
+    case PGFdart:
+    case PGFcircularsector:
+    case PGFcylinder:
+    case PGFforbiddensign:
+    case PGFcorrectforbiddensign:
+    case PGFstarburst:
+    case PGFcloud:
+    case PGFsignal:
+    case PGFtape:
+    case PGFmagnifyingglass:
+    case PGFmagnetictape:
+    case PGFellipsecallout:
+    case PGFrectanglecallout:
+    case PGFcloudcallout:
+    case PGFsinglearrow:
+    case PGFdoublearrow:
+    case PGFarrowbox:
+    case PGFcrossout:
+    case PGFstrikeout:
+    case PGFroundedrectangle:
+    case PGFchamferedrectangle:
+    case PGFcirclesplit:
+    case PGFcirclesolidus:
+    case PGFrectanglesplit:
+    case PGFellipsesplit:
+      state->setShape(keyWord);
+      break;
+
+    case PGFmindmap:
+    case PGFsmallmindmap:
+    case PGFlargemindmap:
+    case PGFhugemindmap:
+      state->setMindmap(keyWord);
+      break;
+
+    case PGFcircuit:
+    case PGFcircuits:
+    case PGFcircuitee:
+      state->setPictureType(PGFcircuit);
+      break;
+
+    case PGFcircuiteeIEC:
+    case PGFcircuitlogic:
+    case PGFcircuitlogicIEC:
+    case PGFcircuitlogicUS:
+    case PGFcircuitlogicCDH:
+      state->setPictureType(keyWord);
+      break;
+  }
+}
+
 void XWTikzKey::doPath(XWTikzState * state, bool)
 {
   switch (keyWord)
@@ -526,12 +615,13 @@ void XWTikzKey::doPath(XWTikzState * state, bool)
 
 void XWTikzKey::dragTo(XWTikzState * state)
 {
-  doPath(state);
+  doCompute(state);
 }
 
 bool XWTikzKey::dropTo(XWTikzState * state)
 {
-  return hitTest(state);
+  doCompute(state);
+  return false;
 }
 
 QString XWTikzKey::getText()
@@ -546,30 +636,195 @@ QString XWTikzKey::getTips(XWTikzState * state)
   return getText();
 }
 
-bool XWTikzKey::hitTest(XWTikzState * state)
+XWTikzValue::XWTikzValue(XWTikzGraphic * graphicA, int idA, QObject * parent)
+:XWTikzOperation(graphicA, idA,parent)
+{
+  v.expv = 0;
+  v.coordv = 0;
+}
+
+void XWTikzValue::doCompute(XWTikzState * state)
 {
   switch (keyWord)
   {
     default:
       break;
 
-    case PGFshiftonly:
-      state->shiftOnly();
+    case PGFradius:
+      if (v.expv->isNum())
+        state->setRadius(state->getXVec() * v.expv->getResult(state));
+      else
+        state->setRadius(v.expv->getResult(state));
       break;
 
-    case PGFresetcm:
-      state->resetTransform();
+    case PGFxradius:
+      if (v.expv->isNum())
+        state->setXRadius(state->getXVec() * v.expv->getResult(state));
+      else
+        state->setXRadius(v.expv->getResult(state));
+      break;
+
+    case PGFyradius:
+      if (v.expv->isNum())
+        state->setYRadius(state->getYVec() * v.expv->getResult(state));
+      else
+        state->setYRadius(v.expv->getResult(state));
+      break;
+
+    case PGFat:
+      state->setAt(v.coordv);
+      break;
+
+    case PGFstartangle:
+      state->setStartAngle(v.expv->getResult(state));
+      break;
+
+    case PGFendangle:
+      state->setEndAngle(v.expv->getResult(state));
+      break;
+
+    case PGFdeltaangle:
+      state->setDeltaAngle(v.expv->getResult(state));
+      break;
+
+    case PGFbend:
+      state->setBend(v.coordv);
+      break;
+
+    case PGFbendpos:
+      state->setBendPos(v.expv->getResult(state));
+      break;
+
+    case PGFparabolaheight:
+      state->setBendHeight(v.expv->getResult(state));
+      break;
+
+    case PGFnameprefix:
+      state->setNamePrefix(text);
+      break;
+
+    case PGFnamesuffix:
+      state->setNameSuffix(text);
+      break;
+
+    case PGFshape:
+      state->setShape((int)(v.expv->getResult(state)));
+      break;
+
+    case PGFinnersep:      
+      state->setInnerXSep(v.expv->getResult(state));
+      state->setInnerYSep(v.expv->getResult(state));
+      break;
+
+    case PGFinnerxsep:      
+      state->setInnerXSep(v.expv->getResult(state));
+      break;
+
+    case PGFinnerysep:
+      state->setInnerYSep(v.expv->getResult(state));
+      break;
+
+    case PGFoutersep:      
+      state->setOuterXSep(v.expv->getResult(state));
+      state->setOuterYSep(v.expv->getResult(state));
+      break;
+
+    case PGFouterxsep:      
+      state->setOuterXSep(v.expv->getResult(state));
+      break;
+
+    case PGFouterysep:
+      state->setOuterYSep(v.expv->getResult(state));
+      break;
+
+    case PGFminimumheight:
+      state->seiMinimumHeight(v.expv->getResult(state));
+      break;
+
+    case PGFminimumwidth:
+      state->seiMinimumWidth(v.expv->getResult(state));
+      break;
+
+    case PGFminimumsize:
+      state->seiMinimumHeight(v.expv->getResult(state));
+      state->seiMinimumWidth(v.expv->getResult(state));
+      break;
+
+    case PGFshapeaspect:
+      state->setShapeAspect(v.expv->getResult(state));
+      break;
+
+    case PGFshapeborderusesincircle:
+      state->setShapeBorderUsesIncircle((bool)(v.expv->getResult(state)));
+      break;
+
+    case PGFshapeborderrotate:
+      state->setShapeBorderRotate(v.expv->getResult(state));
+      break;
+
+    case PGFsamples:
+      state->setSamples(v.expv->getResult(state));
+      break;
+
+    case PGFx:
+      state->setXVec(v.expv->getResult(state));
+      break;
+
+    case PGFy:
+      state->setYVec(v.expv->getResult(state));
+      break;
+
+    case PGFz:
+      state->setZVec(v.expv->getResult(state));
+      break;
+
+    case PGFshift:
+      {
+        QPointF d = v.coordv->getPoint(state);
+        state->shift(d.x(),d.y());
+      }
+      break;
+
+    case PGFxshift:
+      state->shift(v.expv->getResult(state),0);
+      break;
+
+    case PGFyshift:
+      state->shift(0,v.expv->getResult(state));
+      break;
+
+    case PGFscale:
+      state->scale(v.expv->getResult(state),v.expv->getResult(state));
+      break;
+
+    case PGFxscale:
+      state->scale(v.expv->getResult(state),1);
+      break;
+
+    case PGFyscale:
+      state->scale(1,v.expv->getResult(state));
+      break;
+
+    case PGFxslant:
+      state->slant(v.expv->getResult(state),0);
+      break;
+
+    case PGFyslant:
+      state->slant(0,v.expv->getResult(state));
+      break;
+
+    case PGFrotate:
+      state->rotate(v.expv->getResult(state));
+      break;
+
+    case PGFnamepath:
+    case PGFname:
+      {
+        QString n = v.expv->getText();
+        graphic->registNamed(n);
+      }
       break;
   }
-
-  return false;
-}
-
-XWTikzValue::XWTikzValue(XWTikzGraphic * graphicA, int idA, QObject * parent)
-:XWTikzOperation(graphicA, idA,parent)
-{
-  v.expv = 0;
-  v.coordv = 0;
 }
 
 void XWTikzValue::doPath(XWTikzState * state, bool)
@@ -1527,119 +1782,19 @@ void XWTikzValue::doPath(XWTikzState * state, bool)
         }
       }
       break;
-  }
-}
 
-void XWTikzValue::dragTo(XWTikzState * state)
-{
-  switch (keyWord)
-  {
-    default:
-      doPath(state);
+    case PGFshadowscale:
+      state->setShadowScale(v.expv->getResult(state));
       break;
 
-    case PGFradius:
-      {
-        double oldv = v.expv->getResult(state);              
-        QPointF p1 = state->getLastMousePoint(); 
-        QPointF p2 = state->getMousePoint(); 
-        QPointF c = state->getCenterPoint(); 
-        double r1 = sqrt((p1.x()-c.x())*(p1.x()-c.x()) + (p1.y()-c.y())*(p1.y()-c.y()));
-        double r2 = sqrt((p2.x()-c.x())*(p2.x()-c.x()) + (p2.y()-c.y())*(p2.y()-c.y()));
-        double newv = 0;
-        if (r1 > r2)
-          newv = oldv - (r1 - r2);
-        else
-          newv = oldv + (r1 - r2);
-
-        state->setRadius(newv);
-      }
+    case PGFshadowxshift:
+      state->setShadowXShift(v.expv->getResult(state));
       break;
 
-    case PGFxradius:
-      {
-        double oldv = v.expv->getResult(state);  
-        QPointF p1 = state->getLastMousePoint(); 
-        QPointF p2 = state->getMousePoint();
-        QPointF p = p2 - p1;
-        double newv = oldv + p.x();
-        state->setXRadius(newv);
-      }
-      break;
-
-    case PGFyradius:
-      {
-        double oldv = v.expv->getResult(state);  
-        QPointF p1 = state->getLastMousePoint(); 
-        QPointF p2 = state->getMousePoint();
-        QPointF p = p2 - p1;
-        double newv = oldv + p.y();
-        state->setYRadius(newv);
-      }
+    case PGFshadowyshift:
+      state->setShadowYShift(v.expv->getResult(state));
       break;
   }
-}
-
-bool XWTikzValue::dropTo(XWTikzState * state)
-{
-  bool ret = false;
-
-  switch (keyWord)
-  {
-    default:
-      doPath(state);
-      break;
-
-    case PGFat:
-      ret = v.coordv->dropTo(state);
-      break;
-
-    case PGFradius:
-      {
-        double oldv = v.expv->getResult(state);              
-        QPointF p1 = state->getLastMousePoint(); 
-        QPointF p2 = state->getMousePoint(); 
-        QPointF c = state->getCenterPoint(); 
-        double r1 = sqrt((p1.x()-c.x())*(p1.x()-c.x()) + (p1.y()-c.y())*(p1.y()-c.y()));
-        double r2 = sqrt((p2.x()-c.x())*(p2.x()-c.x()) + (p2.y()-c.y())*(p2.y()-c.y()));
-        double newv = 0;
-        if (r1 > r2)
-          newv = oldv - (r1 - r2);
-        else
-          newv = oldv + (r1 - r2);
-        XWTikzSetValue * cmd = new XWTikzSetValue(this,newv);
-        ret = true;
-        graphic->push(cmd);        
-      }
-      break;
-
-    case PGFxradius:
-      {
-        double oldv = v.expv->getResult(state);  
-        QPointF p1 = state->getLastMousePoint(); 
-        QPointF p2 = state->getMousePoint();
-        QPointF p = p2 - p1;
-        double newv = oldv + p.x();
-        XWTikzSetValue * cmd = new XWTikzSetValue(this,newv);
-        ret = true;
-        graphic->push(cmd);
-      }
-      break;
-
-    case PGFyradius:
-      {
-        double oldv = v.expv->getResult(state);  
-        QPointF p1 = state->getLastMousePoint(); 
-        QPointF p2 = state->getMousePoint();
-        QPointF p = p2 - p1;
-        double newv = oldv + p.y();
-        XWTikzSetValue * cmd = new XWTikzSetValue(this,newv);
-        graphic->push(cmd);
-        ret = true;
-      }
-      break;
-  }
-  return ret;
 }
 
 QString XWTikzValue::getCoord()
@@ -1794,175 +1949,6 @@ QString XWTikzValue::getTips(XWTikzState * state)
 double XWTikzValue::getValue()
 {
   return v.expv->getValue();
-}
-
-bool XWTikzValue::hitTest(XWTikzState * state)
-{
-  bool ret = false;
-  switch (keyWord)
-  {
-    default:
-      break;
-
-    case PGFradius:
-      {
-        double r = 0;
-        if (v.expv->isNum())
-          r = state->getXVec() * v.expv->getResult(state);
-        else
-          r = v.expv->getResult(state);
-        state->setRadius(r);
-        QPointF p1 = state->getMousePoint();
-        QPointF c = state->getCenterPoint();
-        double r1 = sqrt((p1.x()-c.x())*(p1.x()-c.x()) + (p1.y()-c.y())*(p1.y()-c.y()));
-        ret = qAbs(r1 - r) < 3;
-      }
-      break;
-
-    case PGFxradius:
-      {
-        double r = 0;
-        if (v.expv->isNum())
-          r = state->getXVec() * v.expv->getResult(state);
-        else
-          r = v.expv->getResult(state);
-        state->setXRadius(r);
-        QPointF p1 = state->getMousePoint();
-        QPointF c = state->getCenterPoint();
-        double r1 = sqrt((p1.x()-c.x())*(p1.x()-c.x()) + (p1.y()-c.y())*(p1.y()-c.y()));
-        ret = qAbs(r1 - r) < 3;
-      }
-      break;
-
-    case PGFyradius:
-      {
-        double r = 0;
-        if (v.expv->isNum())
-          r = state->getYVec() * v.expv->getResult(state);
-        else
-          r = v.expv->getResult(state);
-        state->setYRadius(r);
-        QPointF p1 = state->getMousePoint();
-        QPointF c = state->getCenterPoint();
-        double r1 = sqrt((p1.x()-c.x())*(p1.x()-c.x()) + (p1.y()-c.y())*(p1.y()-c.y()));
-        ret = qAbs(r1 - r) < 3;
-      }
-      break;
-
-    case PGFat:
-      state->setAt(v.coordv);
-      ret = v.coordv->hitTest(state);
-      break;
-
-    case PGFstartangle:
-      state->setStartAngle(v.expv->getResult(state));
-      break;
-
-    case PGFendangle:
-      state->setEndAngle(v.expv->getResult(state));
-      break;
-
-    case PGFdeltaangle:
-      state->setDeltaAngle(v.expv->getResult(state));
-      break;
-
-    case PGFbend:
-      state->setBend(v.coordv);
-      break;
-
-    case PGFbendpos:
-      state->setBendPos(v.expv->getResult(state));
-      break;
-
-    case PGFparabolaheight:
-      state->setBendHeight(v.expv->getResult(state));
-      break;
-
-    case PGFshape:
-      state->setShape((int)(v.expv->getResult(state)));
-      break;
-
-    case PGFanchor:
-      state->setAnchor((int)(v.expv->getResult(state)));
-      break;
-
-    case PGFminimumheight:
-      state->seiMinimumHeight(v.expv->getResult(state));
-      break;
-
-    case PGFminimumwidth:
-      state->seiMinimumWidth(v.expv->getResult(state));
-      break;
-
-    case PGFminimumsize:
-      state->seiMinimumHeight(v.expv->getResult(state));
-      state->seiMinimumWidth(v.expv->getResult(state));
-      break;
-
-    case PGFshapeaspect:
-      state->setShapeAspect(v.expv->getResult(state));
-      break;
-
-    case PGFshapeborderusesincircle:
-      state->setShapeBorderUsesIncircle((bool)(v.expv->getResult(state)));
-      break;
-
-    case PGFshapeborderrotate:
-      state->setShapeBorderRotate(v.expv->getResult(state));
-      break;
-
-    case PGFx:
-      state->setXVec(v.expv->getResult(state));
-      break;
-
-    case PGFy:
-      state->setYVec(v.expv->getResult(state));
-      break;
-
-    case PGFz:
-      state->setZVec(v.expv->getResult(state));
-      break;
-
-    case PGFshift:
-      {
-        QPointF d = v.coordv->getPoint(state);
-        state->shift(d.x(),d.y());
-      }
-      break;
-
-    case PGFxshift:
-      state->shift(v.expv->getResult(state),0);
-      break;
-
-    case PGFyshift:
-      state->shift(0,v.expv->getResult(state));
-      break;
-
-    case PGFscale:
-      state->scale(v.expv->getResult(state),v.expv->getResult(state));
-      break;
-
-    case PGFxscale:
-      state->scale(v.expv->getResult(state),1);
-      break;
-
-    case PGFyscale:
-      state->scale(1,v.expv->getResult(state));
-      break;
-
-    case PGFxslant:
-      state->slant(v.expv->getResult(state),0);
-      break;
-
-    case PGFyslant:
-      state->slant(0,v.expv->getResult(state));
-      break;
-
-    case PGFrotate:
-      state->rotate(v.expv->getResult(state));
-      break;
-  }
-  return ret;
 }
 
 void XWTikzValue::scan(const QString & str, int & len, int & pos)
@@ -2132,6 +2118,11 @@ start(-5),
 end(5)
 {}
 
+void XWTikzDomain::doCompute(XWTikzState * state)
+{
+  state->setDomain(start,end);
+}
+
 void XWTikzDomain::doPath(XWTikzState * state, bool)
 {
   state->setDomain(start,end);
@@ -2198,6 +2189,11 @@ void XWTikzDomain::setStart(const QString & str)
 XWTikzSamplesAt::XWTikzSamplesAt(XWTikzGraphic * graphicA, QObject * parent)
 :XWTikzOperation(graphicA, PGFsamplesat,parent)
 {}
+
+void XWTikzSamplesAt::doCompute(XWTikzState * state)
+{
+  state->setSamplesAt(samples);
+}
 
 void XWTikzSamplesAt::doPath(XWTikzState * state, bool)
 {
@@ -3271,6 +3267,11 @@ expv(0),
 coordv(0)
 {}
 
+void XWTikzAround::doCompute(XWTikzState * state)
+{
+  doPath(state);
+}
+
 void XWTikzAround::doPath(XWTikzState * state, bool)
 {
   switch (keyWord)
@@ -3281,8 +3282,9 @@ void XWTikzAround::doPath(XWTikzState * state, bool)
     case PGFscalearound:
       {
         QPointF d = coordv->getPoint(state);
-        state->shift(-d.x(),-d.y());
+        state->shift(d.x(),d.y());
         state->scale(expv->getResult(state),expv->getResult(state));
+        state->shift(-d.x(),-d.y());
       }
       break;
 
@@ -3391,6 +3393,11 @@ c(0),
 d(0),
 coord(0)
 {}
+
+void XWTikzcm::doCompute(XWTikzState * state)
+{
+  doPath(state);
+}
 
 void XWTikzcm::doPath(XWTikzState * state, bool)
 {
@@ -3825,6 +3832,11 @@ one(0),
 two(0),
 three(0)
 {}
+
+void XWTikzThreePoint::doCompute(XWTikzState * state)
+{
+  doPath(state,false);
+}
 
 void XWTikzThreePoint::doPath(XWTikzState * state, bool )
 {

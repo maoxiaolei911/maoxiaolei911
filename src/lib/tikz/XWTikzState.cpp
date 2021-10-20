@@ -146,6 +146,7 @@ void XWTikzState::addEdge(XWTikzCoord * p)
 
 void XWTikzState::addEdge(const QPointF & p)
 {
+  toStart = pathLast;
   toTarget = map(p);
   XWTikzState * state = save(false);
   graphic->doToPath(state);
@@ -414,6 +415,100 @@ void XWTikzState::closePath()
   operations << XW_TIKZ_CLOSE;
 }
 
+void XWTikzState::computePath()
+{
+  
+  int k = 0;
+  QPointF cp;
+  for (int i = 0; i < operations.size(); i++)
+  {
+    switch (operations[i])
+    {
+      default:
+        break;
+
+      case XW_TIKZ_MOVETO:
+        cp = points[k++];
+        break;
+
+      case XW_TIKZ_LINETO:
+        cp = points[k++];
+        break;
+
+      case XW_TIKZ_CURVETO:
+        {
+          QPointF c1 = points[k++];
+          if (c1.x() < pathMinX)
+            pathMinX = c1.x();
+          if (c1.x() > pathMaxX)
+            pathMaxX = c1.x();
+          if (c1.y() < pathMinY)
+            pathMinY = c1.y();
+          if (c1.y() > pathMaxY)
+            pathMaxY = c1.y();
+
+          QPointF c2 = points[k++];
+          if (c2.x() < pathMinX)
+            pathMinX = c2.x();
+          if (c2.x() > pathMaxX)
+            pathMaxX = c2.x();
+          if (c2.y() < pathMinY)
+            pathMinY = c2.y();
+          if (c2.y() > pathMaxY)
+            pathMaxY = c2.y();
+
+          cp = points[k++];      
+        }
+        break;
+    }
+
+    if (cp.x() < pathMinX)
+      pathMinX = cp.x();
+    if (cp.x() > pathMaxX)
+      pathMaxX = cp.x();
+    if (cp.y() < pathMinY)
+      pathMinY = cp.y();
+    if (cp.y() > pathMaxY)
+      pathMaxY = cp.y();
+  }
+
+  width = pathMaxX - pathMinX;
+  height = pathMaxY - pathMinY;
+  center.setX((pathMaxX + pathMinX) / 2);
+  center.setY((pathMaxY + pathMinY) / 2);
+}
+
+void XWTikzState::computePlotFunction(XWTikzCoord * exp)
+{
+  QStringList vars = exp->getVarNames();
+  if (!vars.isEmpty())
+  {
+    QString var = vars[0];
+    if (!samplesAt.isEmpty())
+    {
+      for (int i = 0; i < samplesAt.size(); i++)
+      {
+        values[var] = samplesAt[i];
+        QPointF p = exp->getPoint(this);
+        moveTo(p);
+      }
+    }
+    else
+    {
+      if (samples == 0)
+        samples = 25;
+      double step = (domainEnd - domainStart) / samples;
+      double x = domainStart;
+      for (; x < domainEnd; x += step)
+      {
+        values[var] = x;
+        QPointF p = exp->getPoint(this);
+        moveTo(p);
+      }
+    }
+  }
+}
+
 void XWTikzState::concat(XWTikzState * newstate)
 {
   transform = transform * newstate->transform;
@@ -674,6 +769,9 @@ void XWTikzState::copy(XWTikzState * newstate,bool n)
     newstate->acceptingAngle = acceptingAngle;
     newstate->initialAnchor = initialAnchor;
     newstate->acceptingAnchor = acceptingAnchor;
+    newstate->shadowScale = shadowScale;
+    newstate->shadowXShift = shadowXShift;
+    newstate->shadowYShift = shadowYShift;
   }
 
   newstate->lineWidth = lineWidth;
@@ -919,6 +1017,25 @@ void XWTikzState::doEdgeFromParentPath()
   graphic->doEdgeFromParentPath(this);
 }
 
+void XWTikzState::doNodeCompute(XWTeXBox * box)
+{
+  XWTikzShape node(driver,box,this,XW_TIKZ_NODE);
+  node.doShape(false);
+  transformNode();
+  node.mapPos();
+  if (pathMinX > node.westPos.x())
+    pathMinX = node.westPos.x();
+
+  if (pathMinY > node.southPos.y())
+    pathMinY = node.southPos.y();
+
+  if (pathMaxX < node.eastPos.x())
+    pathMaxX = node.eastPos.x();
+
+  if (pathMaxY < node.northPos.y())
+    pathMaxY = node.northPos.y();
+}
+
 void XWTikzState::doToPath()
 {
   if (to_path != NULL)
@@ -993,8 +1110,7 @@ void XWTikzState::flush()
   {
     if (isUseAsBoundingBoxSet)
     {
-      double w,h;
-      getWidthAndHeight(w,h);
+      computePath();
 
       operations.clear();
       points.clear();
@@ -1180,20 +1296,22 @@ void XWTikzState::flush()
   coords.clear();
 }
 
+void XWTikzState::generalShadow()
+{
+  transformShape = true;
+  QPointF c = graphic->getPathBoundboxCenter();
+  transform.translate(c.x(), c.y());
+  transform.scale(shadowScale, shadowScale);
+  transform.translate(-c.x(), -c.y());
+  transform.translate(shadowXShift, shadowYShift);
+}
+
 double XWTikzState::getArrowTotalLength(int a)
 {
   XWTikzArrow arrow(a);
   arrow.setup(this);
   computeShortening(&arrow);
   return arrowTotalLength;
-}
-
-QPointF XWTikzState::getCenterPoint()
-{
-  if (at)
-    return at->getPoint(this);
-
-  return coords.last()->getPoint(this);
 }
 
 QColor XWTikzState::getColor(const QString & nameA)
@@ -1413,66 +1531,6 @@ double XWTikzState::getValue(const QString & nameA)
     return values[nameA];
 
   return 1.0;
-}
-
-void XWTikzState::getWidthAndHeight(double & w, double & h)
-{
-  int k = 0;
-  QPointF cp;
-  for (int i = 0; i < operations.size(); i++)
-  {
-    switch (operations[i])
-    {
-      default:
-        break;
-
-      case XW_TIKZ_MOVETO:
-        cp = points[k++];
-        break;
-
-      case XW_TIKZ_LINETO:
-        cp = points[k++];
-        break;
-
-      case XW_TIKZ_CURVETO:
-        {
-          QPointF c1 = points[k++];
-          if (c1.x() < pathMinX)
-            pathMinX = c1.x();
-          if (c1.x() > pathMaxX)
-            pathMaxX = c1.x();
-          if (c1.y() < pathMinY)
-            pathMinY = c1.y();
-          if (c1.y() > pathMaxY)
-            pathMaxY = c1.y();
-
-          QPointF c2 = points[k++];
-          if (c2.x() < pathMinX)
-            pathMinX = c2.x();
-          if (c2.x() > pathMaxX)
-            pathMaxX = c2.x();
-          if (c2.y() < pathMinY)
-            pathMinY = c2.y();
-          if (c2.y() > pathMaxY)
-            pathMaxY = c2.y();
-
-          cp = points[k++];      
-        }
-        break;
-    }
-
-    if (cp.x() < pathMinX)
-      pathMinX = cp.x();
-    if (cp.x() > pathMaxX)
-      pathMaxX = cp.x();
-    if (cp.y() < pathMinY)
-      pathMinY = cp.y();
-    if (cp.y() > pathMaxY)
-      pathMaxY = cp.y();
-  }
-
-  w = pathMaxX - pathMinX;
-  h = pathMaxY - pathMinY;
 }
 
 void XWTikzState::growCyclic()
@@ -1998,17 +2056,8 @@ void XWTikzState::moveTo(const QPointF & p)
   pathLast = p1;
   operations << XW_TIKZ_MOVETO;
   points << p1;
-  if (isTarget)
-  {
-    toTarget = p;
-    doToPath();
-  }
-  else
-  {
-    toStart = p;
-    if (points.size() == 0)
-      firstOnPath = p1;
-  }
+  if (points.size() == 0)
+    firstOnPath = p1;
 
   lastOnPath = p1;
 }
@@ -2719,9 +2768,9 @@ QPointF XWTikzState::tangent(const QPointF & nc,
 
 void XWTikzState::toPath(XWTikzCoord * p)
 {
-  isTarget = true;
   if (p)
   {
+    toStart = pathLast;
     coords << p;
     toTarget = p->getPoint(this);
     graphic->doToPath(this);
@@ -4462,8 +4511,6 @@ void XWTikzState::init()
 
   siblingAngle = 20;
 
-  isTarget = false;
-
   mindmap = -1;
   spyUsing = 0;
   onNode = true;
@@ -4474,6 +4521,10 @@ void XWTikzState::init()
   acceptingAngle = 0;
   initialAnchor = PGFeast;
   acceptingAnchor = PGFwest;
+
+  shadowScale = 1;
+  shadowXShift = 0;
+  shadowYShift = 0;
 
   position = 0;
   startPosition = 0;

@@ -105,6 +105,12 @@ bool XWTikzCoordinate::del(XWTikzState * state)
   return ret;
 }
 
+void XWTikzCoordinate::doCompute(XWTikzState * state)
+{
+  options->doCompute(state);
+  state->doNodeCompute(box);
+}
+
 void XWTikzCoordinate::doPath(XWTikzState * state, bool showpoint)
 {
   if (!name.isEmpty())
@@ -260,17 +266,6 @@ QString XWTikzCoordinate::getTextForPath()
   }
 
   return ret;
-}
-
-void XWTikzCoordinate::getWidthAndHeight(double & w, double & h)
-{
-  w = 0;
-  h = 0;
-  if (box)
-  {
-    w = box->getWidth(1000);
-    h = box->getHeight(1000) + box->getDepth(1000);
-  }
 }
 
 bool XWTikzCoordinate::goToNext()

@@ -61,6 +61,9 @@ bool XWTikzOperation::del(XWTikzState * )
   return false;
 }
 
+void XWTikzOperation::doCompute(XWTikzState *)
+{}
+
 void XWTikzOperation::doPath(XWTikzState *, bool)
 {}
 
@@ -265,6 +268,13 @@ XWTikzMacro::XWTikzMacro(XWTikzGraphic * graphicA, QObject * parent)
 :XWTikzOperation(graphicA, -1,parent)
 {}
 
+void XWTikzMacro::doCompute(XWTikzState * state)
+{
+  XWTikzCoord * p = state->getCoord(name);
+  if (p)
+    p->doCompute(state);
+}
+
 void XWTikzMacro::doPath(XWTikzState * state, bool showpoint)
 {
   XWTikzCoord * p = state->getCoord(name);
@@ -297,6 +307,12 @@ bool XWTikzLocal::del(XWTikzState * state)
     return false;
 
   return ops[cur]->del(state);
+}
+
+void XWTikzLocal::doCompute(XWTikzState * state)
+{
+  for (int i = 0; i < ops.size(); i++)
+    ops[i]->doCompute(state);
 }
 
 void XWTikzLocal::doPath(XWTikzState * state, bool showpoint)
@@ -621,6 +637,11 @@ bool XWTikzLineTo::addAction(QMenu & menu, XWTikzState *)
   return true;
 }
 
+void XWTikzLineTo::doCompute(XWTikzState * state)
+{
+  coord->doCompute(state);
+}
+
 void XWTikzLineTo::doPath(XWTikzState * state, bool showpoint)
 {
   state->lineTo(coord);
@@ -698,6 +719,11 @@ bool XWTikzHVLinesTo::addAction(QMenu & menu, XWTikzState *)
   return true;
 }
 
+void XWTikzHVLinesTo::doCompute(XWTikzState * state)
+{
+  coord->doCompute(state);
+}
+
 void XWTikzHVLinesTo::doPath(XWTikzState * state, bool showpoint)
 {
   state->lineToHV(coord);
@@ -773,6 +799,11 @@ bool XWTikzVHLinesTo::addAction(QMenu & menu, XWTikzState *)
   QAction * a = menu.addAction(tr("vertical,horizontal"));
   connect(a, SIGNAL(triggered()), this, SLOT(setCoord()));
   return true;
+}
+
+void XWTikzVHLinesTo::doCompute(XWTikzState * state)
+{
+  coord->doCompute(state);
 }
 
 void XWTikzVHLinesTo::doPath(XWTikzState * state, bool showpoint)
@@ -856,6 +887,14 @@ bool XWTikzCurveTo::addAction(QMenu & menu, XWTikzState *)
   a = menu.addAction(tr("end point"));
   connect(a, SIGNAL(triggered()), this, SLOT(setEndPoint()));
   return true;
+}
+
+void XWTikzCurveTo::doCompute(XWTikzState * state)
+{
+  c1->doCompute(state);
+  if (c2)
+    c2->doCompute(state);
+  endPoint->doCompute(state);
 }
 
 void XWTikzCurveTo::doPath(XWTikzState * state, bool showpoint)
@@ -1160,6 +1199,11 @@ bool XWTikzRectangle::addAction(QMenu & menu, XWTikzState *)
   return true;
 }
 
+void XWTikzRectangle::doCompute(XWTikzState * state)
+{
+  coord->doCompute(state);
+}
+
 void XWTikzRectangle::doPath(XWTikzState * state, bool showpoint)
 {
   state->addRectangle(coord);
@@ -1246,6 +1290,12 @@ bool XWTikzEllipse::addAction(QMenu & menu, XWTikzState * state)
   return true;
 }
 
+void XWTikzEllipse::doCompute(XWTikzState * state)
+{
+  options->doCompute(state);
+  state->addEllipse();
+}
+
 void XWTikzEllipse::doPath(XWTikzState * state, bool showpoint)
 {
   options->doPath(state,showpoint);
@@ -1321,6 +1371,12 @@ bool XWTikzArc::addAction(QMenu & menu, XWTikzState * state)
   return true;
 }
 
+void XWTikzArc::doCompute(XWTikzState * state)
+{
+  options->doCompute(state);
+  state->addArc();
+}
+
 void XWTikzArc::doPath(XWTikzState * state, bool showpoint)
 {
   options->doPath(state,showpoint);
@@ -1383,6 +1439,12 @@ bool XWTikzGrid::addAction(QMenu & menu, XWTikzState * state)
   connect(a, SIGNAL(triggered()), this, SLOT(setCoord()));
   options->addStepAction(menu);
   return true;
+}
+
+void XWTikzGrid::doCompute(XWTikzState * state)
+{
+  options->doCompute(state);
+  coord->doCompute(state);
 }
 
 void XWTikzGrid::doPath(XWTikzState * state, bool showpoint)
@@ -1479,6 +1541,12 @@ bool XWTikzParabola::addAction(QMenu & menu, XWTikzState * state)
   a = menu.addAction(tr("end point"));
   connect(a, SIGNAL(triggered()), this, SLOT(setEnd()));
   return true;
+}
+
+void XWTikzParabola::doCompute(XWTikzState * state)
+{
+  options->doCompute(state);
+  state->addParabola(bendCoord,coord);
 }
 
 void XWTikzParabola::doPath(XWTikzState * state, bool showpoint)
@@ -1687,6 +1755,11 @@ bool XWTikzSine::addAction(QMenu & menu, XWTikzState *)
   return true;
 }
 
+void XWTikzSine::doCompute(XWTikzState * state)
+{
+  state->addSine(coord);
+}
+
 void XWTikzSine::doPath(XWTikzState * state, bool showpoint)
 {
   state->addSine(coord);
@@ -1766,6 +1839,11 @@ bool XWTikzCosine::addAction(QMenu & menu, XWTikzState *)
   QAction * a = menu.addAction(tr("end point"));
   connect(a, SIGNAL(triggered()), this, SLOT(setCoord()));
   return true;
+}
+
+void XWTikzCosine::doCompute(XWTikzState * state)
+{
+  state->addCosine(coord);
 }
 
 void XWTikzCosine::doPath(XWTikzState * state, bool showpoint)
@@ -1858,6 +1936,16 @@ bool XWTikzPlotCoordinates::addAction(QMenu & menu, XWTikzState * state)
   options->doPath(state,false);
   options->addPlotAction(menu);
   return true;
+}
+
+void XWTikzPlotCoordinates::doCompute(XWTikzState * state)
+{
+  if (coords.size() <= 0)
+    return ;
+
+  options->doCompute(state);
+  for (int i = 1; i < coords.size(); i++)
+    coords[i]->doCompute(state);
 }
 
 void XWTikzPlotCoordinates::doPath(XWTikzState * state, bool showpoint)
@@ -2014,6 +2102,36 @@ bool XWTikzPlotFile::addAction(QMenu & menu, XWTikzState * state)
   return true;
 }
 
+void XWTikzPlotFile::doCompute(XWTikzState * state)
+{
+  options->doCompute(state);
+   XWDocSea sea;
+  QString path = sea.findFile(fileName);
+  if (path.isEmpty())
+    return ;
+
+  QFile file(path);
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    return ;
+
+  QTextStream stream(&file);
+  QString line;
+  QRegExp reg("\\s+");
+  QString c;
+  while (!stream.atEnd())
+  {
+    line = stream.readLine();
+    QStringList list = line.split(reg);
+    if (list.size() == 2)
+      c = QString("(%1,%2)").arg(list[0]).arg(list[1]);
+    else
+      c = "(1,1)";
+    
+    XWTikzCoord * obj = new XWTikzCoord(graphic,c,state);
+    obj->doCompute(state);
+  }   
+}
+
 void XWTikzPlotFile::doPath(XWTikzState * state, bool showpoint)
 {
   options->doPath(state,showpoint);
@@ -2112,6 +2230,12 @@ bool XWTikzPlotFunction::addAction(QMenu & menu, XWTikzState * state)
   return true;
 }
 
+void XWTikzPlotFunction::doCompute(XWTikzState * state)
+{
+  options->doCompute(state);
+  state->computePlotFunction(coordExp);
+}
+
 void XWTikzPlotFunction::doPath(XWTikzState * state, bool showpoint)
 {
   options->doPath(state,showpoint);
@@ -2202,6 +2326,15 @@ bool XWTikzTo::del(XWTikzState * state)
     return false;
 
   return nodes[cur]->del(state);
+}
+
+void XWTikzTo::doCompute(XWTikzState * state)
+{
+  options->doCompute(state);
+  for (int i = 0; i < nodes.size(); i++)
+    nodes[i]->doCompute(state);
+  if (coord)
+    coord->doCompute(state);
 }
 
 void XWTikzTo::doPath(XWTikzState * state, bool showpoint)

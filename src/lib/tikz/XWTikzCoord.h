@@ -25,6 +25,7 @@ public:
 
   bool addAction(QMenu & menu, XWTikzState * state);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void draw(XWTikzState * state);
   void dragTo(XWTikzState * state);

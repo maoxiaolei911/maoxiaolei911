@@ -43,29 +43,40 @@ XWTikzCoord::~XWTikzCoord()
   }
 }
 
-bool XWTikzCoord::addAction(QMenu & menu, XWTikzState * state)
+bool XWTikzCoord::addAction(QMenu & menu, XWTikzState *)
 {
-  options->doPath(state,false);
   QAction * a = menu.addAction(tr("move to"));
   connect(a, SIGNAL(triggered()), this, SLOT(setCoord()));
   return true;
 }
 
+void XWTikzCoord::doCompute(XWTikzState * state)
+{
+  state->saveTransform();
+  options->doCompute(state);
+  state->moveTo(this);
+  state->restoreTransform();
+}
+
 void XWTikzCoord::doPath(XWTikzState * state, bool showpoint)
 {
-  options->doPath(state);
+  state->saveTransform();
+  options->doPath(state, false);
   state->moveTo(this);
   if (showpoint)
     draw(state);
+  state->restoreTransform();
 }
 
 void XWTikzCoord::dragTo(XWTikzState * state)
 {
   if (!curPoint)
     return ;
-
+  state->saveTransform();
+  options->doCompute(state);
   QPointF mp = state->getLastMousePoint();
   state->moveTo(mp);
+  state->restoreTransform();
 }
 
 void XWTikzCoord::draw(XWTikzState * state)
@@ -88,7 +99,9 @@ bool XWTikzCoord::dropTo(XWTikzState * state)
 {
   if (!curPoint)
     return false;
-    
+
+  state->saveTransform();
+  options->doCompute(state);
   bool ret = false;
   QVector3D newp;
   QVector3D oldp = getRelPoint3D(state);
@@ -172,11 +185,15 @@ bool XWTikzCoord::dropTo(XWTikzState * state)
     graphic->push(cmd);
   }
 
+  state->restoreTransform();
+
   return ret;
 }
 
 QPointF XWTikzCoord::getPoint(XWTikzState * state)
 {
+  state->saveTransform();
+  options->doCompute(state);
   QVector3D p3 = getPoint3D(state);
   QPointF p;
   
@@ -194,7 +211,7 @@ QPointF XWTikzCoord::getPoint(XWTikzState * state)
       p.setX(p3.y() + p3.z());
       break;
   }
-
+  state->restoreTransform();
   return p;
 }
 
@@ -765,10 +782,14 @@ QStringList XWTikzCoord::getVarNames()
 
 bool XWTikzCoord::hitTest(XWTikzState * state)
 {
+  state->saveTransform();
+  options->doCompute(state);
   curPoint = 0;
   bool ret = state->hitTestPoint(this);
   if (ret)
     curPoint = this;
+
+  state->restoreTransform();
 
   return ret;
 }

@@ -88,6 +88,7 @@ public:
   virtual void doEveryPin(XWTikzState * state);
   virtual void doEveryPinEdge(XWTikzState * state);
   virtual void doEveryRelationship(XWTikzState * state);
+  virtual void doEveryShadow(XWTikzState * state);
   virtual void doEveryShape(XWTikzState * state);
   virtual void doEveryState(XWTikzState * state);
   virtual void doLevel(XWTikzState * state);
@@ -96,6 +97,7 @@ public:
   virtual void doOperation(XWTikzState * state, bool showpoint = false);
   virtual void doParentAnchor(XWTikzState * state);
   virtual void doPath(XWTikzState * state, bool showpoint = false);
+  virtual void doPathNoOptions(XWTikzState * state);
   virtual void doRootConcept(XWTikzState * state);
   virtual void doSpyConnection(XWTikzState * state);
   virtual void doSpyNode(XWTikzState * state);  
@@ -107,6 +109,7 @@ public:
   virtual QPointF getAnchor(const QString & nameA,int a,XWTikzState * state);
   virtual int getAnchorPosition();
   virtual QPointF getAngle(const QString & nameA,double a,XWTikzState * state);
+  virtual QPointF getCenter(XWTikzState * state);
   virtual XWTikzOperation * getCurrentOperation();
   virtual XWTikzCoord * getCurrentPoint();
   virtual int getCursorPosition();
@@ -196,12 +199,14 @@ public:
   bool del(XWTikzState * state);
   void doOperation(XWTikzState * state, bool showpoint = false);
   void doPath(XWTikzState * state, bool showpoint = false);
+  void doPathNoOptions(XWTikzState * state);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
 
   QPointF getAnchor(const QString & nameA,int a,XWTikzState * state);
   int getAnchorPosition();
   QPointF getAngle(const QString & nameA,double a,XWTikzState * state);
+  QPointF getCenter(XWTikzState * state);
   XWTikzOperation * getCurrentOperation();
   XWTikzCoord * getCurrentPoint();
   int getCursorPosition();
@@ -314,6 +319,7 @@ public:
   void doEveryPin(XWTikzState * state);
   void doEveryPinEdge(XWTikzState * state);
   void doEveryRelationship(XWTikzState * state);
+  void doEveryShadow(XWTikzState * state);
   void doEveryShape(XWTikzState * state);
   void doEveryState(XWTikzState * state);
   void doLevel(XWTikzState * state);
@@ -322,6 +328,7 @@ public:
   void doOperation(XWTikzState * state, bool showpoint = false);
   void doParentAnchor(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
+  void doPathNoOptions(XWTikzState * state);
   void doRootConcept(XWTikzState * state);
   void doScope(XWTikzState * state);
   void doSpyConnection(XWTikzState * state);
@@ -334,6 +341,7 @@ public:
   QPointF getAnchor(const QString & nameA,int a, XWTikzState * state);
   int getAnchorPosition();
   QPointF getAngle(const QString & nameA,double a, XWTikzState * state);
+  QPointF getCenter(XWTikzState * state);
   XWTikzOperation * getCurrentOperation();
   XWTikzCoord * getCurrentPoint();
   int getCursorPosition();
@@ -405,6 +413,7 @@ public:
   bool del(XWTikzState * state);
   void doOperation(XWTikzState * state, bool showpoint = false);
   void doPath(XWTikzState * state, bool showpoint = false);
+  void doPathNoOptions(XWTikzState * state);
   void doScope(XWTikzState * state);
   bool dropTo(XWTikzState * state);
 
@@ -465,12 +474,14 @@ public:
   virtual bool del(XWTikzState * state);
   virtual void doOperation(XWTikzState * state, bool showpoint = false);
   virtual void doPath(XWTikzState * state, bool showpoint = false);
+  virtual void doPathNoOptions(XWTikzState * state);
   virtual void dragTo(XWTikzState * state);
   virtual bool dropTo(XWTikzState * state);
 
   virtual QPointF getAnchor(const QString & nameA,int a, XWTikzState * state);
   virtual int getAnchorPosition();
   virtual QPointF getAngle(const QString & nameA,double a, XWTikzState * state);
+  QPointF getCenter(XWTikzState * state);
   XWTikzOperation * getCurrentOperation();
   XWTikzCoord * getCurrentPoint();
   virtual QString getCurrentText();

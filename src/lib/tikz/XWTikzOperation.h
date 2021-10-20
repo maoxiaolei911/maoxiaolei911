@@ -40,6 +40,7 @@ public:
   virtual bool cut(XWTikzState * state);
   
   virtual bool del(XWTikzState * state);
+  virtual void doCompute(XWTikzState * state);
   virtual void doPath(XWTikzState * state, bool showpoint = false);
   virtual void doPre(XWTikzState * state, bool showpoint = false);
   virtual void doPost(XWTikzState * state, bool showpoint = false);
@@ -102,6 +103,7 @@ class XWTikzMacro : public XWTikzOperation
 public:
   XWTikzMacro(XWTikzGraphic * graphicA, QObject * parent = 0);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
 
   void scan(const QString & str, int & len, int & pos);
@@ -120,6 +122,7 @@ public:
   bool back(XWTikzState * state);
 
   bool del(XWTikzState * state);
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
@@ -156,6 +159,7 @@ public:
 
   bool addAction(QMenu & menu, XWTikzState * state);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
@@ -184,6 +188,7 @@ public:
 
   bool addAction(QMenu & menu, XWTikzState * state);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
@@ -212,6 +217,7 @@ public:
 
   bool addAction(QMenu & menu, XWTikzState * state);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
@@ -240,6 +246,7 @@ public:
 
   bool addAction(QMenu & menu, XWTikzState * state);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
@@ -292,6 +299,7 @@ public:
 
   bool addAction(QMenu & menu, XWTikzState * state);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
@@ -320,6 +328,7 @@ public:
 
   bool addAction(QMenu & menu, XWTikzState * state);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
@@ -347,6 +356,7 @@ public:
 
   bool addAction(QMenu & menu, XWTikzState * state);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
@@ -372,6 +382,7 @@ public:
 
   bool addAction(QMenu & menu, XWTikzState * state);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
@@ -402,6 +413,7 @@ public:
 
   bool addAction(QMenu & menu, XWTikzState * state);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
@@ -438,6 +450,7 @@ public:
 
   bool addAction(QMenu & menu, XWTikzState * state);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
@@ -466,6 +479,7 @@ public:
 
   bool addAction(QMenu & menu, XWTikzState * state);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
@@ -495,6 +509,7 @@ public:
 
   bool addAction(QMenu & menu, XWTikzState * state);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   bool dropTo(XWTikzState * state);
 
@@ -526,6 +541,7 @@ public:
 
   bool addAction(QMenu & menu, XWTikzState * state);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
 
   QString getText();
@@ -549,6 +565,7 @@ public:
 
   bool addAction(QMenu & menu, XWTikzState * state);
   
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
 
   QString getText();
@@ -580,6 +597,7 @@ public:
   bool cut(XWTikzState * state);
 
   bool del(XWTikzState * state);
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);

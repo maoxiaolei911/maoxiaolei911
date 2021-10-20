@@ -72,6 +72,7 @@ public:
   void addScaleAction(QMenu & menu);
   void addScopeFading(QMenu & menu);
   void addShadeAction(QMenu & menu);
+  void addShadowAction(QMenu & menu);
   void addShapeAction(QMenu & menu);
   void addShiftAction(QMenu & menu);
   void addSizeAction(QMenu & menu);
@@ -93,6 +94,7 @@ public:
 
   virtual bool del(XWTikzState * state);
   virtual void doChildAnchor(XWTikzState * state);
+  virtual void doCompute(XWTikzState * state);
   virtual void doDecoration(XWTikzState * state);
   virtual void doEdgeFromParent(XWTikzState * state);
   virtual void doEdgeFromParentPath(XWTikzState * state);
@@ -115,6 +117,7 @@ public:
   virtual void doEveryPin(XWTikzState * state);
   virtual void doEveryPinEdge(XWTikzState * state);
   virtual void doEveryRelationship(XWTikzState * state);
+  virtual void doEveryShadow(XWTikzState * state);
   virtual void doEveryShape(XWTikzState * state);
   virtual void doEveryState(XWTikzState * state);
   virtual void doLevel(XWTikzState * state);
@@ -354,6 +357,10 @@ public slots:
   void setSiemensSlopedOppsite();
   void setShade();
   void setShadeAngle();
+  void setShadow();
+  void setShadowScale();
+  void setShadowXShift();
+  void setShadowYShift();
   void setShape();
   void setShapeAspect();
   void setShapeBorderRotate();
@@ -442,6 +449,7 @@ protected:
   XWTikzKey * findPictureType();
   XWTikzKey * findPlotHandler();
   XWTikzKey * findPoint();
+  XWTIKZOptions * findShadow();
   XWTikzKey * findShape();
   XWTikzKey * findState();
   XWTikzUnit * findUnit();
@@ -1144,6 +1152,90 @@ class XWTikzEveryAttribute : public XWTIKZOptions
 
 public:
   XWTikzEveryAttribute(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzEveryShadow : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzEveryShadow(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzGeneralShadow : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzGeneralShadow(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzDropShadow : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzDropShadow(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzCircularDropShadow : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzCircularDropShadow(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzCircularGlow : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzCircularGlow(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzCopyShadow : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzCopyShadow(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzDoubleCopyShadow : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzDoubleCopyShadow(XWTikzGraphic * graphicA, QObject * parent = 0);
 
   void doPath(XWTikzState * state, bool showpoint = false);
 

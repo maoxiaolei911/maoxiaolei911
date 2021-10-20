@@ -9,6 +9,7 @@
 #include "XWApplication.h"
 #include "PGFKeyWord.h"
 #include "XWPGFPool.h"
+#include "tikzcolor.h"
 #include "XWTikzCoord.h"
 #include "XWTikzGraphic.h"
 #include "XWTikzState.h"
@@ -19,6 +20,7 @@
 #include "XWTikzArrowDialog.h"
 #include "XWTikzPatternDialog.h"
 #include "XWTikzShadeDialog.h"
+#include "XWTikzShadowDialog.h"
 #include "XWTikzFadingDialog.h"
 #include "XWTikzOperationDialog.h"
 #include "XWTikzPlotDialog.h"
@@ -840,6 +842,26 @@ void XWTIKZOptions::addShadeAction(QMenu & menu)
   connect(a, SIGNAL(triggered()), this, SLOT(setOuterColor()));
 }
 
+void XWTIKZOptions::addShadowAction(QMenu & menu)
+{
+  QAction * a = menu.addAction(tr("shadow"));
+  connect(a, SIGNAL(triggered()), this, SLOT(setShadow()));
+  XWTIKZOptions * op = findShadow();
+  if (op)
+  {
+    menu.addSeparator();
+    a = menu.addAction(tr("shadow scale"));
+    connect(a, SIGNAL(triggered()), op, SLOT(setShadowScale()));
+    a = menu.addAction(tr("shadow xshift"));
+    connect(a, SIGNAL(triggered()), op, SLOT(setShadowXShift()));
+    a = menu.addAction(tr("shadow yshift"));
+    connect(a, SIGNAL(triggered()), op, SLOT(setShadowYShift()));
+    menu.addSeparator();
+    op->addColorAction(menu);
+    op->addOpacityAction(menu);
+  }
+}
+
 void XWTIKZOptions::addShapeAction(QMenu & menu)
 {
   QAction * a = menu.addAction(tr("shape"));
@@ -1324,6 +1346,12 @@ void XWTIKZOptions::doChildAnchor(XWTikzState * state)
   }
 }
 
+void XWTIKZOptions::doCompute(XWTikzState * state)
+{
+  for (int i= 0; i < ops.size(); i++)
+    ops[i]->doCompute(state);
+}
+
 void XWTIKZOptions::doDecoration(XWTikzState * state)
 {
   XWTikzOperation  * op = find(PGFdecoration);
@@ -1479,6 +1507,13 @@ void XWTIKZOptions::doEveryPinEdge(XWTikzState * state)
 void XWTIKZOptions::doEveryRelationship(XWTikzState * state)
 {
   XWTikzOperation  * op = find(PGFeveryrelationship);
+  if (op)
+    op->doPath(state,false);
+}
+
+void XWTIKZOptions::doEveryShadow(XWTikzState * state)
+{
+  XWTikzOperation  * op = find(PGFeveryshadow);
   if (op)
     op->doPath(state,false);
 }
@@ -1641,6 +1676,13 @@ void XWTIKZOptions::doPath(XWTikzState * state, bool showpoint)
       case PGFeveryentity:
       case PGFeveryrelationship:
       case PGFeveryattribute:
+      case PGFeveryshadow:
+      case PGFgeneralshadow:
+      case PGFdropshadow:
+      case PGFcirculardropshadow:
+      case PGFcircularglow:
+      case PGFcopyshadow:
+      case PGFdoublecopyshadow:
         break;
     }
   }
@@ -1648,9 +1690,24 @@ void XWTIKZOptions::doPath(XWTikzState * state, bool showpoint)
 
 void XWTIKZOptions::doPre(XWTikzState * state)
 {
-  XWTikzOperation  * op = find(PGFpreactions);
-  if (op)
-    op->doPath(state,false);
+  for (int i= 0; i < ops.size(); i++)
+  {
+    switch (ops[i]->getKeyWord())
+    {
+      default:
+        break;
+
+      case PGFpreactions:
+      case PGFgeneralshadow:
+      case PGFdropshadow:
+      case PGFcirculardropshadow:
+      case PGFcircularglow:
+      case PGFcopyshadow:
+      case PGFdoublecopyshadow:
+        ops[i]->doPath(state, false);
+        break;
+    }
+  }
 }
 
 void XWTIKZOptions::doPost(XWTikzState * state)
@@ -1778,6 +1835,13 @@ void XWTIKZOptions::dragTo(XWTikzState * state)
       case PGFeveryentity:
       case PGFeveryrelationship:
       case PGFeveryattribute:
+      case PGFeveryshadow:
+      case PGFgeneralshadow:
+      case PGFdropshadow:
+      case PGFcirculardropshadow:
+      case PGFcircularglow:
+      case PGFcopyshadow:
+      case PGFdoublecopyshadow:
         break;
     }
   }
@@ -1891,9 +1955,24 @@ bool XWTIKZOptions::hasPost()
 
 bool XWTIKZOptions::hasPre()
 {
-  XWTikzOperation  * op = find(PGFpreactions);
-  if (op)
-    return true;
+  for (int i= 0; i < ops.size(); i++)
+  {
+    switch (ops[i]->getKeyWord())
+    {
+      default:
+        break;
+
+      case PGFpreactions:
+      case PGFgeneralshadow:
+      case PGFdropshadow:
+      case PGFcirculardropshadow:
+      case PGFcircularglow:
+      case PGFcopyshadow:
+      case PGFdoublecopyshadow:
+        return true;
+        break;
+    }
+  }
 
   return false;
 }
@@ -2372,6 +2451,9 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFacceptingdistance:
         case PGFinitialwhere:
         case PGFacceptingwhere:
+        case PGFshadowscale:
+        case PGFshadowxshift:
+        case PGFshadowyshift:
           {
             XWTikzValue * v= new XWTikzValue(graphic,id,this);
             ops << v;
@@ -3140,6 +3222,62 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFeveryattribute:
           {
             XWTikzEveryAttribute * s = new XWTikzEveryAttribute(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFeveryshadow:
+          {
+            XWTikzEveryShadow * s = new XWTikzEveryShadow(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFgeneralshadow:
+          {
+            XWTikzGeneralShadow * s = new XWTikzGeneralShadow(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFdropshadow:
+          {
+            XWTikzDropShadow * s = new XWTikzDropShadow(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFcirculardropshadow:
+          {
+            XWTikzCircularDropShadow * s = new XWTikzCircularDropShadow(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFcircularglow:
+          {
+            XWTikzCircularGlow * s = new XWTikzCircularGlow(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFcopyshadow:
+          {
+            XWTikzCopyShadow * s = new XWTikzCopyShadow(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFdoublecopyshadow:
+          {
+            XWTikzDoubleCopyShadow * s = new XWTikzDoubleCopyShadow(graphic,this);
             ops << s;
             s->scan(str,len,pos);
           }
@@ -5127,6 +5265,76 @@ void XWTIKZOptions::setShadeAngle()
   setExpress(PGFshadingangle,tr("shading angle"),tr("angle:"));
 }
 
+void XWTIKZOptions::setShadow()
+{
+  XWTIKZOptions * op = findShadow();
+  XWTikzShadowDialog dlg;
+  if (op)
+  {
+    int s = op->getKeyWord();
+    dlg.setShadow(s);
+  }
+
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    int s = dlg.getShadow();
+    QUndoCommand * cmd = 0;
+    if (op)
+      cmd = new XWTikzSetKey(op,s);
+    else
+    {
+      switch (s)
+      {
+        default:
+          break;
+
+        case PGFgeneralshadow:
+          op = new XWTikzGeneralShadow(graphic, this);
+          break;
+
+        case PGFdropshadow:
+          op = new XWTikzDropShadow(graphic, this);
+          break;
+
+        case PGFcirculardropshadow:
+          op = new XWTikzCircularDropShadow(graphic, this);
+          break;
+
+        case PGFcircularglow:
+          op = new XWTikzCircularGlow(graphic, this);
+          break;
+
+        case PGFcopyshadow:
+          op = new XWTikzCopyShadow(graphic, this);
+          break;
+
+        case PGFdoublecopyshadow:
+          op = new XWTikzDoubleCopyShadow(graphic, this);
+          break;
+      }
+
+      cmd = new XWTikzAddOption(this,cur+1,op);
+    }
+
+    graphic->push(cmd);
+  }
+}
+
+void XWTIKZOptions::setShadowScale()
+{
+  setExpress(PGFshadowscale,tr("shadow scale"),tr("factor:"));
+}
+
+void XWTIKZOptions::setShadowXShift()
+{
+  setExpress(PGFshadowxshift,tr("shadow xshift"),tr("dimension:"));
+}
+
+void XWTIKZOptions::setShadowYShift()
+{
+  setExpress(PGFshadowyshift,tr("shadow yshift"),tr("dimension:"));
+}
+
 void XWTIKZOptions::setShape()
 {
   XWTikzValue * r = getValue(PGFshape);
@@ -6165,6 +6373,25 @@ XWTikzKey * XWTIKZOptions::findPoint()
         kw == PGFpointright)
     {
       return (XWTikzKey*)(ops[i]);
+    }
+  }
+
+  return 0;
+}
+
+XWTIKZOptions * XWTIKZOptions::findShadow()
+{
+  for (int i = 0; i < ops.size(); i++)
+  {
+    int kw = ops[i]->getKeyWord();
+    if (kw == PGFgeneralshadow || 
+        kw == PGFdropshadow ||
+        kw == PGFcirculardropshadow ||
+        kw == PGFcircularglow || 
+        kw == PGFcopyshadow || 
+        kw == PGFdoublecopyshadow)
+    {
+      return (XWTIKZOptions*)(ops[i]);
     }
   }
 
@@ -7586,6 +7813,152 @@ void XWTikzEveryAttribute::doPath(XWTikzState * state, bool showpoint)
 }
 
 QString XWTikzEveryAttribute::getText()
+{
+  return getOptions();
+}
+
+XWTikzEveryShadow::XWTikzEveryShadow(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFeveryshadow,parent)
+{}
+
+void XWTikzEveryShadow::doPath(XWTikzState * state, bool showpoint)
+{
+  doPathDefault(state,showpoint);
+}
+
+QString XWTikzEveryShadow::getText()
+{
+  return getOptions();
+}
+
+XWTikzGeneralShadow::XWTikzGeneralShadow(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFgeneralshadow,parent)
+{}
+
+void XWTikzGeneralShadow::doPath(XWTikzState * state, bool showpoint)
+{
+  doPathDefault(state,showpoint);
+  state->generalShadow();
+  graphic->doEveryShadow(state);
+}
+
+QString XWTikzGeneralShadow::getText()
+{
+  return getOptions();
+}
+
+XWTikzDropShadow::XWTikzDropShadow(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFdropshadow,parent)
+{}
+
+void XWTikzDropShadow::doPath(XWTikzState * state, bool showpoint)
+{
+  state->setShadowScale(1);
+  state->setShadowXShift(5);
+  state->setShadowYShift(-5);
+  state->setOpacity(0.5);
+  QColor color = calulateColor(PGFblack,50);
+  state->setFillColor(color);
+  doPathDefault(state,showpoint);
+  state->generalShadow();
+  graphic->doEveryShadow(state);
+}
+
+QString XWTikzDropShadow::getText()
+{
+  return getOptions();
+}
+
+XWTikzCircularDropShadow::XWTikzCircularDropShadow(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFcirculardropshadow,parent)
+{}
+
+void XWTikzCircularDropShadow::doPath(XWTikzState * state, bool showpoint)
+{
+  state->setShadowScale(1.1);
+  state->setShadowXShift(3);
+  state->setShadowYShift(-3);
+  QColor color = calulateColor(PGFblack,50);
+  state->setFillColor(color);
+  state->setPathFading(PGFcirclewithfuzzyedge15percent);
+  doPathDefault(state,showpoint);
+  state->generalShadow();
+  graphic->doEveryShadow(state);
+}
+
+QString XWTikzCircularDropShadow::getText()
+{
+  return getOptions();
+}
+
+XWTikzCircularGlow::XWTikzCircularGlow(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFcircularglow,parent)
+{}
+
+void XWTikzCircularGlow::doPath(XWTikzState * state, bool showpoint)
+{
+  state->setShadowScale(1.25);
+  state->setShadowXShift(0);
+  state->setShadowYShift(0);
+  QColor color = calulateColor(PGFblack,50);
+  state->setFillColor(color);
+  state->setPathFading(PGFcirclewithfuzzyedge15percent);
+  doPathDefault(state,showpoint);
+  state->generalShadow();
+  graphic->doEveryShadow(state);
+}
+
+QString XWTikzCircularGlow::getText()
+{
+  return getOptions();
+}
+
+XWTikzCopyShadow::XWTikzCopyShadow(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFcopyshadow,parent)
+{}
+
+void XWTikzCopyShadow::doPath(XWTikzState * state, bool showpoint)
+{
+  state->setShadowScale(1);
+  state->setShadowXShift(5);
+  state->setShadowYShift(5);
+  state->setDraw(true);
+  state->setFill(true);
+  doPathDefault(state,showpoint);
+  state->generalShadow();
+  graphic->doEveryShadow(state);
+}
+
+QString XWTikzCopyShadow::getText()
+{
+  return getOptions();
+}
+
+XWTikzDoubleCopyShadow::XWTikzDoubleCopyShadow(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFdoublecopyshadow,parent)
+{}
+
+void XWTikzDoubleCopyShadow::doPath(XWTikzState * state, bool showpoint)
+{
+  state->setShadowScale(1);
+  state->setShadowXShift(10);
+  state->setShadowYShift(10);
+  state->setDraw(true);
+  state->setFill(true);
+  doPathDefault(state,showpoint);
+  state->generalShadow();
+  graphic->doEveryShadow(state);
+  graphic->doPath(state);
+  state->setShadowXShift(5);
+  state->setShadowYShift(5);
+  state->setDraw(true);
+  state->setFill(true);
+  doPathDefault(state,showpoint);
+  state->generalShadow();
+  graphic->doEveryShadow(state);
+}
+
+QString XWTikzDoubleCopyShadow::getText()
 {
   return getOptions();
 }

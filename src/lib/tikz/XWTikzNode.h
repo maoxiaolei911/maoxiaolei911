@@ -31,6 +31,7 @@ public:
   virtual bool cut(XWTikzState * state);
 
   virtual bool del(XWTikzState * state);
+  virtual void doCompute(XWTikzState * state);
   virtual void doPath(XWTikzState * state, bool showpoint = false);
   virtual void dragTo(XWTikzState * state);
   virtual bool dropTo(XWTikzState * state);
@@ -49,7 +50,6 @@ public:
   virtual QString getSelectedText();
   virtual QString getText();
   virtual QString getTextForPath();
-  virtual void getWidthAndHeight(double & w, double & h);
   virtual void goToEnd();
   virtual bool goToNext();
   virtual void goToOperationEnd();  

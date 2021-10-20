@@ -18,6 +18,7 @@ HEADERS += $${XWTIKZSRCDIR}/XWTikzType.h \
 					 $${XWTIKZSRCDIR}/XWTikzShapeDialog.h \
 					 $${XWTIKZSRCDIR}/XWTikzPatternDialog.h \
 					 $${XWTIKZSRCDIR}/XWTikzShadeDialog.h \
+					 $${XWTIKZSRCDIR}/XWTikzShadowDialog.h \
 					 $${XWTIKZSRCDIR}/XWTikzFadingDialog.h \
 					 $${XWTIKZSRCDIR}/XWTikzDecorationDialog.h \
 					 $${XWTIKZSRCDIR}/XWTikzPlotDialog.h \
@@ -57,6 +58,7 @@ SOURCES += $${XWTIKZSRCDIR}/tikzcolor.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzShapeDialog.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzPatternDialog.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzShadeDialog.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzShadowDialog.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzFadingDialog.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzDecorationDialog.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzPlotDialog.cpp \

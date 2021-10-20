@@ -25,14 +25,13 @@ class XWTikzKey : public XWTikzOperation
 public:
   XWTikzKey(XWTikzGraphic * graphicA, int idA, QObject * parent = 0);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
 
   QString getText();
   QString getTips(XWTikzState * state);
-
-  bool hitTest(XWTikzState * state);
 };
 
 class XWTikzValue : public XWTikzOperation
@@ -42,9 +41,8 @@ class XWTikzValue : public XWTikzOperation
 public:
   XWTikzValue(XWTikzGraphic * graphicA, int idA, QObject * parent = 0);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
-  void dragTo(XWTikzState * state);
-  bool dropTo(XWTikzState * state);
 
   QString getCoord();
   QString getExpress();
@@ -52,8 +50,6 @@ public:
   QString getText();
   QString getTips(XWTikzState * state);
   double getValue();
-
-  bool hitTest(XWTikzState * state);
 
   void scan(const QString & str, int & len, int & pos);
   void setCoord(const QString & str);
@@ -77,6 +73,7 @@ class XWTikzDomain : public XWTikzOperation
 public:
   XWTikzDomain(XWTikzGraphic * graphicA, QObject * parent = 0);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
 
@@ -100,6 +97,7 @@ class XWTikzSamplesAt : public XWTikzOperation
 public:
   XWTikzSamplesAt(XWTikzGraphic * graphicA, QObject * parent = 0);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
 
@@ -317,6 +315,7 @@ class XWTikzAround : public XWTikzOperation
 public:
   XWTikzAround(XWTikzGraphic * graphicA, int idA, QObject * parent = 0);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
@@ -344,6 +343,7 @@ class XWTikzcm : public XWTikzOperation
 public:
   XWTikzcm(XWTikzGraphic * graphicA, QObject * parent = 0);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
@@ -451,6 +451,7 @@ class XWTikzThreePoint : public XWTikzOperation
 public:
   XWTikzThreePoint(XWTikzGraphic * graphicA, QObject * parent = 0);
 
+  void doCompute(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   QString getText();
 

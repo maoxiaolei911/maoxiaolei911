@@ -42,7 +42,7 @@ bool XWTikzGraphic::addMenuAction(QMenu & menu)
     return false;
 
   XWTikzState state(this,0,false);
-  options->doPath(&state,false);
+  options->doCompute(&state);
   bool ret = true;
   switch (curScope)
   {
@@ -158,13 +158,14 @@ void XWTikzGraphic::back()
   if (cur < 0 || cur >= cmds.size())
     return ;
 
-  XWTikzState * state = new XWTikzState(this,0,false);
+  XWTikzState state(this,0,false);
+  options->doCompute(&state);
   switch (curScope)
   {
     case XW_TIKZ_S_OPERATION:
     case XW_TIKZ_S_SCOPE:
     case XW_TIKZ_S_PATH:
-      cmds[cur]->back(state);
+      cmds[cur]->back(&state);
       break;
 
     default:
@@ -175,8 +176,6 @@ void XWTikzGraphic::back()
       }
       break;
   }
-
-  delete state;
 }
 
 void XWTikzGraphic::cut()
@@ -184,9 +183,9 @@ void XWTikzGraphic::cut()
   if (cur < 0 || cur >= cmds.size())
     return ;
 
-  XWTikzState * state = new XWTikzState(this,0,false);
-  cmds[cur]->cut(state);
-  delete state;
+  XWTikzState state(this,0,false);
+  options->doCompute(&state);
+  cmds[cur]->cut(&state);
 }
 
 void XWTikzGraphic::del()
@@ -194,13 +193,14 @@ void XWTikzGraphic::del()
   if (cur < 0 || cur >= cmds.size())
     return ;
 
-  XWTikzState * state = new XWTikzState(this,0,false);
+  XWTikzState state(this,0,false);
+  options->doCompute(&state);
   switch (curScope)
   {
     case XW_TIKZ_S_OPERATION:
     case XW_TIKZ_S_SCOPE:
     case XW_TIKZ_S_PATH:
-      cmds[cur]->del(state);
+      cmds[cur]->del(&state);
       break;
 
     default: 
@@ -210,8 +210,6 @@ void XWTikzGraphic::del()
       }
       break;
   }
-
-  delete state;
 }
 
 void XWTikzGraphic::doChildAnchor(XWTikzState * state)
@@ -450,6 +448,15 @@ void XWTikzGraphic::doEveryRelationship(XWTikzState * state)
   cmds[cur]->doEveryRelationship(state);
 }
 
+void XWTikzGraphic::doEveryShadow(XWTikzState * state)
+{
+  options->doEveryShadow(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryShadow(state);
+}
+
 void XWTikzGraphic::doEveryShape(XWTikzState * state)
 {
   options->doEveryShape(state);
@@ -473,8 +480,8 @@ void XWTikzGraphic::doGraphic(XWPDFDriver * driver)
   if (cmds.size() <= 0)
     return ;
 
-  XWTikzState * state = new XWTikzState(this,driver);
-  options->doPath(state);
+  XWTikzState state(this,driver);
+  options->doPath(&state);
   int tcur = cur;
   QList<XWTikzCommand*> spies;
   for (int i = 0; i < cmds.size(); i++)
@@ -484,24 +491,22 @@ void XWTikzGraphic::doGraphic(XWPDFDriver * driver)
         cmds[i]->getKeyWord() == XW_TIKZ_GROUP)    
     {
       XWTikzScope * s = (XWTikzScope*)(cmds[i]);
-      s->doScope(state);
+      s->doScope(&state);
     }
     else if (cmds[i]->getKeyWord() == PGFforeach)
     {
       XWTikzForeach * s = (XWTikzForeach*)(cmds[i]);
-      s->doScope(state);
+      s->doScope(&state);
     }
     else if (cmds[i]->getKeyWord() == PGFforeach)
       spies << cmds[i];
     else
-      cmds[i]->doPath(state,false);
+      cmds[i]->doPath(&state,false);
   }
   cur = tcur;
 
   for (int i = 0; i < spies.size(); i++)
-    spies[i]->doPath(state,false);
-
-  delete state;
+    spies[i]->doPath(&state,false);
 }
 
 void XWTikzGraphic::doLevel(XWTikzState * state)
@@ -536,10 +541,9 @@ void XWTikzGraphic::doOperation(XWPDFDriver * driver)
   if (cur < 0 || cur >= cmds.size())
     return ;
 
-  XWTikzState * state = new XWTikzState(this,driver);
-  options->doPath(state);
-  cmds[cur]->doOperation(state,true);
-  delete state;
+  XWTikzState state(this,driver);
+  options->doPath(&state);
+  cmds[cur]->doOperation(&state,true);
 }
 
 void XWTikzGraphic::doParentAnchor(XWTikzState * state)
@@ -559,11 +563,17 @@ void XWTikzGraphic::doPath(XWPDFDriver * driver)
   if (cur < 0 || cur >= cmds.size())
     return ;
 
-  XWTikzState * state = new XWTikzState(this,driver);
-  
-  options->doPath(state,true);
-  cmds[cur]->doPath(state,true);
-  delete state;
+  XWTikzState state(this,driver);
+  options->doPath(&state,true);
+  cmds[cur]->doPath(&state,true);
+}
+
+void XWTikzGraphic::doPath(XWTikzState * state)
+{
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doPathNoOptions(state);
 }
 
 void XWTikzGraphic::doRootConcept(XWTikzState * state)
@@ -586,20 +596,18 @@ void XWTikzGraphic::doScope(XWPDFDriver * driver)
      return ;
 
   
-  XWTikzState * state = new XWTikzState(this,driver);
-  options->doPath(state,false);
+  XWTikzState state(this,driver);
+  options->doPath(&state,false);
   if (cmds[cur]->getKeyWord() != PGFforeach)
   {
     XWTikzScope * s = (XWTikzScope*)(cmds[cur]);
-    s->doScope(state);
+    s->doScope(&state);
   }
   else
   {
     XWTikzForeach * s = (XWTikzForeach*)(cmds[cur]);
-    s->doScope(state);
+    s->doScope(&state);
   }
-  
-  delete state;
 }
 
 void XWTikzGraphic::doSpyConnection(XWTikzState * state)
@@ -643,12 +651,11 @@ void XWTikzGraphic::dragTo(XWPDFDriver * driver,const QPointF & p)
   if (cur < 0 || cur >= cmds.size())
     return ;
 
-  XWTikzState * state = new XWTikzState(this,driver);
-  state->setMousePoint(lastPoint);
-  state->setLastMousePoint(p);
-  options->dragTo(state);
-  cmds[cur]->dragTo(state);
-  delete state;
+  XWTikzState state(this,driver);
+  state.setMousePoint(lastPoint);
+  state.setLastMousePoint(p);
+  options->doCompute(&state);
+  cmds[cur]->dragTo(&state);
 }
 
 void XWTikzGraphic::dropTo(const QPointF & p)
@@ -656,29 +663,25 @@ void XWTikzGraphic::dropTo(const QPointF & p)
   if (cur < 0 || cur >= cmds.size())
     return ;
 
-  XWTikzState * state = new XWTikzState(this,0,false);
-  state->setMousePoint(lastPoint);
-  state->setLastMousePoint(p);
-  if (!options->dropTo(state))
+  XWTikzState state(this,0,false);
+  state.setMousePoint(lastPoint);
+  state.setLastMousePoint(p);
+  options->doCompute(&state);
+  switch (curScope)
   {
-    switch (curScope)
-    {
-      case XW_TIKZ_S_GRAPHIC:
-        for (int i = 0; i < cmds.size(); i++)
-        {
-          if (cmds[i]->dropTo(state))
-            break;
-        }
-        break;
+    case XW_TIKZ_S_GRAPHIC:
+      for (int i = 0; i < cmds.size(); i++)
+      {
+        if (cmds[i]->dropTo(&state))
+          break;
+      }
+      break;
 
-      default:
-        if (cur >= 0 && cur < cmds.size())
-          cmds[cur]->dropTo(state);
-        break;
-    }
+    default:
+      if (cur >= 0 && cur < cmds.size())
+        cmds[cur]->dropTo(&state);
+      break;
   }
-
-  delete state;
 }
 
 int XWTikzGraphic::getAnchorPosition()
@@ -733,7 +736,8 @@ QPointF XWTikzGraphic::getIntersection(int s)
   {
     if (namedPath1 >= 0 && namedPath2 >= 0)
     {
-      XWTikzState * state = new XWTikzState(this,0,false);
+      XWTikzState state(this,0,false);
+      options->doPath(&state,false);
       if (sortBy != namedPath1 && sortBy != namedPath2)
         sortBy = namedPath1;
 
@@ -741,16 +745,14 @@ QPointF XWTikzGraphic::getIntersection(int s)
       QList<QPointF> pointsA;
       if (sortBy == namedPath1)
       {
-        cmds[namedPath2]->getPath(operationsA,pointsA,state);
-        intersections = cmds[namedPath1]->getIntersections(operationsA,pointsA,state);
+        cmds[namedPath2]->getPath(operationsA,pointsA,&state);
+        intersections = cmds[namedPath1]->getIntersections(operationsA,pointsA,&state);
       }
       else
       {
-        cmds[namedPath1]->getPath(operationsA,pointsA,state);
-        intersections = cmds[namedPath2]->getIntersections(operationsA,pointsA,state);
+        cmds[namedPath1]->getPath(operationsA,pointsA,&state);
+        intersections = cmds[namedPath2]->getIntersections(operationsA,pointsA,&state);
       }
-
-      delete state;
     }
   }
 
@@ -813,8 +815,8 @@ QPointF XWTikzGraphic::getNodeAnchor(const QString & nameA,int a)
 {
   QPointF ret;
   QString n = nameA;
-  XWTikzState * state = new XWTikzState(this,0,false);
-  options->doPath(state,false);
+  XWTikzState state(this,0,false);
+  options->doCompute(&state);
   if (nameA.contains("."))
   {
     int index = nameA.indexOf(".");
@@ -824,17 +826,16 @@ QPointF XWTikzGraphic::getNodeAnchor(const QString & nameA,int a)
   if (names.contains(n))
   {
     int i = names[n];
-    ret = cmds[i]->getAnchor(nameA,a,state);
+    ret = cmds[i]->getAnchor(nameA,a,&state);
   }
 
-  delete state;
   return ret;
 }
 
 QPointF XWTikzGraphic::getNodeAngle(const QString & nameA,double a)
 {
-  XWTikzState * state = new XWTikzState(this,0,false);
-  options->doPath(state,false);
+  XWTikzState state(this,0,false);
+  options->doCompute(&state);
   QString n = nameA;
   if (nameA.contains("."))
   {
@@ -846,12 +847,21 @@ QPointF XWTikzGraphic::getNodeAngle(const QString & nameA,double a)
   if (names.contains(n))
   {
     int i = names[n];
-    ret = cmds[i]->getAngle(nameA,a,state);
+    ret = cmds[i]->getAngle(nameA,a,&state);
   }
 
-  delete state;
-
   return ret;
+}
+
+QPointF XWTikzGraphic::getPathBoundboxCenter()
+{
+  QPointF ret;
+  if (cur < 0 || cur >= cmds.size())
+    return ret;
+
+  XWTikzState state;
+  options->doCompute(&state);
+  return cmds[cur]->getCenter(&state);
 }
 
 QPointF XWTikzGraphic::getPoint(const QString & nameA)
@@ -867,10 +877,9 @@ QPointF XWTikzGraphic::getPoint(const QString & nameA)
   if (names.contains(n))
   {
     int i = names[n];
-    XWTikzState * state = new XWTikzState(this,0,false);
-    options->doPath(state,false);
-    ret = cmds[i]->getPoint(nameA,state);
-    delete state;
+    XWTikzState state(this,0,false);
+    options->doCompute(&state);
+    ret = cmds[i]->getPoint(nameA,&state);
   }
   else if (by.contains(n))
   {
@@ -911,10 +920,9 @@ QVector3D XWTikzGraphic::getPoint3D(const QString & nameA)
   if (names.contains(n))
   {
     int i = names[n];
-    XWTikzState * state = new XWTikzState(this,0,false);
-    options->doPath(state,false);
-    ret = cmds[i]->getPoint3D(nameA,state);
-    delete state;
+    XWTikzState state(this,0,false);
+    options->doCompute(&state);
+    ret = cmds[i]->getPoint3D(nameA,&state);
   }
   else if (by.contains(n))
   {
@@ -1048,9 +1056,9 @@ QString XWTikzGraphic::getText()
 QString XWTikzGraphic::getTips(const QPointF & p)
 {
   QString ret;
-  XWTikzState * state = new XWTikzState(this,0,false);
-  state->setMousePoint(p);
-  ret = options->getTips(state);
+  XWTikzState state(this,0,false);
+  state.setMousePoint(p);
+  options->doCompute(&state);
   switch (curScope)
   {
     case XW_TIKZ_S_GRAPHIC:      
@@ -1058,11 +1066,9 @@ QString XWTikzGraphic::getTips(const QPointF & p)
 
     default:
       if (cur >= 0 && cur < cmds.size())
-        ret = cmds[cur]->getTips(state);
+        ret = cmds[cur]->getTips(&state);
       break;
   }
-
-  delete state;
 
   return ret;
 }
@@ -1450,36 +1456,31 @@ void XWTikzGraphic::goToStart()
 void XWTikzGraphic::hitTest(const QPointF & p)
 {
   lastPoint = p;
-  XWTikzState * state = new XWTikzState(this,0,false);
-  state->setMousePoint(p);
-  state->setLastMousePoint(p);
+  XWTikzState state(this,0,false);
+  state.setMousePoint(p);
+  state.setLastMousePoint(p);
   bool b = false;
-  b = options->hitTest(state);
-  if (!b)
+  options->doCompute(&state);
+  switch (curScope)
   {
-    switch (curScope)
-    {
-      case XW_TIKZ_S_GRAPHIC:
-        cur = -1;
-        for (int i = 0; i < cmds.size(); i++)
+    case XW_TIKZ_S_GRAPHIC:
+      cur = -1;
+      for (int i = 0; i < cmds.size(); i++)
+      {
+        b = cmds[i]->hitTest(&state);
+        if (b)
         {
-          b = cmds[i]->hitTest(state);
-          if (b)
-          {
-            cur = i;
-            break;
-          }
+          cur = i;
+          break;
         }
-        break;
+      }
+      break;
 
-      default:
-        if (cur >= 0 && cur < cmds.size())
-          b = cmds[cur]->hitTest(state);
-        break;
-    }
-  } 
-
-  delete state;
+    default:
+      if (cur >= 0 && cur < cmds.size())
+        b = cmds[cur]->hitTest(&state);
+      break;
+  }
 
   if (b)
     emit viewChanged();
@@ -1499,12 +1500,10 @@ void XWTikzGraphic::insertText(const QString & str)
   if (cur < 0 || cur >= cmds.size())
     return ;
 
-  XWTikzState * state = new XWTikzState(this,0,false);
-  state->setText(str);
-  if (!options->insertText(state))
-    cmds[cur]->insertText(state);
-
-  delete state;
+  XWTikzState state(this,0,false);
+  options->doCompute(&state);
+  state.setText(str);
+  cmds[cur]->insertText(&state);
 }
 
 bool XWTikzGraphic::isUnit(const QString & nameA)
@@ -1517,12 +1516,10 @@ void XWTikzGraphic::keyInput(const QString & str)
   if (cur < 0 || cur >= cmds.size())
     return ;
 
-  XWTikzState * state = new XWTikzState(this,0,false);
-  state->setText(str);
-  if (!options->keyInput(state))
-    cmds[cur]->keyInput(state);
-
-  delete state;
+  XWTikzState state(this,0,false);
+  options->doCompute(&state);
+  state.setText(str);
+  cmds[cur]->keyInput(&state);
 }
 
 void XWTikzGraphic::moveDown()
@@ -1614,10 +1611,9 @@ void XWTikzGraphic::newPar()
   if (cur < 0 || cur >= cmds.size())
     return ;
 
-  XWTikzState * state = new XWTikzState(this,0,false);
-  if (!options->newPar(state))
-    cmds[cur]->newPar(state);
-  delete state;
+  XWTikzState state(this,0,false);
+  options->doCompute(&state);
+  cmds[cur]->newPar(&state);
 }
 
 void XWTikzGraphic::paste(const QString & str)
@@ -1625,12 +1621,10 @@ void XWTikzGraphic::paste(const QString & str)
   if (cur < 0 || cur >= cmds.size())
     return ;
 
-  XWTikzState * state = new XWTikzState(this,0,false);
-  state->setText(str);
-  if (!options->paste(state))
-    cmds[cur]->paste(state);
-
-  delete state;
+  XWTikzState state(this,0,false);
+  options->doCompute(&state);
+  state.setText(str);
+  cmds[cur]->paste(&state);
 }
 
 void XWTikzGraphic::push(QUndoCommand * c)
@@ -1649,7 +1643,7 @@ void XWTikzGraphic::registNamed(const QString & n)
   }
 
   XWTikzState state(this,0,false);
-  options->doPath(&state,false);
+  options->doCompute(&state);
   QString prefix = state.getNamePrefix();
   if (!prefix.isEmpty())
   {

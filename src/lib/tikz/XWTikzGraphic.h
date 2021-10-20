@@ -68,6 +68,7 @@ public:
   void doEveryPin(XWTikzState * state);
   void doEveryPinEdge(XWTikzState * state);
   void doEveryRelationship(XWTikzState * state);
+  void doEveryShadow(XWTikzState * state);
   void doEveryShape(XWTikzState * state);
   void doEveryState(XWTikzState * state);
   void doGraphic(XWPDFDriver * driver);
@@ -77,6 +78,7 @@ public:
   void doOperation(XWPDFDriver * driver);
   void doParentAnchor(XWTikzState * state);
   void doPath(XWPDFDriver * driver);
+  void doPath(XWTikzState * state);
   void doRootConcept(XWTikzState * state);
   void doScope(XWPDFDriver * driver);
   void doSpyConnection(XWTikzState * state);
@@ -103,6 +105,7 @@ public:
   QString getLocalPath();
   QPointF getNodeAnchor(const QString & nameA,int a);
   QPointF getNodeAngle(const QString & nameA,double a);
+  QPointF getPathBoundboxCenter();
   QPointF getPoint(const QString & nameA);
   QVector3D getPoint3D(const QString & nameA);
   QString getSelectedText();

@@ -119,6 +119,8 @@ public:
   void clearPath();
   void clockwiseFrom(double a);
   void closePath();
+  void computePath();
+  void computePlotFunction(XWTikzCoord * exp);
   void concat(XWTikzState * newstate);
   void copy(XWTikzState * newstate,bool n = false);
   void copyTransform(XWTikzState * newstate);
@@ -136,12 +138,14 @@ public:
   void doEdgeFromParentForkRight();
   void doEdgeFromParentForkUp();
   void doEdgeFromParentPath();
+  void doNodeCompute(XWTeXBox * box);
   void doToPath();
   void dragTo(XWTeXBox * box);
   void drawArrow(int a);
 
   void flush();
 
+  void   generalShadow();
   double getAbove() {return above;}
   int getAlign() {return align;}
   double getAngle() {return angle;}
@@ -153,18 +157,19 @@ public:
   QColor getBallColor() {return ballColor;}
   double getBelow() {return below;}
   QColor getBottomColor() {return bottomColor;}
-  QPointF getCenterPoint();
+  QPointF getCenter() {return center;}
   QColor getColor(const QString & nameA);
   XWTikzCoord * getCoord(const QString & nameA);
   XWTikzCoord * getCurrentCoord();
   int    getCurrentColumn() {return curColumn;}
-  QPointF       getCurrentPoint();
-  int    getCurrentRow() {return curRow;}
+  QPointF getCurrentPoint();
+  int     getCurrentRow() {return curRow;}
   QPointF getDecoratedPathFirst();
   QPointF getDecoratedPathLast();
   QPointF getDecorateInputSegmentFirst();
   QPointF getDecorateInputSegmentLast();
   QPointF getFirstPoint();
+  double  getHeight() {return height;}
   XWTikzCoord * getInitialCoord();
   QColor  getInnerColor() {return innerColor;}
   double  getInnerLineWidth() {return innerLineWidth;}
@@ -221,7 +226,7 @@ public:
   QColor getUpperLeftColor() {return upperLeftColor;}
   QColor getUpperRightColor() {return upperRightColor;}
   double getValue(const QString & nameA);
-  void   getWidthAndHeight(double & w, double & h);
+  double getWidth() {return width;}
   double getXVec() {return xVec;}
   double getYVec() {return yVec;}
   double getZVec() {return zVec;}
@@ -293,9 +298,11 @@ public:
   void rotate(double d) {transform.rotate(d);}
 
   XWTikzState * restore();
+  void restoreTransform() {transform=oldTransform;}
     
   XWTikzState *save(bool ispathA = true);
   XWTikzState *saveNode(XWTeXBox * boxA,int nt);
+  void saveTransform() {oldTransform=transform;}
   void scale(double sx,double sy) {transform.scale(sx,sy);}
   void setAbsolute(bool e) {absolute=e;}
   void setAcceptingAnchor(int a) {acceptingAnchor=a;}
@@ -529,6 +536,9 @@ public:
   void setShape(int s) {shape=s;}
   void setShadingAngle(double a) {shadingAngle=a;}
   void setShadingName(int n);
+  void setShadowScale(double s) {shadowScale=s;}
+  void setShadowXShift(double s) {shadowXShift=s;}
+  void setShadowYShift(double s) {shadowYShift=s;}
   void setShapeAspect(double a) {shapeAspect=a;}
   void setShapeBorderRotate(double a) {shapeBorderRotate=a;}
   void setShapeBorderUsesIncircle(bool e) {shapeBorderUsesIncircle=e;}
@@ -919,7 +929,7 @@ private:
   bool   preciseShortening;
   double nextTip;
 
-  QTransform transform;
+  QTransform transform,oldTransform;
   QTransform decorateTransform;
 
   double xVec,yVec,zVec;
@@ -1040,6 +1050,8 @@ private:
   double initialAngle, acceptingAngle;
   int    initialAnchor, acceptingAnchor;
 
+  double shadowScale,shadowXShift,shadowYShift;
+
   double curveXA, curveYA;
   double curveXB, curveYB;
   double curveXC, curveYC;
@@ -1064,10 +1076,13 @@ private:
   void (XWTikzState::*nolinear_map)(double & x, double & y);
   void (XWTikzState::*after_node)();
 
-  int samples;
+  int    samples;
   double domainStart;
   double domainEnd;
   QList<double> samplesAt;
+
+  double width,height;
+  QPointF center;
 
   QString text,namePrefix,nameSuffix,acceptingText,initialText;
 
@@ -1086,7 +1101,6 @@ private:
   QPointF decoratedPathFirst,decoratedPathLast;
 
   QPointF toStart, toTarget;
-  bool isTarget;
 
   XWTeXBox *   myBox;
   XWTikzShape* myNode;
