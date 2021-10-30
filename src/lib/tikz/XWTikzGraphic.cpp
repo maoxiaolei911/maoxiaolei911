@@ -212,18 +212,6 @@ void XWTikzGraphic::del()
   }
 }
 
-void XWTikzGraphic::doChildAnchor(XWTikzState * state)
-{
-  if (cur < 0 || cur >= cmds.size())
-    return ;
-  options->doChildAnchor(state);
-  if (cmds[cur]->getKeyWord() == PGFscope || 
-      cmds[cur]->getKeyWord() == XW_TIKZ_GROUP)
-  {
-    cmds[cur]->doChildAnchor(state);
-  }
-}
-
 void XWTikzGraphic::doCopy(XWTikzState * state)
 {
   QList<XWTikzCommand*> spies;
@@ -340,6 +328,15 @@ void XWTikzGraphic::doEveryConcept(XWTikzState * state)
   cmds[cur]->doEveryConcept(state);
 }
 
+void XWTikzGraphic::doEveryCurveTo(XWTikzState * state)
+{
+  options->doEveryCurveTo(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryCurveTo(state);
+}
+
 void XWTikzGraphic::doEveryEdge(XWTikzState * state)
 {
   options->doEveryEdge(state);
@@ -383,6 +380,15 @@ void XWTikzGraphic::doEveryLabel(XWTikzState * state)
     return ;
 
   cmds[cur]->doEveryLabel(state);
+}
+
+void XWTikzGraphic::doEveryLoop(XWTikzState * state)
+{
+  options->doEveryLoop(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryLoop(state);
 }
 
 void XWTikzGraphic::doEveryMark(XWTikzState * state)
@@ -544,18 +550,6 @@ void XWTikzGraphic::doOperation(XWPDFDriver * driver)
   XWTikzState state(this,driver);
   options->doPath(&state);
   cmds[cur]->doOperation(&state,true);
-}
-
-void XWTikzGraphic::doParentAnchor(XWTikzState * state)
-{
-  if (cur < 0 || cur >= cmds.size())
-    return ;
-  options->doParentAnchor(state);
-  if (cmds[cur]->getKeyWord() == PGFscope || 
-      cmds[cur]->getKeyWord() == XW_TIKZ_GROUP)
-  {
-    cmds[cur]->doParentAnchor(state);
-  }
 }
 
 void XWTikzGraphic::doPath(XWPDFDriver * driver)
@@ -848,6 +842,48 @@ QPointF XWTikzGraphic::getNodeAngle(const QString & nameA,double a)
   {
     int i = names[n];
     ret = cmds[i]->getAngle(nameA,a,&state);
+  }
+
+  return ret;
+}
+
+QPointF XWTikzGraphic::getNodeBorder(const QString & nameA,const QPointF & p)
+{
+  XWTikzState state(this,0,false);
+  options->doCompute(&state);
+  QString n = nameA;
+  if (nameA.contains("."))
+  {
+    int index = nameA.indexOf(".");
+    n = nameA.left(index);
+  }
+
+  QPointF ret;
+  if (names.contains(n))
+  {
+    int i = names[n];
+    ret = cmds[i]->getBorder(nameA,p,&state);
+  }
+
+  return ret;
+}
+
+double  XWTikzGraphic::getNodeRadius(const QString & nameA)
+{
+  double ret;
+  QString n = nameA;
+  XWTikzState state(this,0,false);
+  options->doCompute(&state);
+  if (nameA.contains("."))
+  {
+    int index = nameA.indexOf(".");
+    n = nameA.left(index);
+  }
+
+  if (names.contains(n))
+  {
+    int i = names[n];
+    ret = cmds[i]->getRadius(nameA,&state);
   }
 
   return ret;

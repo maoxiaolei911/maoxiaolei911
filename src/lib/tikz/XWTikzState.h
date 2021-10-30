@@ -32,10 +32,8 @@
 #define XW_TIKZ_LABEL 1
 #define XW_TIKZ_PIN   2
 #define XW_TIKZ_CHILD 3
-#define XW_TIKZ_EDGE  4
-#define XW_TIKZ_CIRCUIT_HANDLE_SYMBOL 5
-#define XW_TIKZ_INFO  6
-#define XW_TIKZ_CIRCUIT_SYMBOL 7
+#define XW_TIKZ_INFO  4
+#define XW_TIKZ_CIRCUIT_SYMBOL 5
 
 #define XW_TIKZ_PATH_BEFOREBACKGROUND 0
 #define XW_TIKZ_PATH_BEHINDFOREGROUND 1
@@ -92,7 +90,6 @@ public:
   void addCosine(XWTikzCoord * p);
   void addCosine(const QPointF & p);
   void addEdge(XWTikzCoord * p);
-  void addEdge(const QPointF & p);
   void addEdge();
   void addEllipse();
   void addEllipse(const QPointF & c,const QPointF & a,const QPointF & b);
@@ -123,9 +120,7 @@ public:
   void computePlotFunction(XWTikzCoord * exp);
   void concat(XWTikzState * newstate);
   void copy(XWTikzState * newstate,bool n = false);
-  void copyTransform(XWTikzState * newstate);
   void counterClockwiseFrom(double a);
-  
   void curveTo(double xA,double yA, double xB,double yB, double xC,double yC);
   void curveTo(XWTikzCoord * c1,XWTikzCoord * c2,XWTikzCoord * endpoint);
   void curveTo(XWTikzCoord * c1,XWTikzCoord * endpoint);
@@ -133,12 +128,14 @@ public:
   void cycle();
 
   QPointF doAnchor(XWTeXBox * box);
+  QPointF doBorder(XWTeXBox * box, const QPointF & p);
   void doEdgeFromParentForkDown();
   void doEdgeFromParentForkLeft();
   void doEdgeFromParentForkRight();
   void doEdgeFromParentForkUp();
-  void doEdgeFromParentPath();
+  void doEdgeFromParent();
   void doNodeCompute(XWTeXBox * box);
+  double doRadius(XWTeXBox * box);
   void doToPath();
   void dragTo(XWTeXBox * box);
   void drawArrow(int a);
@@ -158,6 +155,7 @@ public:
   double getBelow() {return below;}
   QColor getBottomColor() {return bottomColor;}
   QPointF getCenter() {return center;}
+  QPointF getChildAnchor(int a);
   QColor getColor(const QString & nameA);
   XWTikzCoord * getCoord(const QString & nameA);
   XWTikzCoord * getCurrentCoord();
@@ -168,6 +166,7 @@ public:
   QPointF getDecoratedPathLast();
   QPointF getDecorateInputSegmentFirst();
   QPointF getDecorateInputSegmentLast();
+  XWPDFDriver* getDriver() {return driver;}
   QPointF getFirstPoint();
   double  getHeight() {return height;}
   XWTikzCoord * getInitialCoord();
@@ -198,6 +197,7 @@ public:
   QColor  getOuterColor() {return outerColor;}
   double  getOuterXSep() {return outerXSep;}
   double  getOuterYSep() {return outerYSep;}
+  QPointF getParentAnchor(int a);
   void    getPath(QList<int> & operationsA,QList<QPointF> & pointsA);
   double  getPathMaxX() {return pathMaxX;}
   double  getPathMaxY() {return pathMaxY;}
@@ -220,8 +220,8 @@ public:
   QString getText() {return text;}
   double getTextWidth() {return textWidth;}
   QColor getTopColor() {return topColor;}
-  QPointF getToStart() {return toStart;}
-  QPointF getToTarget() {return toTarget;}
+  QPointF getToStart();
+  QPointF getToTarget();
   QTransform getTransform() {return transform;}
   QColor getUpperLeftColor() {return upperLeftColor;}
   QColor getUpperRightColor() {return upperRightColor;}
@@ -236,7 +236,7 @@ public:
                             const QPointF & p3);
 
   bool hitTestArc();
-  bool hitTestChild(XWTeXBox * box);
+  bool hitTestChild();
   bool hitTestCoordinate(XWTeXBox * box);
   bool hitTestCosine(XWTikzCoord * p);
   bool hitTestCurve(XWTikzCoord * c1,XWTikzCoord * c2);
@@ -287,8 +287,6 @@ public:
   void    moveTo(double xA, double yA);
   void    moveTo(XWTikzCoord * p);
   void    moveTo(const QPointF & p);
-
-  bool   needEdgeFromParent() {return edgeFromParent;}
 
   void plotStreamEnd(bool c);
 
@@ -351,10 +349,13 @@ public:
   void setAuto(int d);
   void setBallColor(const QColor & c) {ballColor=c;}
   void setBend(XWTikzCoord * p) {bend=p;}
+  void setBnedAngle(double a) {toBend=a;}
   void setBendAtEnd() {bendAtEnd=true;}
   void setBendAtStart() {bendAtStart=true;}
   void setBendHeight(double h);
+  void setBendLeft(double a);
   void setBendPos(double v) {bendPosIsSet=true;bendPos=v;}
+  void setBendRight(double a);
   void setBottomColor(const QColor & c) {bottomColor=c;}
   void setBufferGateIECSymbol(const QString & t) {bufferGateIECSymbol=t;}
   void setCalloutPointerArc(double a) {calloutPointerArc=a;}
@@ -369,6 +370,7 @@ public:
   void setChamferedRectangleCorners(const QList<int> & cs);
   void setChamferedRectangleYsep(double s) {chamferedRectangleYsep=s;}
   void setChildAnchor(int a) {childAnchor=a;isChildAnchorSet=true;}
+  void setChildNode(XWTikzShape * n) {myNode=n;}
   void setChildrenNumber(int i) {childrenNumber=i;}
   void setCircuitSizeUnit(double s);
   void setCircuitSymbolSize(double w, double h);
@@ -380,11 +382,13 @@ public:
   void setCodes(const QList<XWTikzCommand*> & cmdsA);
   void setColor(const QColor & c);
   void setColumnSep(double s) {columnSep=s;}
+  void setConceptColor(const QColor & c);
   void setCoreColor(const QColor & c) {coreColor=c;}
   void setCurrentDirectionArrow(XWTikzArrowSpecification * e);
   void setCurrentChild(int i) {currentChild=i;}
   void setCurrentColumn(int i) {curColumn=i;}
   void setCurrentRow(int i) {curRow=i;}
+  void setCurveTo();
   void setCylinderBodyFill(const QColor & c) {cylinderBodyFill=c;}
   void setCylinderEndFill(const QColor & c) {cylinderEndFill=c;}
   void setCylinderUsesCustomFill(bool e) {cylinderUsesCustomFill=e;}
@@ -404,7 +408,7 @@ public:
   void setDraw(bool e) {isDrawSet = e;}
   void setDrawColor(const QColor & c);
   void setDrawOpacity(double v) {drawOpacity=v;}
-  void setEdgeFromParent(bool e=true) {edgeFromParent=e;}
+  void setEdgeFromParentFinished(bool e) {edgeFromParentFinished=e;}
   void setEndAngle(double a) {endIsSet=true;endAngle=a;}
   void setEndArrow(XWTikzArrowSpecification * e) {endArrow=e;}
   void setEndPosition(XWTikzExpress * p) {endPosition=p;}
@@ -422,10 +426,15 @@ public:
   void setGrowOpposite(int g);
   void setGrowthParentAnchor(int a) {growthParentAnchor=a;}
   void setHelpLines(bool h) {helpLines=h;}
+  void setIn(double d) {toIn = d;}
+  void setInControl(const QPointF & p) {inControl=p;isInControlSet=true;}
   void setInitialAnchor(int a) {initialAnchor=a;}
   void setInitialAngle(double a) {initialAngle=a;}
   void setInitialDistance(double d) {initialDistance=d;}
   void setInitialText(const QString & t) {initialText=t;}
+  void setInLooseness(double d) {inLooseness=d;}
+  void setInMax(double d) {inMax=d;}
+  void setInMin(double d) {inMin=d;}
   void setInnerColor(const QColor & c) {innerColor=c;}
   void setInnerLineWidth(double w) {innerLineWidth=w;}
   void setInnerXSep(double s) {innerXSep=s;}
@@ -444,6 +453,7 @@ public:
   void setLevelDistance(double d) {levelDistance=d;}
   void setLineCap(int c);
   void setLineJoin(int j);
+  void setLineTo();
   void setLineWidth(double w);
   void setLocation(int l) {location=l;}
   void setLogicGateAnchorsUseBoundingBox(bool e) {logicGateAnchorsUseBoundingBox=e;}
@@ -451,6 +461,7 @@ public:
   void setLogicGateIECSymbolColor(const QColor & c) {logicGateIECSymbolColor=c;}
   void setLogicGateInputSep(double s) {logicGateInputSep=s;}
   void setLogicGateInvertedRadius(double r) {logicGateInvertedRadius=r;}
+  void setLoop();
   void setLowerLeftColor(const QColor & c) {lowerLeftColor=c;}
   void setLowerRightColor(const QColor & c) {lowerRightColor=c;}
   void setMagneticTapeTail(double p) {magneticTapeTail=p;}
@@ -475,6 +486,7 @@ public:
   void setMirror(bool m);
   void setMissing(bool e) {missing=e;}
   void setMousePoint(const QPointF & p) {mousePoint = p;}
+  void setMoveTo();
   void setNamePrefix(const QString & n) {namePrefix=n;}
   void setNameSuffix(const QString & n) {nameSuffix=n;}
   void setNAndGateIECSymbol(const QString & t) {nandGateIECSymbol=t;}
@@ -485,10 +497,16 @@ public:
   void setOnNode(bool e) {onNode=e;}
   void setOpacity(double v);
   void setOrGateIECSymbol(const QString & t) {orGateIECSymbol=t;}
+  void setOut(double d) {toOut = d;}
+  void setOutControl(const QPointF & p) {outControl=p;isOutControlSet=true;}
   void setOuterColor(const QColor & c) {outerColor=c;}
   void setOuterXSep(double s) {outerXSep=s;}
   void setOuterYSep(double s) {outerYSep=s;}
+  void setOutLooseness(double d) {outLooseness=d;}
+  void setOutMax(double d) {outMax=d;}
+  void setOutMin(double d) {outMin=d;}
   void setParentAnchor(int a) {parentAnchor=a;isParentAnchorSet=true;}
+  void setParentNode(XWTikzShape * n) {parentNode=n;}
   void setPathFading(int f) {pathFading = f;}
   void setPattern(bool e) {isPatternSet=e;}
   void setPatternColor(const QColor & c);
@@ -521,6 +539,7 @@ public:
   void setRectangleSplitPartFill(const QList<QColor> & l);
   void setRectangleSplitParts(int p) {rectangleSplitParts=p;}
   void setRectangleSplitUseCustomFill(bool e) {rectangleSplitUseCustomFill=e;}
+  void setRelative(bool e) {relative=e;}
   void setReversePath(bool e) {reversePath=e;}
   void setRightColor(const QColor & c) {rightColor=c;}
   void setRoundedCorners(double v) {roundedCorners=v;}
@@ -599,8 +618,7 @@ public:
   void shift(double dx,double dy);
   void shiftOnly();
   void slant(double sx,double sy);
-  void spyAt(XWTikzCoord * p);
-  void spyOn(XWTikzCoord * p);
+  void switchColor(const QColor & fromc,const QColor & toc);
 
   QPointF tangent(const QPointF & nc, 
                   const QPointF & ne,
@@ -609,8 +627,7 @@ public:
   void toPath(XWTikzCoord * p = 0);
   
   void transformColumn();
-  
-  
+  void transformNode();  
   void transformRow(double h);
 
 private:
@@ -628,7 +645,6 @@ private:
                    double sa,double sb);
   void arcTo(double la,double lb, double xr,double yr); 
 
-  void    circuitHandleSymbol();
   void    computeAngle();
   void    computeDirection();
   void    computeShortening(XWTikzArrow * a);
@@ -677,10 +693,14 @@ private:
   void   decorateTransformLine(const QPointF & c,double decorateangle,double decoratedistance);
   void   doNodes();
 
+  void   edgeFromParentAcceptingByArrow();
+  void   edgeFromParentCircleConnectionBarSwitch();
+  void   edgeFromParentDefault();
   void   edgeFromParentForkDown();
   void   edgeFromParentForkLeft();
   void   edgeFromParentForkRight();
   void   edgeFromParentForkUp();
+  void   edgeFromParentInitialByArrow();
 
   bool hitTestLine(const QPointF & p1, const QPointF & p2);
   bool hitTestLines();
@@ -741,9 +761,9 @@ private:
   void timerHVLine();
   void timerLine();
   void timerVHLine();
-  void toPathAcceptingByArrow();
+  void toPathCurveTo();
   void toPathDefault();
-  void toPathInitialByArrow();
+  void toPathMoveTo();
   void transformArrow(const QPointF & p1,const QPointF & p2);
   void transformArrowBend();
   void transformArrowCurved(XWTikzArrow * a,
@@ -759,7 +779,6 @@ private:
   void transformCurveAtTime(double t,const QPointF & startpoint,const QPointF & c1, 
                       const QPointF & c2,const QPointF & endpoint);
   void transformLineAtTime(double t, const QPointF & p1,const QPointF & p2);
-  void transformNode();
   void transformTriangle(double xa,double ya,
                          double xb,double yb,
                          double x,double y);
@@ -896,7 +915,6 @@ private:
   int  childAnchor;
   bool isParentAnchorSet;
   int  parentAnchor;
-  bool edgeFromParent;
   int  currentChild;
   int  childrenNumber;
   bool isTransformChildSet;
@@ -1042,6 +1060,7 @@ private:
   double siblingAngle;
 
   int mindmap;
+  QColor fromColor,toColor;
 
   int spyUsing;
   bool onNode;
@@ -1051,6 +1070,13 @@ private:
   int    initialAnchor, acceptingAnchor;
 
   double shadowScale,shadowXShift,shadowYShift;
+
+  double toIn, toOut, inLooseness, outLooseness;
+  double inMin, inMax, outMin, outMax;
+  double toBend;
+  bool   relative;
+  QPointF inControl, outControl;
+  bool    isInControlSet,isOutControlSet;
 
   double curveXA, curveYA;
   double curveXB, curveYB;
@@ -1073,8 +1099,8 @@ private:
   void (XWTikzState::*before_code)();
   void (XWTikzState::*after_code)();
   void (XWTikzState::*to_path)();
+  void (XWTikzState::*edge_from_parent)();
   void (XWTikzState::*nolinear_map)(double & x, double & y);
-  void (XWTikzState::*after_node)();
 
   int    samples;
   double domainStart;
@@ -1100,10 +1126,14 @@ private:
   QPointF decorateInputSegmentFirst,decorateInputSegmentLast;
   QPointF decoratedPathFirst,decoratedPathLast;
 
-  QPointF toStart, toTarget;
+  QPointF anotherPoint;
+  XWTikzCoord * toStart;
+  XWTikzCoord * toTarget;
 
   XWTeXBox *   myBox;
   XWTikzShape* myNode;
+  XWTikzShape* parentNode;
+  bool edgeFromParentFinished;
 
   XWTikzExpress  * position;
   XWTikzExpress  * startPosition;

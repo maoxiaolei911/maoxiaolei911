@@ -81,6 +81,7 @@ public:
   void addStateAction(QMenu & menu);
   void addStepAction(QMenu & menu);
   void addTextColorAction(QMenu & menu);
+  void addToPathAction(QMenu & menu);
   void addTransformShapeAction(QMenu & menu);
   void addXRadiusAction(QMenu & menu);
   void addXYZAction(QMenu & menu);
@@ -93,7 +94,6 @@ public:
   virtual bool back(XWTikzState * state);
 
   virtual bool del(XWTikzState * state);
-  virtual void doChildAnchor(XWTikzState * state);
   virtual void doCompute(XWTikzState * state);
   virtual void doDecoration(XWTikzState * state);
   virtual void doEdgeFromParent(XWTikzState * state);
@@ -105,11 +105,13 @@ public:
   virtual void doEveryCircuitAnnotation(XWTikzState * state);
   virtual void doEveryCircuitSymbol(XWTikzState * state);
   virtual void doEveryConcept(XWTikzState * state);
+  virtual void doEveryCurveTo(XWTikzState * state);
   virtual void doEveryEdge(XWTikzState * state);
   virtual void doEveryEntity(XWTikzState * state);
   virtual void doEveryInfo(XWTikzState * state);
   virtual void doEveryInitialByArrow(XWTikzState * state);
   virtual void doEveryLabel(XWTikzState * state);
+  virtual void doEveryLoop(XWTikzState * state);
   virtual void doEveryMark(XWTikzState * state);
   virtual void doEveryMatrix(XWTikzState * state);
   virtual void doEveryMindmap(XWTikzState * state);
@@ -123,7 +125,6 @@ public:
   virtual void doLevel(XWTikzState * state);
   virtual void doLevelConcept(XWTikzState * state);
   virtual void doLevelNumber(XWTikzState * state);
-  virtual void doParentAnchor(XWTikzState * state);
   virtual void doPath(XWTikzState * state, bool showpoint = false);
   virtual void doPre(XWTikzState * state);
   virtual void doPost(XWTikzState * state);
@@ -148,7 +149,6 @@ public:
 
   virtual bool hasPost();
   virtual bool hasPre();
-  virtual bool hitTest(XWTikzState * state);
 
   virtual void insert(int i, XWTikzOperation * opA);
           bool isMatrix();
@@ -193,6 +193,11 @@ public slots:
   void addInputNormal();
   void addLargeCircuitSymbols();
   void addLargeMindmap();
+  void addLoop();
+  void addLoopAbove();
+  void addLoopBelow();
+  void addLoopLeft();
+  void addLoopRight();
   void addMediumCircuitSymbols();
   void addMindmap();
   void addPointDown();
@@ -230,6 +235,8 @@ public slots:
   void setArrows();
   void setAt();
   void setBallColor();
+  void setBendLeft();
+  void setBendRight();
   void setBottomColor();
   void setCalloutAbsolutePointer();
   void setCalloutRelativePointer();
@@ -239,6 +246,8 @@ public slots:
   void setCalloutPointerWidth();
   void setChamferedRectangleAngle();
   void setChamferedRectangleSep();  
+  void setCircleConnectionBarSwitchColorFrom();
+  void setCircleConnectionBarSwitchColorTo();
   void setCircuiteeSymbol();
   void setCircuitLogicSymbol();
   void setCircuitSymbolSize();
@@ -285,10 +294,14 @@ public slots:
   void setHertzOppsite();
   void setHertzSloped();
   void setHertzSlopedOppsite();
+  void setIn();
   void setInfo();
   void setInfoMissingAngle();
   void setInfoSloped();
   void setInfoSlopedMissingAngle();
+  void setInLooseness();
+  void setInMaxDistance();
+  void setInMinDistance();
   void setInnerColor();
   void setInnerSep();
   void setIsoscelesTriangleApexAngle();
@@ -316,8 +329,12 @@ public slots:
   void setohmOppsite();
   void setohmSloped();
   void setohmSlopedOppsite();
+  void setOut();
   void setOuterColor();
   void setOuterSep();
+  void setOutLooseness();
+  void setOutMaxDistance();
+  void setOutMinDistance();
   void setPathFading();
   void setPattern();
   void setPatternColor();
@@ -446,6 +463,7 @@ protected:
   XWTikzLabel * findLabel();
   XWTikzKey * findLineWidth();
   XWTikzKey * findMindmap();
+  XWTikzKey * findLoop();
   XWTikzKey * findPictureType();
   XWTikzKey * findPlotHandler();
   XWTikzKey * findPoint();
@@ -825,6 +843,18 @@ class XWTikzEveryTo : public XWTIKZOptions
 
 public:
   XWTikzEveryTo(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzEveryCurveTo : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzEveryCurveTo(XWTikzGraphic * graphicA, QObject * parent = 0);
 
   void doPath(XWTikzState * state, bool showpoint = false);
 
@@ -1236,6 +1266,18 @@ class XWTikzDoubleCopyShadow : public XWTIKZOptions
 
 public:
   XWTikzDoubleCopyShadow(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzEveryLoop : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzEveryLoop(XWTikzGraphic * graphicA, QObject * parent = 0);
 
   void doPath(XWTikzState * state, bool showpoint = false);
 

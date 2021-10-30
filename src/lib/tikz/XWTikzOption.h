@@ -132,6 +132,26 @@ private:
   int C2;
 };
 
+class XWTikzSwitchColor : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzSwitchColor(XWTikzGraphic * graphicA, int idA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  XWTikzColor * getFrom() {return from;}
+  XWTikzColor * getTo() {return to;}
+  QString getText();
+
+  void scan(const QString & str, int & len, int & pos);
+
+private:
+  XWTikzColor * from;
+  XWTikzColor * to;
+};
+
 class XWTikzDashPattern : public XWTikzOperation
 {
   Q_OBJECT
@@ -611,6 +631,24 @@ public:
 
 private:
   QList<QChar> inputs;
+};
+
+class XWTikzControls : public XWTikzOperation
+{
+   Q_OBJECT
+
+public:
+  XWTikzControls(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+
+  void scan(const QString & str, int & len, int & pos);
+
+private:
+  XWTikzCoord * in;
+  XWTikzCoord * out;
 };
 
 #endif //XWTIKZOPTION_H

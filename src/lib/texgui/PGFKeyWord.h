@@ -747,6 +747,7 @@ enum PGFKeyWord
 	PGFeveryspyonnode,
 
 	PGFeveryloop,
+	PGFeverycurveto,
 
 	PGFeverydecoration,
 

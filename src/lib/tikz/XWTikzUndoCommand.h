@@ -366,7 +366,7 @@ class XWTikzAddchild : public QUndoCommand
 public:
   XWTikzAddchild(XWTikzCoordinate * pnodeA, 
                   int indexA,
-                  XWTikzCoordinate * childA,
+                  XWTikzOperation * childA,
                    QUndoCommand * parent=0);
 
   virtual void redo();
@@ -375,7 +375,7 @@ public:
 private:
    XWTikzCoordinate * pnode;
    int index;
-   XWTikzCoordinate * child;
+   XWTikzOperation * child;
 };
 
 class XWTikzRemovechild : public QUndoCommand
@@ -391,7 +391,7 @@ public:
 private:
    XWTikzCoordinate * pnode;
    int index;
-   XWTikzCoordinate * child;
+   XWTikzOperation * child;
 };
 
 class XWTikzRenameOperation : public QUndoCommand

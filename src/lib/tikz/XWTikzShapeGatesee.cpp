@@ -51,9 +51,8 @@ void XWTikzShape::circleeeShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xa = cos(delta);
-        double ya = sin(delta);
+        double xa = state->anotherPoint.x();
+        double ya = state->anotherPoint.x();
         QPointF pd(xa,ya);
         QPointF ur(radius,radius);
 
@@ -198,9 +197,8 @@ void XWTikzShape::directioneeShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xb = cos(delta);
-        double yb = sin(delta);
+        double xb = state->anotherPoint.x();
+        double yb = state->anotherPoint.y();
         double xa = southWest.x();
         double ya = southWest.y();
         double xc = 0.5 * (northEast.x() - xa);
@@ -384,9 +382,8 @@ void XWTikzShape::rectangleeeShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xb = cos(delta);
-        double yb = sin(delta);
+        double xb = state->anotherPoint.x();
+        double yb = state->anotherPoint.y();
         double xa = southWest.x();
         double ya = southWest.y();
         double xc = 0.5 * (northEast.x() - xa);

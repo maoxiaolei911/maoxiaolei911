@@ -114,9 +114,8 @@ void XWTikzShape::ellipseCalloutShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xa = cos(delta);
-        double ya = sin(delta);
+        double xa = state->anotherPoint.x();
+        double ya = state->anotherPoint.y();
         QPointF pd(xa,ya);
         QPointF ur(xradius,yradius);
 
@@ -372,9 +371,8 @@ void XWTikzShape::rectangleCalloutShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        xa = cos(delta) + centerPoint.x();
-        ya = sin(delta) + centerPoint.y();
+        xa = state->anotherPoint.x() + centerPoint.x();
+        ya = state->anotherPoint.y() + centerPoint.y();
         QPointF pd(xa,ya);
         QPointF ur(xlength,ylength);
 

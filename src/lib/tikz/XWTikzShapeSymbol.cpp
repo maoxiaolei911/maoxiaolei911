@@ -75,9 +75,8 @@ void XWTikzShape::cloudShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta) + centerPoint.x();
-        double externaly = sin(delta) + centerPoint.y();
+        double externalx = state->anotherPoint.x() + centerPoint.x();
+        double externaly = state->anotherPoint.y() + centerPoint.y();
         if (state->cloudAnchorsUseEllipse)
         {
           QPointF s(externalx,externaly),e(xouterradius,youterradius);
@@ -565,9 +564,8 @@ void XWTikzShape::magneticTapeShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xb = cos(delta);
-        double yb = sin(delta);
+        double xb = state->anotherPoint.x();
+        double yb = state->anotherPoint.y();
         QPointF o(0,0), externalpoint(xb + centerPoint.x(),yb + centerPoint.y());
         double mathresult = state->angleBetweenPoints(o,externalpoint);
         if (mathresult < 270)
@@ -1119,9 +1117,8 @@ void XWTikzShape::signalShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta) + centerPoint.x();
-        double externaly = sin(delta) + centerPoint.y();
+        double externalx = state->anotherPoint.x() + centerPoint.x();
+        double externaly = state->anotherPoint.y() + centerPoint.y();
         QPointF e(externalx,externaly);
         double externalangle = state->angleBetweenPoints(centerPoint,e);
         double mathresult = state->angleBetweenPoints(centerPoint,anchorwest);
@@ -1486,9 +1483,8 @@ void XWTikzShape::starburstShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta) + centerPoint.x();
-        double externaly = sin(delta) + centerPoint.y();
+        double externalx = state->anotherPoint.x() + centerPoint.x();
+        double externaly = state->anotherPoint.y() + centerPoint.y();
         QPointF e(externalx,externaly);
         double externalangle = state->angleBetweenPoints(centerPoint,e) - rotate;
         if (externalangle < 0)
@@ -1756,9 +1752,8 @@ void XWTikzShape::tapeShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta) + centerPoint.x();
-        double externaly = sin(delta) + centerPoint.y();
+        double externalx = state->anotherPoint.x() + centerPoint.x();
+        double externaly = state->anotherPoint.y() + centerPoint.y();
         QPointF e(externalx,externaly);
         double externalangle = state->angleBetweenPoints(centerPoint,e);
         double mathresult = state->angleBetweenPoints(centerPoint,northwest);

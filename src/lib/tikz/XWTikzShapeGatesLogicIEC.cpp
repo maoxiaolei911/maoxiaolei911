@@ -64,9 +64,8 @@ void XWTikzShape::andGateIECShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        x = cos(delta);
-        y = sin(delta);
+        x = state->anotherPoint.x();
+        y = state->anotherPoint.y();
         QPointF pd(x,y);
         QPointF ur(halfwidth,halfheight);
         QPointF p = pointBorderRectangle(pd,ur);
@@ -205,9 +204,8 @@ void XWTikzShape::nandGateIECShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        x = cos(delta);
-        y = sin(delta);
+        x = state->anotherPoint.x();
+        y = state->anotherPoint.y();
         QPointF pd(x,y);
         QPointF ur(halfwidth,halfheight);
         QPointF p = pointBorderRectangle(pd,ur);
@@ -350,9 +348,8 @@ void XWTikzShape::norGateIECShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        x = cos(delta);
-        y = sin(delta);
+        x = state->anotherPoint.x();
+        y = state->anotherPoint.y();
         QPointF pd(x,y);
         QPointF ur(halfwidth,halfheight);
         QPointF p = pointBorderRectangle(pd,ur);

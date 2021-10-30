@@ -102,6 +102,11 @@ QPointF XWTikzOperation::getAngle(double , XWTikzState * )
   return QPointF();
 }
 
+QPointF XWTikzOperation::getBorder(const QPointF & ,XWTikzState * )
+{
+  return QPointF();
+}
+
 XWTikzCoord * XWTikzOperation::getCurrentPoint()
 {
   return curPoint;
@@ -125,6 +130,11 @@ QPointF XWTikzOperation::getPoint(XWTikzState * )
 QVector3D XWTikzOperation::getPoint3D(XWTikzState * )
 {
   return QVector3D();
+}
+
+double XWTikzOperation::getRadius(XWTikzState * )
+{
+  return 0.0;
 }
 
 QString XWTikzOperation::getSelectedText()
@@ -2304,6 +2314,13 @@ XWTikzTo::XWTikzTo(XWTikzGraphic * graphicA, QObject * parent)
   options = new XWTIKZOptions(graphicA, this);
 }
 
+bool XWTikzTo::addAction(QMenu & menu, XWTikzState * state)
+{
+  options->doCompute(state);
+  options->addToPathAction(menu);
+  return true;
+}
+
 bool XWTikzTo::back(XWTikzState * state)
 {
   if (cur < 0 || cur >= nodes.size())
@@ -2339,6 +2356,7 @@ void XWTikzTo::doCompute(XWTikzState * state)
 
 void XWTikzTo::doPath(XWTikzState * state, bool showpoint)
 {
+  state = state->save(true);
   options->doPath(state,showpoint);
   for (int i = 0; i < nodes.size(); i++)
     nodes[i]->doPath(state,showpoint);
@@ -2349,6 +2367,8 @@ void XWTikzTo::doPath(XWTikzState * state, bool showpoint)
     if (showpoint)
       coord->draw(state);
   }
+
+  state = state->restore();
 }
 
 void XWTikzTo::dragTo(XWTikzState * state)
@@ -2936,16 +2956,7 @@ void XWTikzDecorate::scan(const QString & str, int & len, int & pos)
             pos += 3;
             while (str[pos].isSpace())
               pos++;
-            if (str[pos] == 'f')
-            {
-              pos += 4;
-              while (str[pos].isSpace())
-                pos++;
-              pos += 6;
-              obj = new XWTikzEdgeFromParent(graphic,this);
-            }
-            else
-              obj = new XWTikzEdge(graphic,this);
+            obj = new XWTikzEdge(graphic,this);
           }
           else
           {

@@ -64,7 +64,6 @@ public:
   virtual bool cut(XWTikzState * state);
 
   virtual bool del(XWTikzState * state);
-  virtual void doChildAnchor(XWTikzState * state);
   virtual void doCopy(XWTikzState * state);
   virtual void doDecoration(XWTikzState * state);
   virtual void doEdgeFromParent(XWTikzState * state);
@@ -76,11 +75,13 @@ public:
   virtual void doEveryCircuitAnnotation(XWTikzState * state);
   virtual void doEveryCircuitSymbol(XWTikzState * state);
   virtual void doEveryConcept(XWTikzState * state);
+  virtual void doEveryCurveTo(XWTikzState * state);
   virtual void doEveryEdge(XWTikzState * state);
   virtual void doEveryEntity(XWTikzState * state);
   virtual void doEveryInfo(XWTikzState * state);
   virtual void doEveryInitialByArrow(XWTikzState * state);
   virtual void doEveryLabel(XWTikzState * state);
+  virtual void doEveryLoop(XWTikzState * state);
   virtual void doEveryMark(XWTikzState * state);
   virtual void doEveryMatrix(XWTikzState * state);
   virtual void doEveryMindmap(XWTikzState * state);
@@ -95,7 +96,6 @@ public:
   virtual void doLevelConcept(XWTikzState * state);
   virtual void doLevelNumber(XWTikzState * state);
   virtual void doOperation(XWTikzState * state, bool showpoint = false);
-  virtual void doParentAnchor(XWTikzState * state);
   virtual void doPath(XWTikzState * state, bool showpoint = false);
   virtual void doPathNoOptions(XWTikzState * state);
   virtual void doRootConcept(XWTikzState * state);
@@ -109,6 +109,7 @@ public:
   virtual QPointF getAnchor(const QString & nameA,int a,XWTikzState * state);
   virtual int getAnchorPosition();
   virtual QPointF getAngle(const QString & nameA,double a,XWTikzState * state);
+  virtual QPointF getBorder(const QString & nameA,const QPointF & p,XWTikzState * state);
   virtual QPointF getCenter(XWTikzState * state);
   virtual XWTikzOperation * getCurrentOperation();
   virtual XWTikzCoord * getCurrentPoint();
@@ -124,6 +125,7 @@ public:
   virtual QPointF getPoint(const QString & nameA,XWTikzState * state);
   virtual QPointF getPoint(XWTikzState * stateA);
   virtual QVector3D getPoint3D(const QString & nameA,XWTikzState * state);
+  virtual double  getRadius(const QString & nameA,XWTikzState * state);
   virtual QString getSelectedText();
   virtual QString getText();
   virtual QString getTips(XWTikzState * state);
@@ -206,6 +208,7 @@ public:
   QPointF getAnchor(const QString & nameA,int a,XWTikzState * state);
   int getAnchorPosition();
   QPointF getAngle(const QString & nameA,double a,XWTikzState * state);
+  QPointF getBorder(const QString & nameA,const QPointF & p,XWTikzState * state);
   QPointF getCenter(XWTikzState * state);
   XWTikzOperation * getCurrentOperation();
   XWTikzCoord * getCurrentPoint();
@@ -219,6 +222,7 @@ public:
                   XWTikzState * state);
   QPointF getPoint(const QString & nameA,XWTikzState * state);
   QVector3D getPoint3D(const QString & nameA,XWTikzState * state);
+  double  getRadius(const QString & nameA,XWTikzState * state);
   QString getSelectedText();
   QString getText();
   QString getTips(XWTikzState * state);
@@ -295,7 +299,6 @@ public:
   bool cut(XWTikzState * state);
 
   bool del(XWTikzState * state);
-  void doChildAnchor(XWTikzState * state);
   void doCopy(XWTikzState * state);
   void doDecoration(XWTikzState * state);
   void doEdgeFromParent(XWTikzState * state);
@@ -307,11 +310,13 @@ public:
   void doEveryCircuitAnnotation(XWTikzState * state);
   void doEveryCircuitSymbol(XWTikzState * state);
   void doEveryConcept(XWTikzState * state);
+  void doEveryCurveTo(XWTikzState * state);
   void doEveryEdge(XWTikzState * state);
   void doEveryEntity(XWTikzState * state);
   void doEveryInfo(XWTikzState * state);
   void doEveryInitialByArrow(XWTikzState * state);
   void doEveryLabel(XWTikzState * state);
+  void doEveryLoop(XWTikzState * state);
   void doEveryMark(XWTikzState * state);
   void doEveryMatrix(XWTikzState * state);
   void doEveryMindmap(XWTikzState * state);
@@ -326,7 +331,6 @@ public:
   void doLevelConcept(XWTikzState * state);
   void doLevelNumber(XWTikzState * state);
   void doOperation(XWTikzState * state, bool showpoint = false);
-  void doParentAnchor(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
   void doPathNoOptions(XWTikzState * state);
   void doRootConcept(XWTikzState * state);
@@ -341,6 +345,7 @@ public:
   QPointF getAnchor(const QString & nameA,int a, XWTikzState * state);
   int getAnchorPosition();
   QPointF getAngle(const QString & nameA,double a, XWTikzState * state);
+  QPointF getBorder(const QString & nameA,const QPointF & p,XWTikzState * state);
   QPointF getCenter(XWTikzState * state);
   XWTikzOperation * getCurrentOperation();
   XWTikzCoord * getCurrentPoint();
@@ -355,6 +360,7 @@ public:
                   XWTikzState * state);
   QPointF getPoint(const QString & nameA,XWTikzState * state);
   QVector3D getPoint3D(const QString & nameA,XWTikzState * state);
+  double  getRadius(const QString & nameA,XWTikzState * state);
   QString getSelectedText();
   QString getText();
   QString getTips(XWTikzState * state);
@@ -481,6 +487,7 @@ public:
   virtual QPointF getAnchor(const QString & nameA,int a, XWTikzState * state);
   virtual int getAnchorPosition();
   virtual QPointF getAngle(const QString & nameA,double a, XWTikzState * state);
+  virtual QPointF getBorder(const QString & nameA,const QPointF & p,XWTikzState * state);
   QPointF getCenter(XWTikzState * state);
   XWTikzOperation * getCurrentOperation();
   XWTikzCoord * getCurrentPoint();
@@ -489,6 +496,7 @@ public:
   virtual QPointF getPoint(XWTikzState * stateA);
   virtual QPointF getPoint(const QString & nameA,XWTikzState * state);
   virtual QVector3D getPoint3D(const QString & nameA,XWTikzState * state);
+  virtual double  getRadius(const QString & nameA,XWTikzState * state);
   virtual QString getSelectedText();
   virtual QString getText();
   virtual QString getTips(XWTikzState * state);

@@ -190,6 +190,90 @@ bool XWTikzCoord::dropTo(XWTikzState * state)
   return ret;
 }
 
+QPointF XWTikzCoord::getAnchor(int a, XWTikzState * state)
+{
+  QPointF ret;
+  switch (cs)
+  {
+    default:
+      ret = getPoint(state);
+      break;
+
+    case XW_TIKZ_CS_NODE_ANCHOR:
+    case XW_TIKZ_CS_NODE_ANGLE:
+      {
+        QString n = csc.nodeEx.node->getText();
+        ret = graphic->getNodeAnchor(n,a);
+      }      
+      break;
+
+    case XW_TIKZ_CS_NAME:
+      {
+        QString n = csc.coordEx.coord->getText();
+        ret = graphic->getNodeAnchor(n,a);
+      }
+      break;
+  }
+  
+  return ret;
+}
+
+QPointF XWTikzCoord::getAngle(double a, XWTikzState * state)
+{
+  QPointF ret;
+  switch (cs)
+  {
+    default:
+      ret = getPoint(state);
+      break;
+
+    case XW_TIKZ_CS_NODE_ANCHOR:
+    case XW_TIKZ_CS_NODE_ANGLE:
+      {
+        QString n = csc.nodeEx.node->getText();
+        ret = graphic->getNodeAngle(n,a);
+      }      
+      break;
+
+    case XW_TIKZ_CS_NAME:
+      {
+        QString n = csc.coordEx.coord->getText();
+        ret = graphic->getNodeAngle(n,a);
+      }
+      break;
+  }
+  
+  return ret;
+}
+
+QPointF XWTikzCoord::getBorder(const QPointF & p,XWTikzState * state)
+{
+  QPointF ret;
+  switch (cs)
+  {
+    default:
+      ret = getPoint(state);
+      break;
+
+    case XW_TIKZ_CS_NODE_ANCHOR:
+    case XW_TIKZ_CS_NODE_ANGLE:
+      {
+        QString n = csc.nodeEx.node->getText();
+        ret = graphic->getNodeBorder(n,p);
+      }      
+      break;
+
+    case XW_TIKZ_CS_NAME:
+      {
+        QString n = csc.coordEx.coord->getText();
+        ret = graphic->getNodeBorder(n,p);
+      }
+      break;
+  }
+  
+  return ret;
+}
+
 QPointF XWTikzCoord::getPoint(XWTikzState * state)
 {
   state->saveTransform();
@@ -245,6 +329,33 @@ QVector3D XWTikzCoord::getPoint3D(XWTikzState * state)
   }
 
   return p;
+}
+
+double XWTikzCoord::getRadius(XWTikzState * )
+{
+  double ret = 0.0;
+  switch (cs)
+  {
+    default:
+      break;
+
+    case XW_TIKZ_CS_NODE_ANCHOR:
+    case XW_TIKZ_CS_NODE_ANGLE:
+      {
+        QString n = csc.nodeEx.node->getText();
+        ret = graphic->getNodeRadius(n);
+      }      
+      break;
+
+    case XW_TIKZ_CS_NAME:
+      {
+        QString n = csc.coordEx.coord->getText();
+        ret = graphic->getNodeRadius(n);
+      }
+      break;
+  }
+  
+  return ret;
 }
 
 QVector3D XWTikzCoord::getRelPoint3D(XWTikzState * state)
@@ -791,6 +902,36 @@ bool XWTikzCoord::hitTest(XWTikzState * state)
 
   state->restoreTransform();
 
+  return ret;
+}
+
+bool XWTikzCoord::isAtShapeBorder(XWTikzState * state)
+{
+  if (cs != XW_TIKZ_CS_NAME && 
+      cs != XW_TIKZ_CS_NODE_ANCHOR &&
+      cs != XW_TIKZ_CS_NODE_ANGLE)
+    return false;
+
+  bool ret = false;
+  switch (cs)
+  {
+    default:
+      {
+        int a = (int)(csc.nodeEx.a->getResult(state));
+        if (a == PGFnone)
+          ret = true;
+      }
+      break;
+
+    case XW_TIKZ_CS_NAME:
+      {
+        QString n = csc.coordEx.coord->getText();
+        if (!n.contains(".") || n.contains(".none"))
+          ret = true;
+      }
+      break;
+  }
+  
   return ret;
 }
 

@@ -19,12 +19,13 @@ public:
 private:
   void doAxis(XWTikzState * state);
   void doBall(XWTikzState * state);
-  void doBilinearInterpolation(XWTikzState * state);
+  void doBilinearInterpolation(XWTikzState * state);  
   void doColorWheel(XWTikzState * state);
   void doColorWheelBlackCenter(XWTikzState * state);
   void doColorWheelWhiteCenter(XWTikzState * state);
   void doMandelbrotSet(XWTikzState * state);
   void doRadial(XWTikzState * state);
+  void doSwitchColor(XWTikzState * state);
   
   void shadePath(const QString & shadingname, XWTikzState * state);
 private:

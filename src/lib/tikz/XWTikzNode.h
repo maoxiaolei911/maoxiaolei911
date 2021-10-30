@@ -42,11 +42,13 @@ public:
   virtual QPointF getAnchor(XWTikzState * state);
   virtual int     getAnchorPosition();
   virtual QPointF getAngle(double a, XWTikzState * state);
+  virtual QPointF getBorder(const QPointF & p,XWTikzState * state);
   XWTeXBox * getBox() {return box;}
   virtual int     getCursorPosition();
   virtual QString getCurrentText();
   virtual QPointF getPoint(XWTikzState * state);
   virtual QVector3D getPoint3D(XWTikzState * state);
+  virtual double getRadius(XWTikzState * state);
   virtual QString getSelectedText();
   virtual QString getText();
   virtual QString getTextForPath();
@@ -61,7 +63,7 @@ public:
 
   virtual bool hitTest(XWTikzState * state);
 
-          void insert(int i, XWTikzCoordinate * opA);
+          void insert(int i, XWTikzOperation * opA);
   virtual bool insertText(XWTikzState * state);
   virtual bool isMe(const QString & nameA,XWTikzState * state);
   
@@ -78,7 +80,7 @@ public:
   virtual void setText(const QString & str);
   virtual void setName(const QString & str);
 
-  XWTikzCoordinate * takeAt(int i);
+  XWTikzOperation * takeAt(int i);
 
 public slots:
   void addChild();
@@ -92,7 +94,7 @@ protected:
   XWTeXBox * box;
   int cur;
   QString name;
-  QList<XWTikzCoordinate*> children;
+  QList<XWTikzOperation*> children;
 };
 
 class XWTikzNode : public XWTikzCoordinate
@@ -252,7 +254,7 @@ private:
   QStringList list;
 };
 
-class XWTikzEdgeFromParent : public XWTikzCoordinate
+class XWTikzEdgeFromParent : public XWTikzOperation
 {
   Q_OBJECT
 
@@ -264,6 +266,9 @@ public:
   QString getText();
 
   void scan(const QString & str, int & len, int & pos);
+
+private:
+  XWTIKZOptions * options;
 };
 
 class XWTikzOperationText : public XWTikzOperation
@@ -273,8 +278,6 @@ class XWTikzOperationText : public XWTikzOperation
 public:
   XWTikzOperationText(XWTikzGraphic * graphicA, int id, QObject * parent = 0);
 
-  void doChildAnchor(XWTikzState * state);
-  void doParentAnchor(XWTikzState * state);
   void doPath(XWTikzState * state, bool showpoint = false);
 
   QString getText();

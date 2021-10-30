@@ -37,7 +37,7 @@ cur(-1)
 
 bool XWTikzCoordinate::back(XWTikzState * state)
 {
-  bool ret = options->back(state);
+  bool ret = false;
   switch (graphic->getCurrentScope())
   {
     default:
@@ -65,8 +65,8 @@ bool XWTikzCoordinate::back(XWTikzState * state)
 
 bool XWTikzCoordinate::cut(XWTikzState * state)
 {
-  bool ret = options->cut(state);
-  if (!ret && box)
+  bool ret = false;
+  if (box)
     ret = box->cut();
   if (!ret)
   {
@@ -79,7 +79,7 @@ bool XWTikzCoordinate::cut(XWTikzState * state)
 
 bool XWTikzCoordinate::del(XWTikzState * state)
 {
-  bool ret = options->del(state);
+  bool ret = false;
   switch (graphic->getCurrentScope())
   {
     default:
@@ -143,9 +143,7 @@ bool XWTikzCoordinate::dropTo(XWTikzState * state)
 {
   XWTikzState mystate;
   state->copy(&mystate);
-  bool ret = options->dropTo(&mystate);
-  if (!ret)
-    ret = mystate.moveTest(box);
+  bool ret = mystate.moveTest(box);
   if (!ret)
   {
     mystate.setChildrenNumber(children.size());
@@ -191,6 +189,11 @@ QPointF XWTikzCoordinate::getAngle(double a, XWTikzState * state)
   return state->doAnchor(box);
 }
 
+QPointF XWTikzCoordinate::getBorder(const QPointF & p,XWTikzState * state)
+{
+  return state->doBorder(box, p);
+}
+
 int XWTikzCoordinate::getCursorPosition()
 {
   if (cur < 0 || cur >= children.size())
@@ -216,6 +219,11 @@ QVector3D XWTikzCoordinate::getPoint3D(XWTikzState * state)
 {
   XWTikzCoord * c = state->getCurrentCoord();
   return c->getPoint3D(state);
+}
+
+double XWTikzCoordinate::getRadius(XWTikzState * state)
+{
+  return state->doRadius(box);
 }
 
 QString XWTikzCoordinate::getSelectedText()
@@ -339,9 +347,7 @@ bool XWTikzCoordinate::hitTest(XWTikzState * state)
   XWTikzState mystate;
   state->copy(&mystate);
   cur = -1;
-  bool ret = options->hitTest(&mystate);
-  if (!ret)
-    ret = mystate.hitTestCoordinate(box);
+  bool ret = mystate.hitTestCoordinate(box);
   if (!ret)
   {
     mystate.setChildrenNumber(children.size());
@@ -360,7 +366,7 @@ bool XWTikzCoordinate::hitTest(XWTikzState * state)
   return ret;
 }
 
-void XWTikzCoordinate::insert(int i, XWTikzCoordinate * opA)
+void XWTikzCoordinate::insert(int i, XWTikzOperation * opA)
 {
   cur = i;
   if (i >= children.size())
@@ -371,8 +377,8 @@ void XWTikzCoordinate::insert(int i, XWTikzCoordinate * opA)
 
 bool XWTikzCoordinate::insertText(XWTikzState * state)
 {
-  bool ret = options->insertText(state);
-  if (!ret && box)
+  bool ret = false;
+  if (box)
   {
     QString str = state->getText();
     ret = box->insertText(str);
@@ -441,8 +447,8 @@ bool XWTikzCoordinate::isMe(const QString & nameA,XWTikzState * state)
 
 bool XWTikzCoordinate::keyInput(XWTikzState * state)
 {
-  bool ret = options->keyInput(state);
-  if (!ret && box)
+  bool ret = false;
+  if (box)
   {
     QString str = state->getText();
     ret = box->keyInput(str);
@@ -459,8 +465,8 @@ bool XWTikzCoordinate::keyInput(XWTikzState * state)
 
 bool XWTikzCoordinate::newPar(XWTikzState * state)
 {
-  bool ret = options->newPar(state);
-  if (!ret && box)
+  bool ret = false;
+  if (box)
     ret = box->newPar();
   if (!ret)
   {
@@ -473,8 +479,8 @@ bool XWTikzCoordinate::newPar(XWTikzState * state)
 
 bool XWTikzCoordinate::paste(XWTikzState * state)
 {
-  bool ret = options->paste(state);
-  if (!ret && box)
+  bool ret = false;
+  if (box)
     ret = box->paste();
   if (!ret)
   {
@@ -529,7 +535,7 @@ void XWTikzCoordinate::setName(const QString & str)
   name = str;
 }
 
-XWTikzCoordinate * XWTikzCoordinate::takeAt(int i)
+XWTikzOperation * XWTikzCoordinate::takeAt(int i)
 {
   cur = i - 1;
   return children.takeAt(i);
@@ -579,7 +585,7 @@ void XWTikzCoordinate::scanChildren(const QString & str, int & len, int & pos)
       } 
       else
       {
-        XWTikzCoordinate * obj = 0;
+        XWTikzOperation * obj = 0;
         int c = str[pos].unicode();
         switch (c)
         {
@@ -621,8 +627,6 @@ void XWTikzCoordinate::scanChildren(const QString & str, int & len, int & pos)
         {
           children << obj;
           obj->scan(str,len,pos);
-          if (keyWord == PGFchild && c == 'n')
-            box = obj->box;
         }          
       }
     }
@@ -634,7 +638,7 @@ XWTikzNode::XWTikzNode(XWTikzGraphic * graphicA, QObject * parent)
 
 bool XWTikzNode::addAction(QMenu & menu, XWTikzState * state)
 {
-  options->doPath(state,false);
+  options->doCompute(state);
   QMenu * submenu;
   switch (state->getPictureType())
   {
@@ -768,10 +772,10 @@ bool XWTikzNode::dropTo(XWTikzState * state)
 
 int XWTikzNode::getAnchorPosition()
 {
-  int ret = options->getAnchorPosition();
-  if (ret <= 0 && box)
+  int ret = -1;
+  if (box)
     ret = box->getAnchorPosition();
-  if (!ret)
+  if (ret < 0)
     ret = XWTikzCoordinate::getAnchorPosition();
 
   return ret;
@@ -800,8 +804,8 @@ QString XWTikzNode::getContent()
 
 int XWTikzNode::getCursorPosition()
 {
-  int ret = options->getCursorPosition();
-  if (ret <= 0 && box)
+  int ret = -1;
+  if (box)
     ret = box->getCursorPosition();
   if (ret <= 0)
     ret = XWTikzCoordinate::getCursorPosition();
@@ -811,8 +815,8 @@ int XWTikzNode::getCursorPosition()
 
 QString XWTikzNode::getCurrentText()
 {
-  QString ret = options->getCurrentText();
-  if (ret.isEmpty() && box)
+  QString ret;
+  if (box)
     ret = box->getCurrentText();
   if (ret.isEmpty())
     ret = XWTikzCoordinate::getCurrentText();
@@ -822,8 +826,8 @@ QString XWTikzNode::getCurrentText()
 
 QString XWTikzNode::getSelectedText()
 {
-  QString ret = options->getSelectedText();
-  if (ret.isEmpty() && box)
+  QString ret;
+  if (box)
     ret = box->getSelectedText();
   if (ret.isEmpty())
     ret = XWTikzCoordinate::getSelectedText();
@@ -878,8 +882,8 @@ QString XWTikzNode::getTextForPath()
 
 bool XWTikzNode::goToNext()
 {
-  bool ret = options->goToNext();
-  if (!ret && box)
+  bool ret = false;
+  if (box)
     ret = box->goToNext();
   if (!ret)
     ret = XWTikzCoordinate::goToNext();
@@ -889,8 +893,8 @@ bool XWTikzNode::goToNext()
 
 bool XWTikzNode::goToPrevious()
 {
-  bool ret = options->goToPrevious();
-  if (!ret && box)
+  bool ret = false;
+  if (box)
     ret = box->goToPrevious();
   if (!ret)
     ret = XWTikzCoordinate::goToPrevious();
@@ -902,8 +906,8 @@ bool XWTikzNode::hitTest(XWTikzState * state)
 {
   XWTikzState mystate;
   state->copy(&mystate);
-  bool ret = options->hitTest(&mystate);
-  if (!ret && box)
+  bool ret = false;
+  if (box)
   {
     if (options->isMatrix())
       ret = mystate.hitTestMatrix((XWTikzMatrix*)box);
@@ -1014,7 +1018,7 @@ XWTikzEdge::XWTikzEdge(XWTikzGraphic * graphicA, QObject * parent)
 
 bool XWTikzEdge::addAction(QMenu & menu, XWTikzState * state)
 {
-  options->doPath(state,false);
+  options->doCompute(state);
   QAction * a = menu.addAction(tr("add node"));
   connect(a, SIGNAL(triggered()), this, SLOT(addNode()));
   if (cur >= 0)
@@ -1022,7 +1026,9 @@ bool XWTikzEdge::addAction(QMenu & menu, XWTikzState * state)
     a = menu.addAction(tr("remove node"));
     connect(a, SIGNAL(triggered()), this, SLOT(removeNode()));
   }
-  
+
+  menu.addSeparator();
+  options->addToPathAction(menu);
   return true;
 }
 
@@ -1052,12 +1058,15 @@ bool XWTikzEdge::del(XWTikzState * state)
 
 void XWTikzEdge::doPath(XWTikzState * state, bool showpoint)
 {
+  state = state->save(true);
+  graphic->doEveryEdge(state);
   options->doPath(state,showpoint);
+  for (int i = 0; i < nodes.size(); i++)
+    nodes[i]->doPath(state,false);
   state->addEdge(coord);
   if (showpoint)
     coord->draw(state);
-  for (int i = 0; i < nodes.size(); i++)
-    nodes[i]->doPath(state,false);
+  state = state->restore();
 }
 
 bool XWTikzEdge::dropTo(XWTikzState * state)
@@ -1171,9 +1180,7 @@ QString XWTikzEdge::getText()
 bool XWTikzEdge::hitTest(XWTikzState * state)
 {
   cur = -1;
-  bool ret = options->hitTest(state);
-  if (!ret)
-    ret = coord->hitTest(state);
+  bool ret = coord->hitTest(state);
   if (!ret)
   {
     for (int i = 0; i < nodes.size(); i++)
@@ -1617,19 +1624,8 @@ bool XWTikzChild::addAction(QMenu & menu, XWTikzState * state)
 
 void XWTikzChild::doPath(XWTikzState * state, bool showpoint)
 {
-  if (!box)
-  {
-    for (int i = 0; i < children.size(); i++)
-    {
-      if (children[i]->getKeyWord() == PGFnode)
-      {
-        XWTikzCoordinate * n = (XWTikzCoordinate*)(children[i]);
-        box = n->getBox();
-        break;
-      }
-    }
-  }
   state = state->saveNode(box,XW_TIKZ_CHILD);
+  state->setShape(PGFcoordinate);
   options->doPath(state,showpoint);
   for (int i = 0; i < list.size(); i++)
   {
@@ -1663,7 +1659,7 @@ bool XWTikzChild::dropTo(XWTikzState * state)
   state->copy(&mystate);
   bool ret = options->dropTo(&mystate);
   if (!ret)
-    ret = mystate.hitTestChild(box);
+    ret = mystate.hitTestChild();
   if (!ret)
   {
     mystate.setChildrenNumber(children.size());
@@ -1715,9 +1711,8 @@ bool XWTikzChild::hitTest(XWTikzState * state)
 {
   XWTikzState mystate;
   state->copy(&mystate);
-  bool ret = options->hitTest(&mystate);
-  if (!ret)
-    ret = mystate.hitTestChild(box);
+  options->doCompute(&mystate);
+  bool ret = mystate.hitTestChild();
   if (!ret)
   {
     cur = -1;
@@ -1812,14 +1807,19 @@ void XWTikzChild::scan(const QString & str, int & len, int & pos)
 }
 
 XWTikzEdgeFromParent::XWTikzEdgeFromParent(XWTikzGraphic * graphicA, QObject * parent)
-:XWTikzCoordinate(graphicA,PGFedgefromparent,parent)
+:XWTikzOperation(graphicA,PGFedgefromparent,parent)
 {
+  options = new XWTIKZOptions(graphicA, this);
 }
 
 void XWTikzEdgeFromParent::doPath(XWTikzState * state, bool showpoint)
 {
-  state = state->saveNode(box,XW_TIKZ_EDGE);
+  state = state->save();
+  graphic->doEdgeFromParent(state);
   options->doPath(state,showpoint);
+  graphic->doEdgeFromParentPath(state);
+  state = state->restore();
+  state->setEdgeFromParentFinished(true);
 }
 
 QString XWTikzEdgeFromParent::getText()
@@ -1846,101 +1846,92 @@ QString XWTikzOperationText::getText()
   return ret;
 }
 
-void XWTikzOperationText::doChildAnchor(XWTikzState * state)
-{
-  if (text.isEmpty())
-    return ;
-
-  int i = text.indexOf("\\\\tikzchildnode");
-  if (i < 0)
-    return ;
-
-  i += 14;
-  if (text[i] == QChar('.'))
-  {
-    i++;
-    int pos = i;
-    while (text[pos] != QChar(')'))
-      pos++;
-
-    QString str = text.mid(i,pos - i);
-    if (str[0].isDigit())
-    {
-      double a = str.toDouble();
-      state->setAngle(a);
-    }
-    else
-    {
-      int a = lookupPGFID(str);
-      state->setAnchor(a);
-    }
-  }
-}
-
-void XWTikzOperationText::doParentAnchor(XWTikzState * state)
-{
-  if (text.isEmpty())
-    return ;
-
-  int i = text.indexOf("\\\\tikzparentnode");
-  if (i < 0)
-    return ;
-
-  i += 15;
-  if (text[i] == QChar('.'))
-  {
-    i++;
-    int pos = i;
-    while (text[pos] != QChar(')'))
-      pos++;
-
-    QString str = text.mid(i,pos - i);
-    if (str[0].isDigit())
-    {
-      double a = str.toDouble();
-      state->setAngle(a);
-    }
-    else
-    {
-      int a = lookupPGFID(str);
-      state->setAnchor(a);
-    }
-  }
-}
-
 void XWTikzOperationText::doPath(XWTikzState * state, bool showpoint)
 {
   if (text.isEmpty())
-    state->doToPath();
+  {
+    switch (keyWord)
+    {
+      default:
+        state->doToPath();
+        break;
+
+      case PGFedgefromparentpath:
+        state->doEdgeFromParent();
+        break;
+    }
+  }
   else
   {
-    QPointF s = state->getToStart();
-    QPointF t = state->getToTarget();
-    QString sstr = QString("%1,%2").arg(s.x()).arg(s.y());
-    QString tstr = QString("%1,%2").arg(t.x()).arg(t.y());
     QString str = text;
-
     switch (keyWord)
     {
       default:
         break;
 
       case PGFtopath:
-        str.replace(QRegExp("\\\\tikztostart"),sstr);
-        str.replace(QRegExp("\\\\tikztotarget\\s*\\\\tikztonodes"),tstr);
+        {
+          QPointF s = state->getToStart();
+          QPointF t = state->getToTarget();
+          QString sstr = QString("%1,%2").arg(s.x()).arg(s.y());
+          QString tstr = QString("%1,%2").arg(t.x()).arg(t.y());
+          str.replace(QRegExp("\\\\tikztostart"),sstr);
+          str.replace(QRegExp("\\\\tikztotarget\\s*\\\\tikztonodes"),tstr);
+        }
         break;
 
       case PGFedgefromparentpath:
-        str.replace(QRegExp("\\\\tikzparentnode[\\.\\\\]?\\w*"),sstr);
-        str.replace(QRegExp("\\\\tikzchildnode[\\.\\\\]?\\w*"),tstr);
+        {
+          int a = str.indexOf("\\tnode");
+          if (a >= 0)
+          {
+            a += 5;
+            if (str[a] == QChar('.'))
+            {
+              a++;
+              int pos = a;
+              while (str[pos] != QChar(')'))
+                pos++;
+
+              QString tmp = str.mid(a, pos - a);
+              tmp = tmp.simplified();
+              a = lookupPGFID(tmp);
+            }
+            else
+              a = -1;
+          }
+          QPointF s = state->getParentAnchor(a);
+          QString sstr = QString("%1,%2").arg(s.x()).arg(s.y());
+          str.replace(QRegExp("\\\\tikzparentnode[\\.\\\\]?\\w*"),sstr);
+          
+          a = str.indexOf("dnode");
+          if (a >= 0)
+          {
+            a += 5;
+            if (str[a] == QChar('.'))
+            {
+              a++;
+              int pos = a;
+              while (str[pos] != QChar(')'))
+                pos++;
+
+              QString tmp = str.mid(a, pos - a);
+              tmp = tmp.simplified();
+              a = lookupPGFID(tmp);
+            }
+            else
+              a = -1;
+          }
+          QPointF t = state->getChildAnchor(a);          
+          QString tstr = QString("%1,%2").arg(t.x()).arg(t.y());          
+          str.replace(QRegExp("\\\\tikzchildnode[\\.\\\\]?\\w*"),tstr);
+        }
         break;
     }
 
     scan(str);
-    state = state->save(false);
     for (int i = 0; i < ops.size(); i++)
       ops[i]->doPath(state,showpoint);
-    state = state->restore();
 
     while (!ops.isEmpty())
       delete ops.takeFirst();
@@ -2210,33 +2201,46 @@ XWTikzPathText::XWTikzPathText(XWTikzGraphic * graphicA, int id, QObject * paren
 
 void XWTikzPathText::doPath(XWTikzState * state, bool)
 {
-  QPointF s = state->getToStart();
-  QPointF t = state->getToTarget();
-  QString sstr = QString("%1,%2").arg(s.x()).arg(s.y());
-  QString tstr = QString("%1,%2").arg(t.x()).arg(t.y());
-  QString str = text;
-  switch (keyWord)
+  if (text.isEmpty())
   {
-    default:
-      break;
+    switch (keyWord)
+    {
+      default:
+        break;
 
-    case PGFspyconnectionpath:
-      if (str.isEmpty())
-        str = QString("\\draw[thin] (%1) -- (%2);").arg(sstr).arg(tstr);
-      else
-      {
-        str.replace("tikzspyonnode",sstr);
-        str.replace("tikzspyinnode",tstr);
-      }
-      break;
+      case PGFspyconnectionpath:
+        state->setDraw(true);
+        state->doEdgeFromParent();
+        break;
+    }
   }
+  else
+  {
+    QString str = text;
+    switch (keyWord)
+    {
+      default:
+        break;
 
-  scan(str);
-  for (int i = 0; i < cmds.size(); i++)
-    cmds[i]->doPath(state,false);
+      case PGFspyconnectionpath:
+        {
+          QPointF s = state->getParentAnchor(-1);
+          QPointF t = state->getChildAnchor(-1);
+          QString sstr = QString("%1,%2").arg(s.x()).arg(s.y());
+          QString tstr = QString("%1,%2").arg(t.x()).arg(t.y());
+          str.replace("tikzspyonnode",sstr);
+          str.replace("tikzspyinnode",tstr);
+        }
+        break;
+    }
 
-  while (!cmds.isEmpty())
-    delete cmds.takeFirst();
+    scan(str);
+    for (int i = 0; i < cmds.size(); i++)
+      cmds[i]->doPath(state,false);
+
+    while (!cmds.isEmpty())
+      delete cmds.takeFirst();
+  }
 }
 
 QString XWTikzPathText::getText()

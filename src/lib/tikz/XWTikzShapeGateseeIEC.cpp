@@ -143,9 +143,8 @@ void XWTikzShape::batteryIECShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xb = cos(delta);
-        double yb = sin(delta);
+        double xb = state->anotherPoint.x();
+        double yb = state->anotherPoint.y();
         double xa = southWest.x();
         double ya = southWest.y();
         double xc = 0.5 * (northEast.x() - xa);
@@ -305,9 +304,8 @@ void XWTikzShape::breakcontactIECShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xc = cos(delta);
-        double yc = sin(delta);
+        double xc = state->anotherPoint.x();
+        double yc = state->anotherPoint.y();
         QPointF pd(xc,yc);
         if (yc < 0)
         {
@@ -485,9 +483,8 @@ void XWTikzShape::breakdowndiodeIECShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xb = cos(delta);
-        double yb = sin(delta);
+        double xb = state->anotherPoint.x();
+        double yb = state->anotherPoint.y();
         double xa = southWest.x();
         double ya = southWest.y();
         double xc = 0.5 * (northEast.x() - xa);
@@ -679,9 +676,8 @@ void XWTikzShape::capacitorIECShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xb = cos(delta);
-        double yb = sin(delta);
+        double xb = state->anotherPoint.x();
+        double yb = state->anotherPoint.y();
         double xa = southWest.x();
         double ya = southWest.y();
         double xc = 0.5 * (northEast.x() - xa);
@@ -846,9 +842,8 @@ void XWTikzShape::genericcircleIECShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xa = cos(delta);
-        double ya = sin(delta);
+        double xa = state->anotherPoint.x();
+        double ya = state->anotherPoint.y();
         QPointF pd(xa,ya);
         QPointF ur(radius,radius);
 
@@ -1021,9 +1016,8 @@ void XWTikzShape::genericdiodeIECShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xb = cos(delta);
-        double yb = sin(delta);
+        double xb = state->anotherPoint.x();
+        double yb = state->anotherPoint.y();
         double xa = southWest.x();
         double ya = southWest.y();
         double xc = 0.5 * (northEast.x() - xa);
@@ -1211,9 +1205,8 @@ void XWTikzShape::groundIECShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xb = cos(delta);
-        double yb = sin(delta);
+        double xb = state->anotherPoint.x();
+        double yb = state->anotherPoint.y();
         double xa = southWest.x();
         double ya = southWest.y();
         double xc = 0.5 * (northEast.x() - xa);
@@ -1377,9 +1370,8 @@ void XWTikzShape::inductorIECShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xc = cos(delta);
-        double yc = sin(delta);
+        double xc = state->anotherPoint.x();
+        double yc = state->anotherPoint.y();
         QPointF pd(xc,yc);
         if (yc < 0)
         {
@@ -1551,9 +1543,8 @@ void XWTikzShape::makecontactIECShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xc = cos(delta);
-        double yc = sin(delta);
+        double xc = state->anotherPoint.x();
+        double yc = state->anotherPoint.y();
         QPointF pd(xc,yc);
         if (yc < 0)
         {
@@ -1714,9 +1705,8 @@ void XWTikzShape::varmakecontactIECShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xc = cos(delta);
-        double yc = sin(delta);
+        double xc = state->anotherPoint.x();
+        double yc = state->anotherPoint.y();
         QPointF pd(xc,yc);
         if (yc < 0)
         {
@@ -1898,9 +1888,8 @@ void XWTikzShape::varresistorIECShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xb = cos(delta);
-        double yb = sin(delta);
+        double xb = state->anotherPoint.x();
+        double yb = state->anotherPoint.y();
         double xa = southWest.x();
         double ya = southWest.y();
         double xc = 0.5 * (northEast.x() - xa);

@@ -31,7 +31,11 @@ public:
   void dragTo(XWTikzState * state);
   bool dropTo(XWTikzState * state);
 
+  QPointF   getAnchor(int a, XWTikzState * state);
+  QPointF   getAngle(double a, XWTikzState * state);
+  QPointF   getBorder(const QPointF & p,XWTikzState * state);
   QPointF   getPoint(XWTikzState * state);
+  double    getRadius(XWTikzState * state);
   QVector3D getRelPoint3D(XWTikzState * state);
   QVector3D getPoint3D(XWTikzState * state);  
   QString getText();
@@ -39,6 +43,7 @@ public:
 
   bool hitTest(XWTikzState * state);
 
+  bool isAtShapeBorder(XWTikzState * state);
   bool isNull();
 
   void moveTo(const QVector3D & p);

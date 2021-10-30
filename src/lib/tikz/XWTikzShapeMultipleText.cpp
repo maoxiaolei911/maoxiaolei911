@@ -77,9 +77,8 @@ void XWTikzShape::circleSolidusShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xa = cos(delta);
-        double ya = sin(delta);
+        double xa = state->anotherPoint.x();
+        double ya = state->anotherPoint.y();
         QPointF pd(xa,ya);
         QPointF ur(radius,radius);
 
@@ -306,9 +305,8 @@ void XWTikzShape::circleSplitShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xa = cos(delta);
-        double ya = sin(delta);
+        double xa = state->anotherPoint.x();
+        double ya = state->anotherPoint.y();
         QPointF pd(xa,ya);
         QPointF ur(radius,radius);
 
@@ -508,9 +506,8 @@ void XWTikzShape::ellipseSplitShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xa = cos(delta);
-        double ya = sin(delta);
+        double xa = state->anotherPoint.x();
+        double ya = state->anotherPoint.y();
         QPointF pd(xa,ya);
 
         QPointF p = pointBorderEllipse(pd,radii);
@@ -849,9 +846,8 @@ void XWTikzShape::rectangleSplitShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double tempdima = cos(delta);
-        double tempdimb = sin(delta);
+        double tempdima = state->anotherPoint.x();
+        double tempdimb = state->anotherPoint.y();
         x = 0.5 * (southwest.x() - northeast.x());
         y = 0.5 * (southwest.y() - northeast.y());
         QPointF p1(tempdima,tempdimb);

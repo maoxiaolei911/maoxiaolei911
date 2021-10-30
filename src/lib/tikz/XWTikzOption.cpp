@@ -610,6 +610,75 @@ void XWTikzKey::doPath(XWTikzState * state, bool)
       state->setInnerYSep(1);
       graphic->doEveryAttribute(state);
       break;
+
+    case PGFtomoveto:
+      state->setMoveTo();
+      break;
+
+    case PGFtolineto:
+      state->setLineTo();
+      break;
+
+    case PGFtocurveto:
+      state->setCurveTo();
+      break;
+
+    case PGFloop:
+      state->setInLooseness(8);
+      state->setOutLooseness(8);
+      state->setInMin(14.22638);
+      state->setOutMin(14.22638);
+      state->setLoop();
+      graphic->doEveryLoop(state);
+      break;
+
+    case PGFloopright:
+      state->setAnchor(PGFright);
+      state->setIn(-15);
+      state->setOut(15);
+      state->setInLooseness(8);
+      state->setOutLooseness(8);
+      state->setInMin(14.22638);
+      state->setOutMin(14.22638);
+      state->setLoop();
+      graphic->doEveryLoop(state);
+      break;
+
+    case PGFloopabove:
+      state->setAnchor(PGFabove);
+      state->setIn(75);
+      state->setOut(105);
+      state->setInLooseness(8);
+      state->setOutLooseness(8);
+      state->setInMin(14.22638);
+      state->setOutMin(14.22638);
+      state->setLoop();
+      graphic->doEveryLoop(state);
+      break;
+
+    case PGFloopleft:
+      state->setAnchor(PGFleft);
+      state->setIn(165);
+      state->setOut(195);
+      state->setInLooseness(8);
+      state->setOutLooseness(8);
+      state->setInMin(14.22638);
+      state->setOutMin(14.22638);
+      state->setLoop();
+      graphic->doEveryLoop(state);
+      break;
+
+    case PGFloopbelow:
+      state->setAnchor(PGFbelow);
+      state->setIn(285);
+      state->setOut(255);
+      state->setInLooseness(8);
+      state->setOutLooseness(8);
+      state->setInMin(14.22638);
+      state->setOutMin(14.22638);
+      state->setLoop();
+      graphic->doEveryLoop(state);
+      break;
   }
 }
 
@@ -1794,6 +1863,100 @@ void XWTikzValue::doPath(XWTikzState * state, bool)
     case PGFshadowyshift:
       state->setShadowYShift(v.expv->getResult(state));
       break;
+
+    case PGFbendangle:
+      state->setBnedAngle(v.expv->getResult(state));
+      break;
+
+    case PGFbendleft:
+      state->setBendLeft(v.expv->getResult(state));
+      break;
+
+    case PGFbendright:
+      state->setBendRight(v.expv->getResult(state));
+      break;
+
+    case PGFrelative:
+      state->setRelative((bool)v.expv->getResult(state));
+      break;
+
+    case PGFin:
+      state->setIn(v.expv->getResult(state));
+      break;
+
+    case PGFout:
+      state->setOut(v.expv->getResult(state));
+      break;
+
+    case PGFinlooseness:
+      state->setInLooseness(v.expv->getResult(state));
+      break;
+
+    case PGFoutlooseness:
+      state->setOutLooseness(v.expv->getResult(state));
+      break;
+
+    case PGFlooseness:
+      state->setInLooseness(v.expv->getResult(state));
+      state->setOutLooseness(v.expv->getResult(state));
+      break;
+
+    case PGFincontrol:
+      {
+        QPointF p = v.coordv->getPoint(state);
+        state->setInControl(p);
+      }
+      break;
+
+    case PGFoutcontrol:
+      {
+         QPointF p = v.coordv->getPoint(state);
+        state->setOutControl(p);
+      }
+      break;
+
+    case PGFinmindistance:
+      state->setInMin(v.expv->getResult(state));
+      break;
+
+    case PGFinmaxdistance:
+      state->setInMax(v.expv->getResult(state));
+      break;
+
+    case PGFindistance:
+      state->setInMin(v.expv->getResult(state));
+      state->setInMax(v.expv->getResult(state));
+      break;
+
+    case PGFoutmindistance:
+      state->setOutMin(v.expv->getResult(state));
+      break;
+
+    case PGFoutmaxdistance:
+      state->setOutMax(v.expv->getResult(state));
+      break;
+
+    case PGFoutdistance:
+      state->setOutMin(v.expv->getResult(state));
+      state->setOutMax(v.expv->getResult(state));
+      break;
+
+    case PGFmindistance:
+      state->setInMin(v.expv->getResult(state));
+      state->setOutMin(v.expv->getResult(state));
+      break;
+
+    case PGFmaxdistance:
+      state->setInMax(v.expv->getResult(state));
+      state->setOutMax(v.expv->getResult(state));
+      break;
+
+    case PGFdistance:
+      state->setInMin(v.expv->getResult(state));
+      state->setInMax(v.expv->getResult(state));
+      state->setOutMin(v.expv->getResult(state));
+      state->setOutMax(v.expv->getResult(state));
+      break;
   }
 }
 
@@ -1834,6 +1997,8 @@ QString XWTikzValue::getText()
     case PGFplaneorigin:
     case PGFplanex:
     case PGFplaney:
+    case PGFincontrol:
+    case PGFoutcontrol:
       {
         ret += "={";
         QString tmp = v.coordv->getText();
@@ -1984,6 +2149,8 @@ void XWTikzValue::scan(const QString & str, int & len, int & pos)
     case PGFplaneorigin:
     case PGFplanex:
     case PGFplaney:
+    case PGFincontrol:
+    case PGFoutcontrol:
       scanValue(str,len,pos,value);
       v.coordv = new XWTikzCoord(graphic,value,this);
       break;
@@ -2284,9 +2451,12 @@ void XWTikzColor::doPath(XWTikzState * state, bool)
       state->setDrawColor(color);
       break;
 
-    case PGFfill:
-    case PGFconceptcolor:
+    case PGFfill:    
       state->setFillColor(color);
+      break;
+
+    case PGFconceptcolor:
+      state->setConceptColor(color);
       break;
 
     case PGFpatterncolor:
@@ -2470,6 +2640,53 @@ void XWTikzColor::setColor(int c1A,double pA,int c2A)
   C1 = c1A;
   P = pA;
   C2 = c2A;
+}
+
+XWTikzSwitchColor::XWTikzSwitchColor(XWTikzGraphic * graphicA, int idA, QObject * parent)
+:XWTikzOperation(graphicA, idA,parent)
+{
+  from = new XWTikzColor(graphicA,-1,this);
+  to = new XWTikzColor(graphicA,-1,this);
+}
+
+void XWTikzSwitchColor::doPath(XWTikzState * state, bool)
+{
+  QColor f = from->getColor();
+  QColor t = to->getColor();
+  state->switchColor(f,t);
+}
+
+QString XWTikzSwitchColor::getText()
+{
+  QString ret = getPGFString(keyWord);
+  ret += "= from ";
+  QString tmp = from->getText();
+  ret += tmp;
+  ret += " to ";
+  tmp = to->getText();
+  ret += tmp;
+  return ret;
+}
+
+void XWTikzSwitchColor::scan(const QString & str, int & len, int & pos)
+{
+  QString value;
+  scanValue(str,len,pos,value);
+  value.remove("from");
+  int i = value.indexOf("to");
+  QString c = value.left(i);
+  c = c.simplified();
+  int l = c.length();
+  int p = 0;
+  from->scan(c,l,p);
+  i += 3;
+  while (value[i].isSpace())
+    i++;
+  c = value.mid(i,-1);
+  c = c.simplified();
+  l = c.length();
+  p = 0;
+  to->scan(c,l,p);
 }
 
 XWTikzDashPattern::XWTikzDashPattern(XWTikzGraphic * graphicA, QObject * parent)
@@ -4351,4 +4568,42 @@ void XWTikzLogicGateInpus::scan(const QString & str, int & len, int & pos)
       }
     }
   }
+}
+
+XWTikzControls::XWTikzControls(XWTikzGraphic * graphicA, QObject * parent)
+:XWTikzOperation(graphicA, PGFcontrols,parent),
+ in(0),
+ out(0)
+{
+  in = new XWTikzCoord(graphic,this);
+  out = new XWTikzCoord(graphic,this);
+}
+
+void XWTikzControls::doPath(XWTikzState * state, bool )
+{
+  QPointF p = in->getPoint(state);
+  state->setInControl(p);
+  p = out->getPoint(state);
+  state->setOutControl(p);
+}
+
+QString XWTikzControls::getText()
+{
+  QString ret = "controls=";
+  QString tmp = in->getText();
+  ret += tmp;
+  ret += " and ";
+  tmp = out->getText();
+  ret += tmp;
+  return ret;
+}
+
+void XWTikzControls::scan(const QString & str, int & len, int & pos)
+{
+  in->scan(str, len, pos);
+  while (str[pos].isSpace())
+    pos++;
+
+  pos += 3;
+  out->scan(str, len, pos);
 }

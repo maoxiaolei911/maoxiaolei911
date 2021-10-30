@@ -508,7 +508,7 @@ void XWTikzRemoveNode::undo()
 
 XWTikzAddchild::XWTikzAddchild(XWTikzCoordinate * pnodeA, 
                                int indexA,
-                               XWTikzCoordinate * childA,
+                               XWTikzOperation * childA,
                                QUndoCommand * parent)
 :QUndoCommand(parent),
 pnode(pnodeA),

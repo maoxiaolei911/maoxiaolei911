@@ -171,9 +171,6 @@ bool XWTikzCommand::del(XWTikzState *)
   return false;
 }
 
-void XWTikzCommand::doChildAnchor(XWTikzState * )
-{}
-
 void XWTikzCommand::doCopy(XWTikzState * state)
 {
   doPath(state, false);
@@ -209,6 +206,9 @@ void XWTikzCommand::doEveryCircuitSymbol(XWTikzState *)
 void XWTikzCommand::doEveryConcept(XWTikzState * )
 {}
 
+void XWTikzCommand::doEveryCurveTo(XWTikzState *)
+{}
+
 void XWTikzCommand::doEveryEdge(XWTikzState *)
 {}
 
@@ -222,6 +222,9 @@ void XWTikzCommand::doEveryInitialByArrow(XWTikzState *)
 {}
 
 void XWTikzCommand::doEveryLabel(XWTikzState * )
+{}
+
+void XWTikzCommand::doEveryLoop(XWTikzState *)
 {}
 
 void XWTikzCommand::doEveryMark(XWTikzState * )
@@ -266,9 +269,6 @@ void XWTikzCommand::doLevelNumber(XWTikzState * )
 void XWTikzCommand::doOperation(XWTikzState * , bool )
 {}
 
-void XWTikzCommand::doParentAnchor(XWTikzState * )
-{}
-
 void XWTikzCommand::doPath(XWTikzState *, bool)
 {}
 
@@ -310,6 +310,11 @@ QPointF XWTikzCommand::getAnchor(const QString & ,int ,XWTikzState * )
 }
 
 QPointF XWTikzCommand::getAngle(const QString & ,double , XWTikzState * )
+{
+  return QPointF();
+}
+
+QPointF XWTikzCommand::getBorder(const QString & ,const QPointF & ,XWTikzState * )
 {
   return QPointF();
 }
@@ -366,6 +371,11 @@ QPointF XWTikzCommand::getPoint(const QString & ,XWTikzState *)
 QVector3D XWTikzCommand::getPoint3D(const QString & ,XWTikzState * )
 {
   return QVector3D();
+}
+
+double XWTikzCommand::getRadius(const QString & ,XWTikzState * )
+{
+  return 0.0;
 }
 
 QString XWTikzCommand::getSelectedText()
@@ -1077,11 +1087,8 @@ QPointF XWTikzPath::getAnchor(const QString & nameA,int a,XWTikzState * state)
     ops[i]->doPath(state,false);
     if (ops[i]->isMe(nameA,state))
     {
-      if (i >= 0)
-      {
-        ret = ops[i]->getAnchor(a,state);
-        break;
-      }        
+      ret = ops[i]->getAnchor(a,state);
+      break;
     }
   }
   return ret;
@@ -1104,11 +1111,24 @@ QPointF XWTikzPath::getAngle(const QString & nameA,double a,XWTikzState * state)
     ops[i]->doPath(state,this);
     if (ops[i]->isMe(nameA,state))
     {
-      if (i >= 0)
-      {
-        ret = ops[i]->getAngle(a,state);
-        break;
-      }        
+      ret = ops[i]->getAngle(a,state);
+      break;
+    }
+  }
+  return ret;
+}
+
+QPointF XWTikzPath::getBorder(const QString & nameA,const QPointF & p,XWTikzState * state)
+{
+  options->doCompute(state);
+  QPointF ret;
+  for (int i = 0; i < ops.size(); i++)
+  {
+    ops[i]->doPath(state,this);
+    if (ops[i]->isMe(nameA,state))
+    {
+      ret = ops[i]->getBorder(p,state);
+      break;
     }
   }
   return ret;
@@ -1219,6 +1239,22 @@ QVector3D XWTikzPath::getPoint3D(const QString & nameA,XWTikzState * state)
         if (c)
           ret = c->getPoint3D(state);
       }
+      break;
+    }
+  }
+  return ret;
+}
+
+double XWTikzPath::getRadius(const QString & nameA,XWTikzState * state)
+{
+  options->doCompute(state);
+  double ret;
+  for (int i = 0; i < ops.size(); i++)
+  {
+    ops[i]->doPath(state,this);
+    if (ops[i]->isMe(nameA,state))
+    {
+      ret = ops[i]->getRadius(state);
       break;
     }
   }
@@ -1599,16 +1635,7 @@ void XWTikzPath::scan(const QString & str, int & len, int & pos)
             pos += 3;
             while (str[pos].isSpace())
               pos++;
-            if (str[pos] == 'f')
-            {
-              pos += 4;
-              while (str[pos].isSpace())
-                pos++;
-              pos += 6;
-              obj = new XWTikzEdgeFromParent(graphic,this);
-            }
-            else
-              obj = new XWTikzEdge(graphic,this);
+            obj = new XWTikzEdge(graphic,this);
           }
           else
           {
@@ -2072,11 +2099,6 @@ bool XWTikzScope::del(XWTikzState * state)
   return ret;
 }
 
-void XWTikzScope::doChildAnchor(XWTikzState * state)
-{
-  options->doChildAnchor(state);
-}
-
 void XWTikzScope::doCopy(XWTikzState * state)
 {
   options->doPath(state,false);
@@ -2194,6 +2216,15 @@ void XWTikzScope::doEveryConcept(XWTikzState * state)
   cmds[cur]->doEveryConcept(state);
 }
 
+void XWTikzScope::doEveryCurveTo(XWTikzState * state)
+{
+  options->doEveryCurveTo(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryCurveTo(state);
+}
+
 void XWTikzScope::doEveryEdge(XWTikzState * state)
 {
   options->doEveryEdge(state);
@@ -2237,6 +2268,15 @@ void XWTikzScope::doEveryLabel(XWTikzState * state)
     return ;
 
   cmds[cur]->doEveryLabel(state);
+}
+
+void XWTikzScope::doEveryLoop(XWTikzState * state)
+{
+  options->doEveryLoop(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryLoop(state);
 }
 
 void XWTikzScope::doEveryMark(XWTikzState * state)
@@ -2367,11 +2407,6 @@ void XWTikzScope::doOperation(XWTikzState * state, bool showpoint)
   cmds[cur]->doOperation(state,showpoint);
 
   state = state->restore();
-}
-
-void XWTikzScope::doParentAnchor(XWTikzState * state)
-{
-  options->doParentAnchor(state);
 }
 
 void XWTikzScope::doPath(XWTikzState * state, bool showpoint)
@@ -2555,6 +2590,25 @@ QPointF XWTikzScope::getAngle(const QString & nameA,double a, XWTikzState * stat
   return ret;
 }
 
+QPointF XWTikzScope::getBorder(const QString & nameA,const QPointF & p,XWTikzState * state)
+{
+  options->doCompute(state);
+  QString n = nameA;
+  if (nameA.contains("."))
+  {
+    int index = nameA.indexOf(".");
+    n = nameA.left(index);
+  }
+
+  QPointF ret;
+  if (names.contains(n))
+  {
+    int i = names[n];
+    ret = cmds[i]->getBorder(nameA,p,state);
+  }
+  return ret;
+}
+
 QPointF XWTikzScope::getCenter(XWTikzState * state)
 {
   QPointF ret;
@@ -2688,6 +2742,26 @@ QVector3D XWTikzScope::getPoint3D(const QString & nameA,XWTikzState * state)
   {
     int i = names[nameA];
     ret = cmds[i]->getPoint3D(nameA,state);
+  }
+
+  return ret;
+}
+
+double XWTikzScope::getRadius(const QString & nameA,XWTikzState * state)
+{
+  options->doCompute(state);
+  QString n = nameA;
+  if (nameA.contains("."))
+  {
+    int index = nameA.indexOf(".");
+    n = nameA.left(index);
+  }
+
+  double ret;
+  if (names.contains(n))
+  {
+    int i = names[n];
+    ret = cmds[i]->getRadius(nameA,state);
   }
 
   return ret;
@@ -3847,6 +3921,17 @@ QPointF XWTikzCoordinatePath::getAngle(const QString & nameA,double a, XWTikzSta
   return ret;
 }
 
+QPointF XWTikzCoordinatePath::getBorder(const QString & nameA,const QPointF & p,XWTikzState * state)
+{
+  options->doCompute(state);
+  coord->doCompute(state);
+  QPointF ret;
+  if (node->isMe(nameA,state))
+    ret = node->getBorder(p,state);
+
+  return ret;
+}
+
 QPointF XWTikzCoordinatePath::getCenter(XWTikzState * state)
 {
   options->doCompute(state);
@@ -3916,6 +4001,17 @@ QVector3D XWTikzCoordinatePath::getPoint3D(const QString & nameA, XWTikzState * 
       ret = coord->getPoint3D(state);
   }
   
+  return ret;
+}
+
+double XWTikzCoordinatePath::getRadius(const QString & nameA,XWTikzState * state)
+{
+  options->doCompute(state);
+  coord->doCompute(state);
+  double ret;
+  if (node->isMe(nameA,state))
+    ret = node->getRadius(state);
+
   return ret;
 }
 
@@ -4295,22 +4391,8 @@ void XWTikzSpy::doCopy(XWTikzState *)
 
 void XWTikzSpy::doPath(XWTikzState * state, bool showpoint)
 {
-  if (at)
-  {
-    state = state->save(false);
-    options->doPath(state, showpoint);
-    state->setColor(Qt::black);
-    state->setDash(PGFsolid);
-    state->setLineWidth(0.4);
-    state->setOpacity(1);
-    state->setLineCap(PGFbutt);
-    state->setLineJoin(PGFmiter);
-    state->spyOn(on);
-    state->spyAt(at);    
-    graphic->doSpyConnection(state);
-    state = state->restore();
-  }
-
+  XWTikzState * onstate = new XWTikzState(false,state);
+  XWTikzState * instate = new XWTikzState(false,state);
   //on
   state = state->save(false);
   state->resetTransform();
@@ -4329,9 +4411,10 @@ void XWTikzSpy::doPath(XWTikzState * state, bool showpoint)
   graphic->doSpyNode(state);
   state = state->save(false);
   state->moveTo(on);
-  QPointF t = state->getToStart();
+  state->copy(onstate);
   state->setClip(true);
-  node->doPath(state,showpoint);
+  node->doPath(state,showpoint);  
+  XWTeXBox * box = node->getBox();
   state = state->restore();
   if (scope)
     scope->doCopy(state); 
@@ -4357,22 +4440,40 @@ void XWTikzSpy::doPath(XWTikzState * state, bool showpoint)
   graphic->doSpyNode(state);
   state = state->save(false);
   if (at)
-  {
     state->moveTo(at);
-    t = state->getToStart();
-  }
   else
     state->moveTo(on);
+  state->copy(instate);
   state->setAnchor(PGFcenter);
   state->setClip(true);
   node->doPath(state,showpoint);
   state = state->restore();
-  state->shift(t.x(), t.y());
   if (scope)
     scope->doCopy(state); 
   else
     graphic->doCopy(state);
   state = state->restore();
+
+  if (at)
+  {
+    state = state->save(false); 
+    XWPDFDriver*driverA = state->getDriver();
+    onstate->transformNode();
+    instate->transformNode();
+    XWTikzShape * onnode = new XWTikzShape(driverA,box,onstate,XW_TIKZ_NODE);
+    XWTikzShape * innode = new XWTikzShape(driverA,box,instate,XW_TIKZ_NODE);
+    state->setParentNode(onnode);
+    state->setChildNode(innode);
+    options->doPath(state, showpoint);
+    state->setColor(Qt::black);
+    state->setDash(PGFsolid);
+    state->setLineWidth(0.4);
+    state->setOpacity(1);
+    state->setLineCap(PGFbutt);
+    state->setLineJoin(PGFmiter);
+    graphic->doSpyConnection(state);
+    state = state->restore();
+  }
 }
 
 void XWTikzSpy::dragTo(XWTikzState * state)

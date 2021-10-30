@@ -219,9 +219,8 @@ void XWTikzShape::circularSectorShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta);
-        double externaly = sin(delta);
+        double externalx = state->anotherPoint.x();
+        double externaly = state->anotherPoint.y();
         XW_TIKZ_SHAPE_CIRCULARSECTOR_ANCHOR_BORDER(externalx,externaly)
       }
       break;
@@ -539,9 +538,8 @@ void XWTikzShape::cylinderShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta);
-        double externaly = sin(delta);
+        double externalx = state->anotherPoint.x();
+        double externaly = state->anotherPoint.y();
         XW_TIKZ_SHAPE_CYLINDER_ANCHOR_BORDER(externalx,externaly)
       }
       break;
@@ -964,9 +962,8 @@ void XWTikzShape::dartShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta);
-        double externaly = sin(delta);
+        double externalx = state->anotherPoint.x();
+        double externaly = state->anotherPoint.y();
         XW_TIKZ_SHAPE_DART_ANCHOR_BORDER(externalx,externaly)
       }
       break;
@@ -1130,9 +1127,8 @@ void XWTikzShape::diamondShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xa = cos(delta);
-        double ya = sin(delta);
+        double xa = state->anotherPoint.x();
+        double ya = state->anotherPoint.y();
         x = outernortheast.x();
         y = outernortheast.y();
         if (xa < 0)
@@ -1239,9 +1235,8 @@ void XWTikzShape::ellipseShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double xa = cos(delta);
-        double ya = sin(delta);
+        double xa = state->anotherPoint.x();
+        double ya = state->anotherPoint.y();
         QPointF pd(xa,ya);
         QPointF ur(state->xradius,state->yradius);
 
@@ -1528,9 +1523,8 @@ void XWTikzShape::isosceleTriangleShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta);
-        double externaly = sin(delta);
+        double externalx = state->anotherPoint.x();
+        double externaly = state->anotherPoint.y();
         XW_TIKZ_SHAPE_ISOSCELETRIANGLE_ANCHOR_BORDER(externalx,externaly)
       }
       break;
@@ -1981,9 +1975,8 @@ void XWTikzShape::kiteShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta);
-        double externaly = sin(delta);
+        double externalx = state->anotherPoint.x();
+        double externaly = state->anotherPoint.y();
         XW_TIKZ_SHAPE_KITE_ANCHOR_BORDER(externalx,externaly)
       }
       break;
@@ -2184,9 +2177,8 @@ void XWTikzShape::regularPolygonShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta);
-        double externaly = sin(delta);
+        double externalx = state->anotherPoint.x();
+        double externaly = state->anotherPoint.y();
         XW_TIKZ_SHAPE_REGULARPOLYGON_ANCHOR_BORDER(externalx,externaly)
       }
       break;
@@ -2474,9 +2466,8 @@ void XWTikzShape::semicircleShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta);
-        double externaly = sin(delta);
+        double externalx = state->anotherPoint.x();
+        double externaly = state->anotherPoint.y();
         XW_TIKZ_SHAPE_SEMICIRCLE_ANCHOR_BORDER(externalx,externaly)
       }
       break;
@@ -2726,9 +2717,8 @@ void XWTikzShape::starShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta);
-        double externaly = sin(delta);
+        double externalx = state->anotherPoint.x();
+        double externaly = state->anotherPoint.y();
         XW_TIKZ_SHAPE_STAR_ANCHOR_BORDER(externalx,externaly)
       }
       break;
@@ -3101,9 +3091,8 @@ void XWTikzShape::trapeziumShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta);
-        double externaly = sin(delta);
+        double externalx = state->anotherPoint.x();
+        double externaly = state->anotherPoint.y();
         XW_TIKZ_SHAPE_TRAPEZIUM_ANCHOR_BORDER(externalx,externaly)
       }
       break;

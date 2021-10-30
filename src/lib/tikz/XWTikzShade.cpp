@@ -59,6 +59,10 @@ void XWTikzShade::doShading(XWTikzState * state)
     case PGFMandelbrotset:
       doMandelbrotSet(state);
       break;
+
+    case PGFcircleconnectionbarswitchcolor:
+      doSwitchColor(state);
+      break;
   }
 }
 
@@ -492,7 +496,7 @@ void XWTikzShade::doRadial(XWTikzState * state)
   XWObject ref;
   if (!driver->hasXObject(sname,&ref))
   {
-    double funs[5][4];
+    double funs[3][4];
     funs[0][0] = 0;
     QColor rgb = state->innerColor;
     funs[0][1] = round(rgb.redF(), 0.001);
@@ -513,6 +517,30 @@ void XWTikzShade::doRadial(XWTikzState * state)
 
     QPointF p(0,0);
     driver->shadingRadial(sname,p,funs,3,&ref);
+  }
+  shadePath(sname,state);
+}
+
+void XWTikzShade::doSwitchColor(XWTikzState * state)
+{
+  QString sname("switch color");
+  XWObject ref;
+  if (!driver->hasXObject(sname,&ref))
+  {
+    double funs[2][4];
+    funs[0][0] = 0;
+    QColor rgb = state->fromColor;
+    funs[0][1] = round(rgb.redF(), 0.001);
+    funs[0][2] = round(rgb.greenF(), 0.001);
+    funs[0][3] = round(rgb.blueF(), 0.001);
+
+    funs[1][0] = 100.375;
+    rgb = state->toColor;
+    funs[2][1] = round(rgb.redF(), 0.001);
+    funs[2][2] = round(rgb.greenF(), 0.001);
+    funs[2][3] = round(rgb.blueF(), 0.001);
+
+    driver->shadingHoriVert(sname,true,100.375,funs,2,&ref);
   }
   shadePath(sname,state);
 }

@@ -642,7 +642,8 @@ every token
 every shadow /.style
 every spy in node /.style
 every spy on node /.style
-every loop
+every loop /.style
+every curve to/.style
 every decoration
 canvas
 xyz

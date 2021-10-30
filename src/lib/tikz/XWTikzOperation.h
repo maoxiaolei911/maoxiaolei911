@@ -51,12 +51,14 @@ public:
   virtual QPointF getAnchor(XWTikzState * state);
   virtual int getAnchorPosition();
   virtual QPointF getAngle(double a, XWTikzState * state);
+  virtual QPointF getBorder(const QPointF & p,XWTikzState * state);
   virtual XWTikzCoord * getCurrentPoint();
   virtual int getCursorPosition();
   virtual QString getCurrentText();
   int     getKeyWord() {return keyWord;}
   virtual QPointF getPoint(XWTikzState * state);
   virtual QVector3D getPoint3D(XWTikzState * state);
+  virtual double getRadius(XWTikzState * state);
   virtual QString getSelectedText();
   int     getSubkeyWord() {return subkeyWord;}
   virtual QString getText();
@@ -591,6 +593,8 @@ class XWTikzTo : public XWTikzOperation
 
 public:
   XWTikzTo(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  bool addAction(QMenu & menu, XWTikzState * state);
 
   bool back(XWTikzState * state);
 

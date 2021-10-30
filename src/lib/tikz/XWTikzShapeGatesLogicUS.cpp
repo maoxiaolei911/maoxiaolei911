@@ -171,9 +171,8 @@ void XWTikzShape::andGateUSShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        x = cos(delta) + centerPoint.x();
-        y = sin(delta) + centerPoint.y();
+        x = state->anotherPoint.x() + centerPoint.x();
+        y = state->anotherPoint.y() + centerPoint.y();
         QPointF externalpoint(x,y);             
         double externalangle = state->angleBetweenPoints(centerPoint, externalpoint);
         xb = halfside;
@@ -425,9 +424,8 @@ void XWTikzShape::bufferGateUSShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        x = cos(delta) + centerPoint.x();
-        y = sin(delta) + centerPoint.y();
+        x = state->anotherPoint.x() + centerPoint.x();
+        y = state->anotherPoint.y() + centerPoint.y();
         QPointF externalpoint(x,y);
         double mathresult = state->angleBetweenPoints(centerPoint, externalpoint);
         if (mathresult == 0.0)
@@ -731,9 +729,8 @@ void XWTikzShape::nandGateUSShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        x = cos(delta);
-        y = sin(delta);
+        x = state->anotherPoint.x();
+        y = state->anotherPoint.y();
         QPointF externalpoint(x,y);
         double externalangle = state->angleBetweenPoints(centerPoint, externalpoint);
         xb = halfside;
@@ -1002,9 +999,8 @@ void XWTikzShape::norGateUSShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        x = cos(delta) + centerPoint.x();
-        y = sin(delta) + centerPoint.y();
+        x = state->anotherPoint.x() + centerPoint.x();
+        y = state->anotherPoint.y() + centerPoint.y();
         QPointF externalpoint(x,y);
         xa = x;
         ya = y;
@@ -1328,9 +1324,8 @@ void XWTikzShape::notGateUSShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        x = cos(delta) + centerPoint.x();
-        y = sin(delta) + centerPoint.y();
+        x = state->anotherPoint.x() + centerPoint.x();
+        y = state->anotherPoint.y() + centerPoint.y();
         QPointF externalpoint(x,y);
         double mathresult = state->angleBetweenPoints(centerPoint, externalpoint);
         if (mathresult == 0.0)
@@ -1662,9 +1657,8 @@ void XWTikzShape::orGateUSShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        x = cos(delta) + centerPoint.x();
-        y = sin(delta) + centerPoint.y();
+        x = state->anotherPoint.x() + centerPoint.x();
+        y = state->anotherPoint.y() + centerPoint.y();
         QPointF externalpoint(x,y);
         xa = x;
         ya = y;
@@ -1978,9 +1972,8 @@ void XWTikzShape::xorGateUSShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        x = cos(delta) + centerPoint.x();
-        y = sin(delta) + centerPoint.y();
+        x = state->anotherPoint.x() + centerPoint.x();
+        y = state->anotherPoint.y() + centerPoint.y();
         QPointF externalpoint(x,y);
         xa = x;
         ya = y;
@@ -2331,9 +2324,8 @@ void XWTikzShape::xnorGateUSShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        x = cos(delta) + centerPoint.x();
-        y = sin(delta) + centerPoint.y();
+        x = state->anotherPoint.x() + centerPoint.x();
+        y = state->anotherPoint.y() + centerPoint.y();
         QPointF externalpoint(x,y);
         xa = x;
         ya = y;
@@ -2684,9 +2676,8 @@ void XWTikzShape::andGateCDHShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        xa = cos(delta);
-        ya = sin(delta);
+        xa = state->anotherPoint.x();
+        ya = state->anotherPoint.y();
         QPointF externalpoint(xa,ya);
         xb = -0.166666 * halfside;
         if (xa < xb)
@@ -2909,9 +2900,8 @@ void XWTikzShape::nandGateCDHShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        xa = cos(delta);
-        ya = sin(delta);
+        xa = state->anotherPoint.x();
+        ya = state->anotherPoint.y();
         QPointF externalpoint(xa,ya);
         xb = -0.166666 * halfside;
         if (xa < xb)

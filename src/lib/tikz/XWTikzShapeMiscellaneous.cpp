@@ -267,9 +267,8 @@ void XWTikzShape::chamferedRectangleShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta) + centerPoint.x();
-        double externaly = sin(delta) + centerPoint.y();
+        double externalx = state->anotherPoint.x() + centerPoint.x();
+        double externaly = state->anotherPoint.y() + centerPoint.y();
         QPointF externalpoint(externalx, externaly);
         mathresult = state->angleBetweenPoints(centerPoint, externalpoint);
         double externalangle = mathresult;
@@ -857,9 +856,8 @@ void XWTikzShape::roundedRectangleShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        xc = cos(delta) + centerPoint.x();
-        yc = sin(delta) + centerPoint.y();
+        xc = state->anotherPoint.x() + centerPoint.x();
+        yc = state->anotherPoint.y() + centerPoint.y();
 
         QPointF externalpoint(xc,yc);
         mathresult = state->angleBetweenPoints(centerPoint, externalpoint);

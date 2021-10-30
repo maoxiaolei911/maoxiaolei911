@@ -985,9 +985,8 @@ void XWTikzShape::arrowBoxShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta);
-        double externaly = sin(delta);
+        double externalx = state->anotherPoint.x();
+        double externaly = state->anotherPoint.y();
         XW_TIKZ_SHAPE_ARROWBOX_ANCHOR_BORDER(externalx,externaly)
       }
       break;
@@ -1854,9 +1853,8 @@ void XWTikzShape::doubleArrowShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta);
-        double externaly = sin(delta);
+        double externalx = state->anotherPoint.x();
+        double externaly = state->anotherPoint.y();
         XW_TIKZ_SHAPE_DOUBLEARROW_ANCHOR_BORDER(externalx,externaly)
       }
       break;
@@ -2323,9 +2321,8 @@ void XWTikzShape::singleArrowShape(bool dopath)
   {
     default:
       {
-        double delta = state->angle;
-        double externalx = cos(delta);
-        double externaly = sin(delta);
+        double externalx = state->anotherPoint.x();
+        double externaly = state->anotherPoint.y();
         XW_TIKZ_SHAPE_SINGLEARROW_ANCHOR_BORDER(externalx,externaly)
       }
       break;
