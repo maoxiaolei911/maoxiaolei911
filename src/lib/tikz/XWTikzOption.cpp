@@ -13,6 +13,7 @@
 #include "XWTikzGraphic.h"
 #include "XWTikzCommand.h"
 #include "XWTikzCoord.h"
+#include "XWTikzTextBox.h"
 #include "XWTikzNode.h"
 #include "XWTikzState.h"
 #include "XWTikzExpress.h"
@@ -678,6 +679,62 @@ void XWTikzKey::doPath(XWTikzState * state, bool)
       state->setOutMin(14.22638);
       state->setLoop();
       graphic->doEveryLoop(state);
+      break;
+
+    case PGFplace:
+      state->setShape(PGFcircle);
+      state->setDraw(true);
+      state->setInnerXSep(0);
+      state->setInnerYSep(0);
+      state->seiMinimumWidth(21.5);
+      state->seiMinimumHeight(21.5);
+      graphic->doEveryPlace(state);
+      break;
+
+    case PGFeverytransition:
+      state->setShape(PGFrectangle);
+      state->setDraw(true);
+      state->setInnerXSep(0);
+      state->setInnerYSep(0);
+      state->seiMinimumWidth(28.908);
+      state->seiMinimumHeight(28.908);
+      graphic->doEveryTransition(state);
+      break;
+
+    case PGFpre:
+      {
+        XWTikzArrowSpecification * arrow = new XWTikzArrowSpecification(graphic,state);
+        arrow->setArrow(PGFarrowdefault);
+        state->setStartArrow(arrow);
+        state->setShortenStart(1);
+      }
+      break;
+
+    case PGFpost:
+      {
+        XWTikzArrowSpecification * arrow = new XWTikzArrowSpecification(graphic,state);
+        arrow->setArrow(PGFarrowdefault);
+        state->setEndArrow(arrow);
+        state->setShortenEnd(1);
+      }
+      break;
+
+    case PGFpreandpost:
+      {
+        XWTikzArrowSpecification * arrow = new XWTikzArrowSpecification(graphic,state);
+        arrow->setArrow(PGFarrowdefault);
+        state->setStartArrow(arrow);
+        state->setShortenStart(1);
+        arrow = new XWTikzArrowSpecification(graphic,state);
+        arrow->setArrow(PGFarrowdefault);
+        state->setEndArrow(arrow);
+        state->setShortenEnd(1);
+      }
+      break;
+
+    case PGFtoken:
+      state->setToken(1);
+      state->setFillColor(Qt::black);      
       break;
   }
 }
@@ -1957,6 +2014,23 @@ void XWTikzValue::doPath(XWTikzState * state, bool)
       state->setOutMin(v.expv->getResult(state));
       state->setOutMax(v.expv->getResult(state));
       break;
+
+    case PGFtokendistance:
+      state->setTokenDistance(v.expv->getResult(state));
+      break;
+
+    case PGFtokens:
+      {
+        int num = (int)(v.expv->getResult(state));
+        state->setChildrenNumber(num);
+        for (int i = 1; i <= num; i++)
+        {
+          XWTikzState * newstate = state->saveNode(0,XW_TIKZ_NODE); 
+          newstate->setToken(i);
+          newstate->setFillColor(Qt::black);
+        }
+      }
+      break;
   }
 }
 
@@ -2590,16 +2664,18 @@ QString XWTikzColor::getText()
   }
   
   QString c1 = getPGFString(C1);
+  ret += c1;
   int p = (int)(P * 100);
+  if (P != 1)
+  {
+    QString tmp = QString("!%1").arg(p);
+    ret += tmp;
+  }
+
   if (C2 > 0)
   {
     QString c2 = getPGFString(C2);
-    QString tmp = QString("%1!%2%3").arg(c1).arg(p).arg(c2);
-    ret += tmp;
-  }
-  else
-  {
-    QString tmp = QString("%1!%2").arg(c1).arg(p);
+    QString tmp = QString("!%1").arg(c2);
     ret += tmp;
   }
   return ret;
@@ -2687,6 +2763,62 @@ void XWTikzSwitchColor::scan(const QString & str, int & len, int & pos)
   l = c.length();
   p = 0;
   to->scan(c,l,p);
+}
+
+XWTikzColoredTokens::XWTikzColoredTokens(XWTikzGraphic * graphicA, QObject * parent)
+:XWTikzOperation(graphicA, PGFcoloredtokens,parent)
+{}
+
+void XWTikzColoredTokens::doPath(XWTikzState * state, bool)
+{
+  state->setChildrenNumber(colors.size());
+  for (int i = 0; i < colors.size(); i++)
+  {
+    XWTikzState * newstate = state->saveNode(0,XW_TIKZ_NODE);
+    newstate->setToken(i + 1);
+    QColor c = colors[i]->getColor();
+    newstate->setFillColor(c);
+  }
+}
+
+QString XWTikzColoredTokens::getText()
+{
+  QString ret = "colored tokens={";
+  for (int i = 0; i < colors.size(); i++)
+  {
+    QString tmp = colors[i]->getText();
+    ret += tmp;
+    if (i < colors.size() - 1)
+      ret += ",";
+  }
+  ret += "}";
+  return ret;
+}
+
+void XWTikzColoredTokens::scan(const QString & str, int & len, int & pos)
+{
+  while (pos < len && str[pos].isSpace())
+    pos++;
+
+  if (str[pos] == QChar('{'))
+    pos++;
+
+  while (pos < len)
+  {
+    if (str[pos] == QChar('}'))
+    {
+      pos++;
+      break;
+    }
+    else if (str[pos].isSpace())
+      pos++;
+    else
+    {
+      XWTikzColor * c = new XWTikzColor(graphic, -1, this);
+      c->scan(str,len,pos);
+      colors << c;
+    }
+  }
 }
 
 XWTikzDashPattern::XWTikzDashPattern(XWTikzGraphic * graphicA, QObject * parent)
@@ -3926,6 +4058,22 @@ void XWTikzList::doPath(XWTikzState * state, bool)
         for (int i = 0; i < list.size(); i++)
           cs << lookupPGFID(list[i]);
         state->setChamferedRectangleCorners(cs);
+      }
+      break;
+
+    case PGFstructuredtokens:
+      {
+        state->setChildrenNumber(list.size());
+        for (int i = 0; i < list.size(); i++)
+        {
+          XWTikzTextBox * box = new XWTikzTextBox(graphic,state);
+          int len = list[i].length();
+          int pos = 0;
+          box->scan(list[i], len, pos);
+          XWTikzState * newstate = state->saveNode(box,XW_TIKZ_NODE);
+          newstate->setFillColor(Qt::black);
+          newstate->setToken(i + 1);
+        }
       }
       break;
   }

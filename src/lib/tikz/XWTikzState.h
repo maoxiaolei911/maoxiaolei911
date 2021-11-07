@@ -594,6 +594,8 @@ public:
   void setTextColor(const QColor & c);
   void setTextOpacity(double o);
   void setTextWidth(double w) {textWidth = w;}
+  void setToken(int num);
+  void setTokenDistance(double d) {tokenDistance=d;}
   void setTopColor(const QColor & c) {topColor=c;}
   void setTransform(const QTransform & transA);
   void setTransformShape() {transformShape=true;}
@@ -835,10 +837,10 @@ private:
   bool bendAtStart,bendAtEnd;
 
   bool isDrawSet;
-
   bool isFillSet;
   bool isFillText;
   int  interiorRule;
+  QColor drawColor,fillColor;
 
   bool isClipSet;
   
@@ -1077,6 +1079,8 @@ private:
   bool   relative;
   QPointF inControl, outControl;
   bool    isInControlSet,isOutControlSet;
+
+  double tokenDistance;
 
   double curveXA, curveYA;
   double curveXB, curveYB;

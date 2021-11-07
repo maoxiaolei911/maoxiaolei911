@@ -63,6 +63,8 @@ public:
   void addOpacityAction(QMenu & menu);
   void addPathFading(QMenu & menu);
   void addPatternAction(QMenu & menu);
+  void addPetriNodeAction(QMenu & menu);
+  void addPetriPathAction(QMenu & menu);
   void addPlaneAction(QMenu & menu);
   void addPlotAction(QMenu & menu);
   void addPointAction(QMenu & menu);
@@ -118,10 +120,13 @@ public:
   virtual void doEveryNode(XWTikzState * state);
   virtual void doEveryPin(XWTikzState * state);
   virtual void doEveryPinEdge(XWTikzState * state);
+  virtual void doEveryPlace(XWTikzState * state);
   virtual void doEveryRelationship(XWTikzState * state);
   virtual void doEveryShadow(XWTikzState * state);
   virtual void doEveryShape(XWTikzState * state);
   virtual void doEveryState(XWTikzState * state);
+  virtual void doEveryToken(XWTikzState * state);
+  virtual void doEveryTransition(XWTikzState * state);
   virtual void doLevel(XWTikzState * state);
   virtual void doLevelConcept(XWTikzState * state);
   virtual void doLevelNumber(XWTikzState * state);
@@ -200,10 +205,14 @@ public slots:
   void addLoopRight();
   void addMediumCircuitSymbols();
   void addMindmap();
+  void addPlace();
   void addPointDown();
   void addPointLeft();
   void addPointRight();
   void addPointUp();
+  void addPost();
+  void addPre();
+  void addPreAndPost();
   void addRelationship();
   void addSmallCircuitSymbols();
   void addSmallMindmap();
@@ -213,7 +222,9 @@ public slots:
   void addStateWithoutOutput();
   void addStateWithOutput();
   void addTinyCircuitSymbols();
+  void addToken();
   void addTransformShape();
+  void addTransition();
 
   void removeInput();
   void removeTransformShape();
@@ -399,6 +410,8 @@ public slots:
   void setStep();
   void setTapeBendHeight();
   void setTextColor();
+  void setTokenDistance();
+  void setTokens();
   void setTopColor();
   void setTrapeziumAngle();
   void setUpperLeftColor();
@@ -464,6 +477,8 @@ protected:
   XWTikzKey * findLineWidth();
   XWTikzKey * findMindmap();
   XWTikzKey * findLoop();
+  XWTikzKey * findPetriNode();
+  XWTikzKey * findPetriPath();
   XWTikzKey * findPictureType();
   XWTikzKey * findPlotHandler();
   XWTikzKey * findPoint();
@@ -1278,6 +1293,42 @@ class XWTikzEveryLoop : public XWTIKZOptions
 
 public:
   XWTikzEveryLoop(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzEveryPlace : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzEveryPlace(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzEveryTransition : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzEveryTransition(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
+class XWTikzEveryToken : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzEveryToken(XWTikzGraphic * graphicA, QObject * parent = 0);
 
   void doPath(XWTikzState * state, bool showpoint = false);
 

@@ -68,10 +68,13 @@ public:
   void doEveryNode(XWTikzState * state);
   void doEveryPin(XWTikzState * state);
   void doEveryPinEdge(XWTikzState * state);
+  void doEveryPlace(XWTikzState * state);
   void doEveryRelationship(XWTikzState * state);
   void doEveryShadow(XWTikzState * state);
   void doEveryShape(XWTikzState * state);
   void doEveryState(XWTikzState * state);
+  void doEveryToken(XWTikzState * state);
+  void doEveryTransition(XWTikzState * state);
   void doGraphic(XWPDFDriver * driver);
   void doLevel(XWTikzState * state);
   void doLevelConcept(XWTikzState * state);

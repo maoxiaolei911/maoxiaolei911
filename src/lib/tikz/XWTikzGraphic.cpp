@@ -445,6 +445,15 @@ void XWTikzGraphic::doEveryPinEdge(XWTikzState * state)
   cmds[cur]->doEveryPinEdge(state);
 }
 
+void XWTikzGraphic::doEveryPlace(XWTikzState * state)
+{
+  options->doEveryPlace(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryPlace(state);
+}
+
 void XWTikzGraphic::doEveryRelationship(XWTikzState * state)
 {
   options->doEveryRelationship(state);
@@ -479,6 +488,24 @@ void XWTikzGraphic::doEveryState(XWTikzState * state)
     return ;
 
   cmds[cur]->doEveryState(state);
+}
+
+void XWTikzGraphic::doEveryToken(XWTikzState * state)
+{
+  options->doEveryToken(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryToken(state);
+}
+
+void XWTikzGraphic::doEveryTransition(XWTikzState * state)
+{
+  options->doEveryTransition(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryTransition(state);
 }
 
 void XWTikzGraphic::doGraphic(XWPDFDriver * driver)

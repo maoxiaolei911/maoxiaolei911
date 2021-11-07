@@ -636,8 +636,8 @@ every circle connection bar /.style
 every annotation /.style
 every cut
 every fold
-every place
-every transition
+every place /.style
+every transition /.style
 every token
 every shadow /.style
 every spy in node /.style

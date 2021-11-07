@@ -701,6 +701,31 @@ void XWTIKZOptions::addPatternAction(QMenu & menu)
   connect(a, SIGNAL(triggered()), this, SLOT(setPatternColor()));
 }
 
+void XWTIKZOptions::addPetriNodeAction(QMenu & menu)
+{
+  QAction * a = menu.addAction(tr("place"));
+  connect(a, SIGNAL(triggered()), this, SLOT(addPlace()));
+  a = menu.addAction(tr("transition"));
+  connect(a, SIGNAL(triggered()), this, SLOT(addTransition()));
+  a = menu.addAction(tr("token"));
+  connect(a, SIGNAL(triggered()), this, SLOT(addToken()));
+  if (xwApp->getLicenseState() == APP_STATE_NORMAL)
+  {
+    a = menu.addAction(tr("tokens"));
+    connect(a, SIGNAL(triggered()), this, SLOT(setTokens()));
+  }
+}
+
+void XWTIKZOptions::addPetriPathAction(QMenu & menu)
+{
+  QAction * a = menu.addAction(tr("pre"));
+  connect(a, SIGNAL(triggered()), this, SLOT(addPre()));
+  a = menu.addAction(tr("post"));
+  connect(a, SIGNAL(triggered()), this, SLOT(addPost()));
+  a = menu.addAction(tr("pre and post"));
+  connect(a, SIGNAL(triggered()), this, SLOT(addPreAndPost()));
+}
+
 void XWTIKZOptions::addPlaneAction(QMenu & menu)
 {
   QAction * a = menu.addAction(tr("canvas is xy plane at z"));
@@ -1594,6 +1619,13 @@ void XWTIKZOptions::doEveryPinEdge(XWTikzState * state)
     op->doPath(state,false);
 }
 
+void XWTIKZOptions::doEveryPlace(XWTikzState * state)
+{
+  XWTikzOperation  * op = find(PGFeveryplace);
+  if (op)
+    op->doPath(state,false);
+}
+
 void XWTIKZOptions::doEveryRelationship(XWTikzState * state)
 {
   XWTikzOperation  * op = find(PGFeveryrelationship);
@@ -1621,7 +1653,21 @@ void XWTIKZOptions::doEveryShape(XWTikzState * state)
 
 void XWTIKZOptions::doEveryState(XWTikzState * state)
 {
-   XWTikzOperation  * op = find(PGFeverystatestyle);
+  XWTikzOperation  * op = find(PGFeverystatestyle);
+  if (op)
+    op->doPath(state,false);
+}
+
+void XWTIKZOptions::doEveryToken(XWTikzState * state)
+{
+  XWTikzOperation  * op = find(PGFeverytoken);
+  if (op)
+    op->doPath(state,false);
+}
+
+void XWTIKZOptions::doEveryTransition(XWTikzState * state)
+{
+  XWTikzOperation  * op = find(PGFeverytransition);
   if (op)
     op->doPath(state,false);
 }
@@ -1765,6 +1811,9 @@ void XWTIKZOptions::doPath(XWTikzState * state, bool showpoint)
       case PGFcopyshadow:
       case PGFdoublecopyshadow:
       case PGFeveryloop:
+      case PGFeveryplace:
+      case PGFeverytransition:
+      case PGFeverytoken:
         break;
     }
   }
@@ -1926,6 +1975,9 @@ void XWTIKZOptions::dragTo(XWTikzState * state)
       case PGFcopyshadow:
       case PGFdoublecopyshadow:
       case PGFeveryloop:
+      case PGFeveryplace:
+      case PGFeverytransition:
+      case PGFeverytoken:
         break;
     }
   }
@@ -2318,6 +2370,7 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFloopabove:
         case PGFloopleft:
         case PGFloopbelow:
+        case PGFchildrenaretokens:
           {
             XWTikzKey * k = new XWTikzKey(graphic,id,this);
             ops << k;
@@ -2551,6 +2604,8 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFmindistance:
         case PGFmaxdistance:
         case PGFdistance:
+        case PGFtokendistance:
+        case PGFtokens:
           {
             XWTikzValue * v= new XWTikzValue(graphic,id,this);
             ops << v;
@@ -2932,6 +2987,7 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFrectanglesplitpartfill:
         case PGFchamferedrectanglecorners:
         case PGFarrowboxarrows:
+        case PGFstructuredtokens:
           {
             XWTikzList * s = new XWTikzList(graphic,id,this);
             ops << s;
@@ -3407,6 +3463,38 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFeveryloop:
           {
             XWTikzEveryLoop * s = new XWTikzEveryLoop(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFeveryplace:
+          {
+            XWTikzEveryPlace * s = new XWTikzEveryPlace(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFeverytransition:
+          {
+            XWTikzEveryTransition * s = new XWTikzEveryTransition(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFeverytoken:
+          {
+            XWTikzEveryToken * s = new XWTikzEveryToken(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFcoloredtokens:
+          {
+            XWTikzColoredTokens * s = new XWTikzColoredTokens(graphic,this);
             ops << s;
             s->scan(str,len,pos);
           }
@@ -3998,6 +4086,20 @@ void XWTIKZOptions::addMindmap()
   graphic->push(cmd);
 }
 
+void XWTIKZOptions::addPlace()
+{
+  XWTikzKey * key = findPetriNode();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFplace);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFplace,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+  graphic->push(cmd);
+}
+
 void XWTIKZOptions::addPointDown()
 {
   XWTikzKey * key = findPoint();
@@ -4049,6 +4151,48 @@ void XWTIKZOptions::addPointUp()
   else 
   {
     key = new XWTikzKey(graphic, PGFpointup,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addPost()
+{
+  XWTikzKey * key = findPetriPath();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFpost);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFpost,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addPre()
+{
+  XWTikzKey * key = findPetriPath();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFpre);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFpre,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+  graphic->push(cmd);
+}
+
+void XWTIKZOptions::addPreAndPost()
+{
+  XWTikzKey * key = findPetriPath();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFpreandpost);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFpreandpost,this);
     cmd = new XWTikzAddOption(this,cur+1,key);
   }
   graphic->push(cmd);
@@ -4180,6 +4324,20 @@ void XWTIKZOptions::addTinyCircuitSymbols()
   graphic->push(cmd);
 }
 
+void XWTIKZOptions::addToken()
+{
+  XWTikzKey * key = findPetriNode();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFtoken);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFtoken,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+  graphic->push(cmd);
+}
+
 void XWTIKZOptions::addTransformShape()
 {
   XWTikzKey * k = getKey(PGFtransformshape);
@@ -4189,6 +4347,20 @@ void XWTIKZOptions::addTransformShape()
     QUndoCommand * cmd = new XWTikzAddOption(this,cur+1,k);
     graphic->push(cmd);
   }
+}
+
+void XWTIKZOptions::addTransition()
+{
+  XWTikzKey * key = findPetriNode();
+  QUndoCommand * cmd = 0;
+  if (key)
+    cmd = new XWTikzSetKey(key, PGFtransition);
+  else 
+  {
+    key = new XWTikzKey(graphic, PGFtransition,this);
+    cmd = new XWTikzAddOption(this,cur+1,key);
+  }
+  graphic->push(cmd);
 }
 
 void XWTIKZOptions::removeInput()
@@ -5848,6 +6020,16 @@ void XWTIKZOptions::setTextColor()
   setColor(PGFtext,tr("text color"));
 }
 
+void XWTIKZOptions::setTokenDistance()
+{
+  setExpress(PGFtokendistance,tr("token distance"),tr("distance:"));
+}
+
+void XWTIKZOptions::setTokens()
+{
+  setExpress(PGFtokens,tr("tokens"),tr("number:"));
+}
+
 void XWTIKZOptions::setTopColor()
 {
   setColor(PGFtopcolor,tr("top color"));
@@ -6647,6 +6829,38 @@ XWTikzKey * XWTIKZOptions::findLoop()
         kw == PGFloopbelow ||
         kw == PGFloopleft ||
         kw == PGFloopright)
+    {
+      return (XWTikzKey*)(ops[i]);
+    }
+  }
+
+  return 0;
+}
+
+XWTikzKey * XWTIKZOptions::findPetriNode()
+{
+  for (int i = 0; i < ops.size(); i++)
+  {
+    int kw = ops[i]->getKeyWord();
+    if (kw == PGFplace || 
+        kw == PGFtransition ||
+        kw == PGFtoken)
+    {
+      return (XWTikzKey*)(ops[i]);
+    }
+  }
+
+  return 0;
+}
+
+XWTikzKey * XWTIKZOptions::findPetriPath()
+{
+  for (int i = 0; i < ops.size(); i++)
+  {
+    int kw = ops[i]->getKeyWord();
+    if (kw == PGFpre || 
+        kw == PGFpost ||
+        kw == PGFpreandpost)
     {
       return (XWTikzKey*)(ops[i]);
     }
@@ -8214,8 +8428,8 @@ XWTikzDropShadow::XWTikzDropShadow(XWTikzGraphic * graphicA, QObject * parent)
 void XWTikzDropShadow::doPath(XWTikzState * state, bool showpoint)
 {
   state->setShadowScale(1);
-  state->setShadowXShift(5);
-  state->setShadowYShift(-5);
+  state->setShadowXShift(21.5);
+  state->setShadowYShift(-21.5);
   state->setOpacity(0.5);
   QColor color = calulateColor(PGFblack,50);
   state->setFillColor(color);
@@ -8236,8 +8450,8 @@ XWTikzCircularDropShadow::XWTikzCircularDropShadow(XWTikzGraphic * graphicA, QOb
 void XWTikzCircularDropShadow::doPath(XWTikzState * state, bool showpoint)
 {
   state->setShadowScale(1.1);
-  state->setShadowXShift(3);
-  state->setShadowYShift(-3);
+  state->setShadowXShift(12.9);
+  state->setShadowYShift(-12.9);
   QColor color = calulateColor(PGFblack,50);
   state->setFillColor(color);
   state->setPathFading(PGFcirclewithfuzzyedge15percent);
@@ -8280,8 +8494,8 @@ XWTikzCopyShadow::XWTikzCopyShadow(XWTikzGraphic * graphicA, QObject * parent)
 void XWTikzCopyShadow::doPath(XWTikzState * state, bool showpoint)
 {
   state->setShadowScale(1);
-  state->setShadowXShift(5);
-  state->setShadowYShift(5);
+  state->setShadowXShift(21.5);
+  state->setShadowYShift(21.5);
   state->setDraw(true);
   state->setFill(true);
   doPathDefault(state,showpoint);
@@ -8301,16 +8515,16 @@ XWTikzDoubleCopyShadow::XWTikzDoubleCopyShadow(XWTikzGraphic * graphicA, QObject
 void XWTikzDoubleCopyShadow::doPath(XWTikzState * state, bool showpoint)
 {
   state->setShadowScale(1);
-  state->setShadowXShift(10);
-  state->setShadowYShift(10);
+  state->setShadowXShift(21.5);
+  state->setShadowYShift(21.5);
   state->setDraw(true);
   state->setFill(true);
   doPathDefault(state,showpoint);
   state->generalShadow();
   graphic->doEveryShadow(state);
   graphic->doPath(state);
-  state->setShadowXShift(5);
-  state->setShadowYShift(5);
+  state->setShadowXShift(21.5);
+  state->setShadowYShift(21.5);
   state->setDraw(true);
   state->setFill(true);
   doPathDefault(state,showpoint);
@@ -8336,6 +8550,48 @@ void XWTikzEveryLoop::doPath(XWTikzState * state, bool showpoint)
 }
 
 QString XWTikzEveryLoop::getText()
+{
+  return getOptions();
+}
+
+XWTikzEveryPlace::XWTikzEveryPlace(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFeveryplace,parent)
+{}
+
+void XWTikzEveryPlace::doPath(XWTikzState * state, bool showpoint)
+{
+  doPathDefault(state,showpoint);
+}
+
+QString XWTikzEveryPlace::getText()
+{
+  return getOptions();
+}
+
+XWTikzEveryTransition::XWTikzEveryTransition(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFeverytransition,parent)
+{}
+
+void XWTikzEveryTransition::doPath(XWTikzState * state, bool showpoint)
+{
+  doPathDefault(state,showpoint);
+}
+
+QString XWTikzEveryTransition::getText()
+{
+  return getOptions();
+}
+
+XWTikzEveryToken::XWTikzEveryToken(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFeverytoken,parent)
+{}
+
+void XWTikzEveryToken::doPath(XWTikzState * state, bool showpoint)
+{
+  doPathDefault(state,showpoint);
+}
+
+QString XWTikzEveryToken::getText()
 {
   return getOptions();
 }

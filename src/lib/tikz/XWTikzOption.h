@@ -152,6 +152,23 @@ private:
   XWTikzColor * to;
 };
 
+class XWTikzColoredTokens : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzColoredTokens(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+
+  void scan(const QString & str, int & len, int & pos);
+
+private:
+  QList<XWTikzColor*> colors;
+};
+
 class XWTikzDashPattern : public XWTikzOperation
 {
   Q_OBJECT

@@ -10,6 +10,7 @@
 #include "LaTeXKeyWord.h"
 #include "PGFKeyWord.h"
 #include "XWPGFPool.h"
+#include "XWTeXText.h"
 #include "XWPDFDriver.h"
 #include "tikzcolor.h"
 #include "XWTikzExpress.h"
@@ -160,6 +161,7 @@ void XWTikzState::addEdge(XWTikzCoord * p)
   toStart = coords.last();
   coords << p;
   toTarget = p;
+  isPath = true;
   graphic->doToPath(this);
 }
 
@@ -167,6 +169,7 @@ void XWTikzState::addEdge()
 {
   toStart = coords.last();
   toTarget = toStart;
+  isPath = true;
   graphic->doToPath(this);
 }
 
@@ -564,6 +567,8 @@ void XWTikzState::copy(XWTikzState * newstate,bool n)
       newstate->pathFading = pathFading;
     }
     
+    newstate->drawColor = drawColor;
+    newstate->fillColor = fillColor;
     newstate->interiorRule = interiorRule;
     newstate->patternName = patternName;
     newstate->patternColor = patternColor;
@@ -797,6 +802,7 @@ void XWTikzState::copy(XWTikzState * newstate,bool n)
     newstate->outControl = outControl;
     newstate->isInControlSet = isInControlSet;
     newstate->isOutControlSet = isOutControlSet;
+    newstate->tokenDistance = tokenDistance;
   }
 
   newstate->lineWidth = lineWidth;
@@ -1187,7 +1193,7 @@ void XWTikzState::drawArrow(int a)
 
   arrow.draw(state);
 
-  state->restore();
+  restore();
 
   nextTip = arrow.tipEnd + arrowSep - arrow.backEnd;
   arrowBendMode = oldbm;
@@ -1292,14 +1298,20 @@ void XWTikzState::flush()
         if (isClipSet)
           driver->nonzeroClip();
         if (isFillSet)
+        {
+          driver->setFillColor(fillColor);
           driver->nonzeroFill();
+        }          
         break;
 
       default:
         if (isClipSet)
           driver->evenoddClip();
         if (isFillSet)
+        {
+          driver->setFillColor(fillColor);
           driver->evenoddFill();
+        }          
         break;
     }
 
@@ -1308,6 +1320,7 @@ void XWTikzState::flush()
 
     if (isDrawSet)
     {
+      driver->setStrokeColor(drawColor);
       driver->stroke();
       if (innerLineWidth > 0)
       {
@@ -2497,8 +2510,8 @@ void XWTikzState::setColor(const QColor & c)
 {
   if (driver)
   {
-    driver->setFillColor(c);
-    driver->setStrokeColor(c);
+    drawColor = c;
+    fillColor = c;
     isFillText = true;
   }
 }
@@ -2594,9 +2607,7 @@ void XWTikzState::setDecoration(int d)
 
 void XWTikzState::setDrawColor(const QColor & c)
 {
-  if (driver)
-    driver->setStrokeColor(c);
-
+  drawColor = c;
   isDrawSet = true;
 }
 
@@ -2622,9 +2633,7 @@ void XWTikzState::setFadingSlant(double sx,double sy)
 
 void XWTikzState::setFillColor(const QColor & c)
 {
-  if (driver)
-    driver->setFillColor(c);
-
+  fillColor = c;
   isFillSet = true;
 }
 
@@ -2913,7 +2922,7 @@ void XWTikzState::setShadingName(int n)
 
 void XWTikzState::setTextColor(const QColor & c)
 {
-  driver->setFillColor(c);
+  fillColor = c;
   isFillText = true;
 }
 
@@ -2921,6 +2930,293 @@ void XWTikzState::setTextOpacity(double o)
 {
   fillOpacity = o;
   isFillText = true;
+}
+
+void XWTikzState::setToken(int num)
+{
+  setDraw(false);
+  setInnerXSep(0.5);
+  setInnerYSep(0.5);
+  seiMinimumWidth(4.3);
+  seiMinimumHeight(4.3);
+  setTextColor(Qt::white);
+  setFontSize(XW_TEX_FONT_TINY);
+  graphic->doEveryToken(this);
+  switch (childrenNumber)
+  {
+    default:
+      break;
+
+    case 2:
+      {
+        switch (num)
+        {
+          default:
+            break;
+
+          case 1:
+            pathLast.setX(pathLast.x() - 0.5);
+            break;
+
+          case 2:
+            pathLast.setX(pathLast.x() + 0.5);
+            break;
+        }
+      }
+      break;
+
+    case 3:
+      {
+        switch (num)
+        {
+          default:
+            break;
+
+          case 1:
+            pathLast.setY(pathLast.y() + 0.57);
+            break;
+
+          case 2:
+            pathLast.setX(pathLast.x() - 0.5);
+            pathLast.setY(pathLast.y() - 0.306025);
+            break;
+
+          case 3:
+            pathLast.setX(pathLast.x() + 0.5);
+            pathLast.setY(pathLast.y() - 0.306025);
+            break;
+        }
+      }
+      break;
+
+    case 4:
+      {
+        switch (num)
+        {
+          default:
+            break;
+
+          case 1:
+            pathLast.setX(pathLast.x() - 0.5);
+            pathLast.setY(pathLast.y() + 0.5);
+            break;
+
+          case 2:
+            pathLast.setX(pathLast.x() + 0.5);
+            pathLast.setY(pathLast.y() + 0.5);
+            break;
+
+          case 3:
+            pathLast.setX(pathLast.x() - 0.5);
+            pathLast.setY(pathLast.y() - 0.5);
+            break;
+
+          case 4:
+            pathLast.setX(pathLast.x() + 0.5);
+            pathLast.setY(pathLast.y() - 0.5);
+            break;
+        }
+      }
+      break;
+
+    case 5:
+      {
+        switch (num)
+        {
+          default:
+            break;
+
+          case 1:
+            pathLast.setY(pathLast.y() + 0.85);
+            break;
+
+          case 2:
+            pathLast.setX(pathLast.x() - 0.808398);
+            pathLast.setY(pathLast.y() + 0.26266);
+            break;
+
+          case 3:
+            pathLast.setX(pathLast.x() + 0.808398);
+            pathLast.setY(pathLast.y() + 0.26266);
+            break;
+
+          case 4:
+            pathLast.setX(pathLast.x() - 0.499617);
+            pathLast.setY(pathLast.y() - 0.687664);
+            break;
+
+          case 5:
+            pathLast.setX(pathLast.x() + 0.499617);
+            pathLast.setY(pathLast.y() - 0.687664);
+            break;
+        }
+      }
+      break;
+
+    case 6:
+      {
+        switch (num)
+        {
+          default:
+            break;
+
+          case 1:
+            pathLast.setX(pathLast.x() - 1);
+            pathLast.setY(pathLast.y() + 0.5);
+            break;
+
+          case 2:
+            pathLast.setY(pathLast.y() + 0.5);
+            break;
+
+          case 3:
+            pathLast.setX(pathLast.x() + 1);
+            pathLast.setY(pathLast.y() + 0.5);
+            break;
+
+          case 4:
+            pathLast.setX(pathLast.x() - 1);
+            pathLast.setY(pathLast.y() - 0.5);
+            break;
+
+          case 5:
+            pathLast.setY(pathLast.y() - 0.5);
+            break;
+
+          case 6:
+            pathLast.setX(pathLast.x() + 1);
+            pathLast.setY(pathLast.y() - 0.5);
+            break;
+        }
+      }
+      break;
+
+    case 7:
+      {
+        switch (num)
+        {
+          default:
+            break;
+
+          case 1:
+            pathLast.setY(pathLast.y() + 1);
+            break;
+
+          case 2:
+            pathLast.setX(pathLast.x() - 1);
+            pathLast.setY(pathLast.y() + 0.5);
+            break;
+
+          case 4:
+            pathLast.setX(pathLast.x() + 1);
+            pathLast.setY(pathLast.y() + 0.5);
+            break;
+
+          case 5:
+            pathLast.setX(pathLast.x() - 1);
+            pathLast.setY(pathLast.y() - 0.5);
+            break;
+
+          case 6:
+            pathLast.setY(pathLast.y() - 1);
+            break;
+
+          case 7:
+            pathLast.setX(pathLast.x() + 1);
+            pathLast.setY(pathLast.y() - 0.5);
+            break;
+        }
+      }
+      break;
+
+    case 8:
+      {
+        switch (num)
+        {
+          default:
+            break;
+
+          case 1:
+            pathLast.setX(pathLast.x() - 0.5);
+            pathLast.setY(pathLast.y() + 1);
+            break;
+
+          case 2:
+            pathLast.setX(pathLast.x() + 0.5);
+            pathLast.setY(pathLast.y() + 1);
+            break;
+
+          case 3:
+            pathLast.setX(pathLast.x() - 1);
+            break;
+
+          case 5:
+            pathLast.setX(pathLast.x() + 1);
+            break;
+
+          case 6:
+            pathLast.setX(pathLast.x() - 1);
+            pathLast.setY(pathLast.y() - 1);
+            break;
+
+          case 7:
+            pathLast.setY(pathLast.y() - 1);
+            break;
+
+          case 8:
+            pathLast.setX(pathLast.x() + 1);
+            pathLast.setY(pathLast.y() - 1);
+            break;
+        }
+      }
+      break;
+
+    case 9:
+      {
+        switch (num)
+        {
+          default:
+            break;
+
+          case 1:
+            pathLast.setX(pathLast.x() - 1);
+            pathLast.setY(pathLast.y() + 1);
+            break;
+
+          case 2:
+            pathLast.setY(pathLast.y() + 1);
+            break;
+
+          case 3:
+            pathLast.setX(pathLast.x() + 1);
+            pathLast.setY(pathLast.y() + 1);
+            break;
+
+          case 4:
+            pathLast.setX(pathLast.x() - 1);
+            break;
+
+          case 6:
+            pathLast.setX(pathLast.x() + 1);
+            break;
+
+          case 7:
+            pathLast.setX(pathLast.x() - 1);
+            pathLast.setY(pathLast.y() - 1);
+            break;
+
+          case 8:
+            pathLast.setY(pathLast.y() - 1);
+            break;
+
+          case 9:
+            pathLast.setX(pathLast.x() + 1);
+            pathLast.setY(pathLast.y() - 1);
+            break;
+        }
+      }
+      break;
+  }
 }
 
 void XWTikzState::setTransform(const QTransform & transA)
@@ -3048,6 +3344,7 @@ void XWTikzState::toPath(XWTikzCoord * p)
     toStart = coords.last();
     coords << p;
     toTarget = p;
+    isPath = true;
     graphic->doToPath(this);
   }
 }
@@ -4180,7 +4477,7 @@ void XWTikzState::doNodes()
          myNode->nodeType == XW_TIKZ_PIN) &&
         edgeFromParentFinished)
     {
-      XWTikzState * state = state->save(true);
+      XWTikzState * state = save(true);
       state->myNode = myNode;
       state->parentNode = parentNode;
       switch (pictureType)
@@ -4206,7 +4503,7 @@ void XWTikzState::doNodes()
       }
       graphic->doEdgeFromParent(state);
       graphic->doEdgeFromParentPath(state);
-      state = state->restore();
+      state = restore();
     }
   }
 }
@@ -4259,17 +4556,17 @@ void XWTikzState::edgeFromParentCircleConnectionBarSwitch()
 
   QPointF pll(-startRadius,-50.1875);
   QPointF pur(1,50.1875);
-  XWTikzState * state = state->save(false);
+  XWTikzState * state = save(false);
   state->addRectangle(pll, pur);
   state->setFillColor(fromColor);
-  state = state->restore();
+  state = restore();
 
   QPointF cll(length,-50.1875);
   QPointF cur(length - 1,50.1875);
-  state = state->save(false);
+  state = save(false);
   state->addRectangle(cll, cur);
   state->setFillColor(toColor);
-  state = state->restore();
+  state = restore();
 
   scale(length * 0.009962,1);
   addShift(-50.1875, 0);
@@ -4886,6 +5183,8 @@ void XWTikzState::init()
   relative = true;
   isInControlSet = false;
   isOutControlSet = false;
+
+  tokenDistance = 6.45;
 
   position = 0;
   startPosition = 0;

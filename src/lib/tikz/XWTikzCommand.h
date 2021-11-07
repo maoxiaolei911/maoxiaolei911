@@ -88,10 +88,13 @@ public:
   virtual void doEveryNode(XWTikzState * state);
   virtual void doEveryPin(XWTikzState * state);
   virtual void doEveryPinEdge(XWTikzState * state);
+  virtual void doEveryPlace(XWTikzState * state);
   virtual void doEveryRelationship(XWTikzState * state);
   virtual void doEveryShadow(XWTikzState * state);
   virtual void doEveryShape(XWTikzState * state);
   virtual void doEveryState(XWTikzState * state);
+  virtual void doEveryToken(XWTikzState * state);
+  virtual void doEveryTransition(XWTikzState * state);
   virtual void doLevel(XWTikzState * state);
   virtual void doLevelConcept(XWTikzState * state);
   virtual void doLevelNumber(XWTikzState * state);
@@ -323,10 +326,13 @@ public:
   void doEveryNode(XWTikzState * state);
   void doEveryPin(XWTikzState * state);
   void doEveryPinEdge(XWTikzState * state);
+  void doEveryPlace(XWTikzState * state);
   void doEveryRelationship(XWTikzState * state);
   void doEveryShadow(XWTikzState * state);
   void doEveryShape(XWTikzState * state);
   void doEveryState(XWTikzState * state);
+  void doEveryToken(XWTikzState * state);
+  void doEveryTransition(XWTikzState * state);
   void doLevel(XWTikzState * state);
   void doLevelConcept(XWTikzState * state);
   void doLevelNumber(XWTikzState * state);

@@ -653,6 +653,9 @@ bool XWTikzNode::addAction(QMenu & menu, XWTikzState * state)
       submenu = menu.addMenu(tr("entity relationship"));
       options->addEntityRelationshipAction(*submenu);
       menu.addSeparator();
+      submenu = menu.addMenu(tr("petri-net"));
+      options->addPetriNodeAction(*submenu);
+      menu.addSeparator();
       options->addColorAction(menu);
       menu.addSeparator();      
       options->addLabelAction(menu);
@@ -1029,6 +1032,8 @@ bool XWTikzEdge::addAction(QMenu & menu, XWTikzState * state)
 
   menu.addSeparator();
   options->addToPathAction(menu);
+  menu.addSeparator();
+  options->addPetriPathAction(menu);
   return true;
 }
 

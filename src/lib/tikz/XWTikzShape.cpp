@@ -1265,7 +1265,10 @@ void XWTikzShape::doContent()
     return ;
 
   if (state->isFillText)
+  {
+    driver->setFillColor(state->fillColor);
     driver->fillText();
+  }
 
   QTransform transA = state->transform;
   if (box->isTextBox())

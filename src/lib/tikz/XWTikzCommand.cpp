@@ -245,6 +245,9 @@ void XWTikzCommand::doEveryPin(XWTikzState * )
 void XWTikzCommand::doEveryPinEdge(XWTikzState * )
 {}
 
+void XWTikzCommand::doEveryPlace(XWTikzState * )
+{}
+
 void XWTikzCommand::doEveryRelationship(XWTikzState * )
 {}
 
@@ -255,6 +258,12 @@ void XWTikzCommand::doEveryShape(XWTikzState * )
 {}
 
 void XWTikzCommand::doEveryState(XWTikzState *)
+{}
+
+void XWTikzCommand::doEveryToken(XWTikzState *)
+{}
+
+void XWTikzCommand::doEveryTransition(XWTikzState *)
 {}
 
 void XWTikzCommand::doLevel(XWTikzState * )
@@ -2333,6 +2342,15 @@ void XWTikzScope::doEveryPinEdge(XWTikzState * state)
   cmds[cur]->doEveryPinEdge(state);
 }
 
+void XWTikzScope::doEveryPlace(XWTikzState * state)
+{
+  options->doEveryPlace(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryPlace(state);
+}
+
 void XWTikzScope::doEveryRelationship(XWTikzState * state)
 {
   options->doEveryRelationship(state);
@@ -2367,6 +2385,24 @@ void XWTikzScope::doEveryState(XWTikzState * state)
     return ;
 
   cmds[cur]->doEveryState(state);
+}
+
+void XWTikzScope::doEveryToken(XWTikzState * state)
+{
+  options->doEveryToken(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryToken(state);
+}
+
+void XWTikzScope::doEveryTransition(XWTikzState * state)
+{
+  options->doEveryTransition(state);
+  if (cur < 0 || cur >= cmds.size())
+    return ;
+
+  cmds[cur]->doEveryTransition(state);
 }
 
 void XWTikzScope::doLevel(XWTikzState * state)
