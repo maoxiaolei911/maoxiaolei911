@@ -1033,7 +1033,7 @@ void XWTikzShape::roundedRectangleShape(bool dopath)
   if (dopath)
   {
     state = state->save(false);
-    state->addShift(centerPoint.x(),centerPoint.y());
+    state->shift(centerPoint.x(),centerPoint.y());
     state->moveTo(0, halfheight);
     if (eastarc == PGFconcave)
     {

@@ -668,4 +668,40 @@ private:
   XWTikzCoord * out;
 };
 
+class XWTikzShapeSep : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzShapeSep(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+
+  void scan(const QString & str, int & len, int & pos);
+
+private:
+  XWTikzExpress * sep;
+  int between;
+};
+
+class XWTikzShapeEvenlySpread : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzShapeEvenlySpread(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+
+  void scan(const QString & str, int & len, int & pos);
+
+private:
+  int spread;
+  int by;
+};
+
 #endif //XWTIKZOPTION_H

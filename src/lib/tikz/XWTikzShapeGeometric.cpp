@@ -705,7 +705,7 @@ void XWTikzShape::cylinderShape(bool dopath)
       y = yradius - outersep;
       yradius = y;
       state = state->save(false);
-      state->addShift(centerPoint.x(), centerPoint.y());
+      state->shift(centerPoint.x(), centerPoint.y());
       state->rotate(rotate);
       state->moveTo(afterbottom);
       state->addArc(90,270,xradius,yradius);
@@ -727,7 +727,7 @@ void XWTikzShape::cylinderShape(bool dopath)
     xradius = x;
     y = yradius - outersep;
     yradius = y;
-    state->addShift(centerPoint.x(), centerPoint.y());
+    state->shift(centerPoint.x(), centerPoint.y());
     state->rotate(rotate);
     state->moveTo(afterbottom);
     state->addArc(90,270,xradius,yradius);
@@ -1671,7 +1671,7 @@ void XWTikzShape::isosceleTriangleShape(bool dopath)
   if (dopath)
   {
     state = state->save(false);
-    state->addShift(centerPoint.x(),centerPoint.y());
+    state->shift(centerPoint.x(),centerPoint.y());
     state->rotate(rotate);
     state->moveTo(apex);
     state->lineTo(lowerleft);

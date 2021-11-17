@@ -165,9 +165,9 @@ void XWTikzShape::andGateIECShape(bool dopath)
     double xc = halfwidth - state->outerXSep;
     yc = halfheight - state->outerXSep;    
     state = state->save(false);    
-    state->addShift(centerPoint.x(), centerPoint.y());
-    QPointF ll(-xc, -yc), ur(2 * xc, 2 * yc);
-    state->addRectangle(ll,ur);
+    state->shift(centerPoint.x(), centerPoint.y());
+    QPointF ll(-xc, -yc);
+    state->rectangle(ll,2 * xc, 2 * yc);
     state = state->restore();
 
     xc = -halfwidth - invertedradius;
@@ -307,9 +307,9 @@ void XWTikzShape::nandGateIECShape(bool dopath)
     double xc = halfwidth - state->outerXSep;
     yc = halfheight - state->outerXSep;
     state = state->save(false);
-    state->addShift(centerPoint.x(), centerPoint.y());
-    QPointF ll(-xc, -yc), ur(2 * xc, 2 * yc);
-    state->addRectangle(ll,ur);
+    state->shift(centerPoint.x(), centerPoint.y());
+    QPointF ll(-xc, -yc);
+    state->rectangle(ll,2 * xc, 2 * yc);
     state = state->restore();
 
     xc = -halfwidth - invertedradius;
@@ -449,9 +449,9 @@ void XWTikzShape::norGateIECShape(bool dopath)
     double xc = halfwidth - state->outerXSep;
     yc = halfheight - state->outerXSep;
     state = state->save(false);
-    state->addShift(centerPoint.x(), centerPoint.y());
-    QPointF ll(-xc, -yc), ur(2 * xc, 2 * yc);
-    state->addRectangle(ll,ur);
+    state->shift(centerPoint.x(), centerPoint.y());
+    QPointF ll(-xc, -yc);
+    state->rectangle(ll,2 * xc, 2 * yc);
     state = state->restore();
 
     xc = -halfwidth - invertedradius;

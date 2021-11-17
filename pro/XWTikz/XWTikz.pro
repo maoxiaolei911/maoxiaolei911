@@ -82,6 +82,11 @@ SOURCES += $${XWTIKZSRCDIR}/tikzcolor.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzShade.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzTransparency.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzDecoration.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzDecorationfootprints.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzDecorationfractals.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzDecorationpathreplacing.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzDecorationshapes.cpp \
+					 $${XWTIKZSRCDIR}/XWTikzDecorationtext.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzPlotHandler.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzPlotMark.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzCommand.cpp \

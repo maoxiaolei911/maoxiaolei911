@@ -460,7 +460,7 @@ void XWTikzFading::useFading(const QString & fname,XWTikzState * state,XWObject 
   double dy = 0.5 * (state->pathMinY - state->pathMaxY);
 
   QTransform transform1(1,0,0,1,dx,dy);
-  QTransform trans = transform * transform1;
+  QTransform trans = transform1 * transform;
   driver->setMatrix(trans.m11(),trans.m12(),trans.m21(),trans.m22(),trans.dx(),trans.dy());
   driver->useFading(fname,stm);
   trans = trans.inverted();

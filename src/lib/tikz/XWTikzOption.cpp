@@ -1922,7 +1922,7 @@ void XWTikzValue::doPath(XWTikzState * state, bool)
       break;
 
     case PGFbendangle:
-      state->setBnedAngle(v.expv->getResult(state));
+      state->setBendAngle(v.expv->getResult(state));
       break;
 
     case PGFbendleft:
@@ -2030,6 +2030,117 @@ void XWTikzValue::doPath(XWTikzState * state, bool)
           newstate->setFillColor(Qt::black);
         }
       }
+      break;
+
+    case PGFtension:
+      state->setTension(v.expv->getResult(state));
+      break;
+
+    case PGFbarwidth:
+      state->setBarWidth(v.expv->getResult(state));
+      break;
+
+    case PGFbarshift:
+      state->setBarShift(v.expv->getResult(state));
+      break;
+
+    case PGFbarintervalwidth:
+      state->setBarIntervalWidth(v.expv->getResult(state));
+      break;
+
+    case PGFbarintervalshift:
+      state->setBarIntervalShift(v.expv->getResult(state));
+      break;
+
+    case PGFfootlength:
+      state->setFootLength(v.expv->getResult(state));
+      break;
+
+    case PGFstridelength:
+      state->setStrideLength(v.expv->getResult(state));
+      break;
+
+    case PGFfootsep:
+      state->setFootSep(v.expv->getResult(state));
+      break;
+
+    case PGFfootangle:
+      state->setFootAngle(v.expv->getResult(state));
+      break;
+
+    case PGFfootof:
+      state->setFootOf((int)(v.expv->getResult(state)));
+      break;
+
+    case PGFleftindent:
+      state->setLeftIndent(v.expv->getResult(state));
+      break;
+
+    case PGFrightindent:
+      state->setRightIndent(v.expv->getResult(state));
+      break;
+
+    case PGFfittopath:
+      state->setFitToPath((bool)(v.expv->getResult(state)));
+      break;
+
+    case PGFfittopathstretchingspaces:
+      state->setFitToPathStretchingSpaces((bool)(v.expv->getResult(state)));
+      break;
+
+    case PGFtext:
+      state->setText(text);
+      break;
+
+    case PGFshapewidth:
+      state->setShapeStartWidth(v.expv->getResult(state));
+      state->setShapeEndWidth(v.expv->getResult(state));
+      break;
+
+    case PGFshapeheight:
+      state->setShapeStartHeight(v.expv->getResult(state));
+      state->setShapeEndHeight(v.expv->getResult(state));
+      break;
+
+    case PGFshapesize:
+      state->setShapeStartWidth(v.expv->getResult(state));
+      state->setShapeEndWidth(v.expv->getResult(state));
+      state->setShapeStartHeight(v.expv->getResult(state));
+      state->setShapeEndHeight(v.expv->getResult(state));
+      break;
+
+    case PGFshapesloped:
+      state->setShapeSloped((bool)(v.expv->getResult(state)));
+      break;
+
+    case PGFshapescaled:
+      state->setShapeScaled((bool)(v.expv->getResult(state)));
+      break;
+
+    case PGFshapestartwidth:
+      state->setShapeStartWidth(v.expv->getResult(state));
+      break;
+
+    case PGFshapestartheight:
+      state->setShapeStartHeight(v.expv->getResult(state));
+      break;
+
+    case PGFshapestartsize:
+      state->setShapeStartWidth(v.expv->getResult(state));
+      state->setShapeStartHeight(v.expv->getResult(state));
+      break;
+
+    case PGFshapeendwidth:
+      state->setShapeEndWidth(v.expv->getResult(state));
+      break;
+
+    case PGFshapeendheight:
+      state->setShapeEndHeight(v.expv->getResult(state));
+      break;
+
+    case PGFshapeendsize:
+      state->setShapeEndWidth(v.expv->getResult(state));
+      state->setShapeEndHeight(v.expv->getResult(state));
       break;
   }
 }
@@ -2151,6 +2262,7 @@ QString XWTikzValue::getText()
     case PGFbuffergateIECsymbol:
     case PGFinitialtext:
     case PGFacceptingtext:
+    case PGFtext:
       ret += "=";
       ret += text;
       break;
@@ -2158,6 +2270,7 @@ QString XWTikzValue::getText()
     case PGFarrowdefault:
     case PGFinitialwhere:
     case PGFacceptingwhere:
+    case PGFfootof:
       {
         ret += "=";
         XWTikzState state;
@@ -2258,6 +2371,7 @@ void XWTikzValue::scan(const QString & str, int & len, int & pos)
     case PGFbuffergateIECsymbol:
     case PGFinitialtext:
     case PGFacceptingtext:
+    case PGFtext:
       scanValue(str,len,pos,text);
       break;
 
@@ -2312,6 +2426,7 @@ void XWTikzValue::scan(const QString & str, int & len, int & pos)
     case PGFpinposition:
     case PGFinitialwhere:
     case PGFacceptingwhere:
+    case PGFfootof:
       scanValue(str,len,pos,value);
       if (value[0].isLetter())
       {
@@ -4754,4 +4869,76 @@ void XWTikzControls::scan(const QString & str, int & len, int & pos)
 
   pos += 3;
   out->scan(str, len, pos);
+}
+
+XWTikzShapeSep::XWTikzShapeSep(XWTikzGraphic * graphicA, QObject * parent)
+:XWTikzOperation(graphicA, PGFshapesep,parent),
+ sep(0),
+ between(PGFbetweencenters)
+{}
+
+void XWTikzShapeSep::doPath(XWTikzState * state, bool showpoint)
+{
+  state->setShapeSep(sep->getResult(state));
+  state->setBetweenOrBy(between);
+}
+
+QString XWTikzShapeSep::getText()
+{
+  QString ret = "shape sep = {";
+  QString tmp = sep->getText();
+  ret += tmp;
+  ret += ",";
+  tmp = getPGFString(between);
+  ret += tmp;
+  ret += "}";
+  return ret;
+}
+
+void XWTikzShapeSep::scan(const QString & str, int & len, int & pos)
+{
+  while (str[pos].isSpace())
+    pos++;
+  if (str[pos] == QChar('{'))
+    pos++;
+  QString v;
+  scanValue(str, len, pos, v);
+  sep = new XWTikzExpress(graphic,v,this);
+  v.clear();
+  scanValue(str, len, pos, v);
+  if (!v.isEmpty())
+    between = lookupPGFID(v);
+}
+
+XWTikzShapeEvenlySpread::XWTikzShapeEvenlySpread(XWTikzGraphic * graphicA, QObject * parent)
+:XWTikzOperation(graphicA, PGFshapeevenlyspread,parent),
+spread(0),
+by(PGFbycenters)
+{}
+
+void XWTikzShapeEvenlySpread::doPath(XWTikzState * state, bool)
+{
+  state->setShapeEvenlySpread(spread);
+  state->setBetweenOrBy(by);
+}
+
+QString XWTikzShapeEvenlySpread::getText()
+{
+  QString tmp = getPGFString(by);
+  QString ret = QString("shape evenly spread={%1,%2}").arg(spread).arg(tmp);
+  return ret;
+}
+
+void XWTikzShapeEvenlySpread::scan(const QString & str, int & len, int & pos)
+{
+  while (str[pos].isSpace())
+    pos++;
+  if (str[pos] == QChar('{'))
+    pos++;
+  QString v;
+  scanValue(str, len, pos, v);
+  spread = v.toInt();
+  scanValue(str, len, pos, v);
+  if (!v.isEmpty())
+    by = lookupPGFID(v);
 }

@@ -84,11 +84,15 @@ public:
   virtual void doText(XWPDFDriver * driver, double xA, double yA,int s, int e);
   virtual void draw(QPainter * painter,const QRectF & r);
   virtual void draw(QPainter * painter);
+  virtual void drawChar(XWPDFDriver * driver, int i);
   void dragTo(XWPDFDriver * driver, double xA, double yA);
   void dragTo(QPainter * painter, double xA, double yA);
   void dropTo(double xA,double yA);
 
   int getAnchorPosition() {return anchorPos;}
+  int getCharacterNumber();
+  double getCharHeight(int i);
+  double getCharWidth(int i);
   QString getCurrentText();
   virtual void getDimension();
   static QString getFontName(int fam, int s,
@@ -96,6 +100,7 @@ public:
                              bool italic,bool cal);
   QString getFontName();
   QString getSelectedText();
+  int     getSpaceNumber();
   QString getSubstring(int pos, int len);
   virtual QString getText();
   int  getTextPosition() {return textPos;}
@@ -108,6 +113,7 @@ public:
   void insert(int pos, const QString & t);
   void insert(XWTeXText * obj);
   void insertAtAfter(XWTeXText * obj);
+  bool isSpace(int i);
 
   bool moveToNextChar();
   bool moveToPrevChar();

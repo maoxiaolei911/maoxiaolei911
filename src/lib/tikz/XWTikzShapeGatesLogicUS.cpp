@@ -387,7 +387,7 @@ void XWTikzShape::andGateUSShape(bool dopath)
     double yc = halfheight - outerysep;
     xb = 0.333333 * xc;
     state = state->save(false);
-    state->addShift(centerPoint.x(), centerPoint.y());
+    state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(xb, yc);
     state->setStartAngle(0);
     state->setEndAngle(-90);
@@ -702,7 +702,7 @@ void XWTikzShape::bufferGateUSShape(bool dopath)
     double xc = halfwidth - outerxsep;
     double yc = halfheight - outerysep;
     state = state->save();
-    state->addShift(centerPoint.x(), centerPoint.y());
+    state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(tipanchor);
     state->lineTo(-0.833333 * xc, 1.166666 * yc);
     state->lineTo(-0.833333 * xc, -1.166666 * yc);
@@ -954,7 +954,7 @@ void XWTikzShape::nandGateUSShape(bool dopath)
     double yc = halfheight - outerysep;
     xb = 0.333333 * xc;
     state = state->save(false);
-    state->addShift(centerPoint.x(), centerPoint.y());
+    state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(xb, yc);
     state->setStartAngle(0);
     state->setEndAngle(-90);
@@ -1253,7 +1253,7 @@ void XWTikzShape::norGateUSShape(bool dopath)
     double xc = halfwidth - outerxsep;
     double yc = halfheight - outerysep;
     state = state->save(false);
-    state->addShift(centerPoint.x(), centerPoint.y());
+    state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(-0.16666 * xc, yc);
     yc *= 2;
     state->setStartAngle(90);
@@ -1619,7 +1619,7 @@ void XWTikzShape::notGateUSShape(bool dopath)
     double xc = halfwidth - outerxsep;
     double yc = halfheight - outerysep;
     state = state->save();
-    state->addShift(centerPoint.x(), centerPoint.y());
+    state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(tipanchor);
     state->lineTo(-0.833333 * xc, 1.166666 * yc);
     state->lineTo(-0.833333 * xc, -1.166666 * yc);
@@ -1911,7 +1911,7 @@ void XWTikzShape::orGateUSShape(bool dopath)
     double xc = halfwidth - outerxsep;
     double yc = halfheight - outerysep;
     state = state->save(false);
-    state->addShift(centerPoint.x(), centerPoint.y());
+    state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(-0.16666 * xc, yc);
     yc *= 2;
     state->setStartAngle(90);
@@ -2247,7 +2247,7 @@ void XWTikzShape::xorGateUSShape(bool dopath)
     double xc = halfwidth - outerxsep;
     double yc = halfheight - outerysep;
     state = state->save();
-    state->addShift(centerPoint.x(), centerPoint.y());
+    state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(-0.16666 * xc, yc);
     yc = 2 * yc;
     state->setStartAngle(90);
@@ -2599,7 +2599,7 @@ void XWTikzShape::xnorGateUSShape(bool dopath)
     double xc = halfwidth - outerxsep;
     double yc = halfheight - outerysep;
     state = state->save();
-    state->addShift(centerPoint.x(), centerPoint.y());
+    state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(-0.16666 * xc, yc);
     yc = 2 * yc;
     state->setStartAngle(90);
@@ -2854,7 +2854,7 @@ void XWTikzShape::andGateCDHShape(bool dopath)
     double xc = halfwidth - outerxsep;
     double yc = halfheight - outerysep;
     state = state->save();
-    state->addShift(centerPoint.x(), centerPoint.y());
+    state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(-0.16666 * xc, yc);
     yc = 2 * yc;
     state->setStartAngle(90);
@@ -3091,7 +3091,7 @@ void XWTikzShape::nandGateCDHShape(bool dopath)
     double xc = halfwidth - outerxsep;
     double yc = halfheight - outerysep;
     state = state->save();
-    state->addShift(centerPoint.x(), centerPoint.y());
+    state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(-0.16666 * xc, yc);
     yc = 2 * yc;
     state->setStartAngle(90);

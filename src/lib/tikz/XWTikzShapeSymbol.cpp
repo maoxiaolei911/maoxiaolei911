@@ -697,7 +697,7 @@ void XWTikzShape::magneticTapeShape(bool dopath)
   if (dopath)
   {
     state = state->save(false);
-    state->addShift(centerPoint.x(),centerPoint.y());
+    state->shift(centerPoint.x(),centerPoint.y());
     x = radius * cos(tailangle);
     y = radius * sin(tailangle);
     state->moveTo(x,y);
@@ -1961,7 +1961,7 @@ void XWTikzShape::tapeShape(bool dopath)
     xc = bendxradius;
     yc = bendyradius;
     state = state->save(false);
-    state->addShift(centerPoint.x(), centerPoint.y());
+    state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(-halfwidth,0);
     state->lineTo(-halfwidth,halfheight);
     if (state->tapeBendTop == PGFinandout)

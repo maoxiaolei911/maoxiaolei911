@@ -21,9 +21,42 @@ public:
                  bool iscontinue);
 
 private:
-  void doDefaultHandler(XWTikzState * stateA,
-                      const QList<QPointF> & pointsA, 
-                      bool iscontinue);
+  void doHandlerClosedCurve(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerConstantLineTo(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerConstantLineToMarkMid(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerConstantLineToMarkRight(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerCurveTo(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerDiscard(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerJumpMarkLeft(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerJumpMarkMid(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerJumpMarkRight(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerLineTo(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerPolarComb(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerPolygon(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerXBar(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerXBarInterval(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerXComb(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerYBar(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerYBarInterval(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
+  void doHandlerYComb(XWTikzState * stateA,
+                      const QList<QPointF> & pointsA);
 
 private:
   int ptype;

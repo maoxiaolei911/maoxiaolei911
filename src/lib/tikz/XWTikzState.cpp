@@ -361,13 +361,6 @@ void XWTikzState::addRectangle(const QPointF & p)
   addRectangle(p0,p);
 }
 
-void XWTikzState::addShift(double xA,double yA)
-{
-  double x = xA + transform.dx();
-  double y = yA + transform.dy();
-  transform.translate(x,y);
-}
-
 void XWTikzState::addSine(XWTikzCoord * p)
 {
   coords << p;
@@ -419,7 +412,7 @@ void XWTikzState::clockwiseFrom(double a)
   double ab = a - siblingAngle * (currentChild - 1);
   double x = labelDistance * cos(ab);
   double y = labelDistance * sin(ab);
-  transform.translate(x,y);
+  shift(x,y);
 }
 
 void XWTikzState::closePath()
@@ -520,9 +513,12 @@ void XWTikzState::computePlotFunction(XWTikzCoord * exp)
   }
 }
 
-void XWTikzState::concat(XWTikzState * newstate)
+void XWTikzState::concat(double a,double b,
+                 double c,double d,
+                 double dx, double dy)
 {
-  transform = transform * newstate->transform;
+  QTransform newtrans(a,b,c,d,dx,dy);
+  transform = newtrans * transform;
 }
 
 void XWTikzState::copy(XWTikzState * newstate,bool n)
@@ -614,6 +610,31 @@ void XWTikzState::copy(XWTikzState * newstate,bool n)
     newstate->startRadius = startRadius;
     newstate->endRadius = endRadius;
     newstate->decorationAngle = decorationAngle;
+    newstate->footLength = footLength;
+    newstate->strideLength = strideLength;
+    newstate->footSep = footSep;
+    newstate->footAngle = footAngle;
+    newstate->footOf = footOf;
+    newstate->textFormatDelimiters = textFormatDelimiters;
+    newstate->leftIndent = leftIndent;
+    newstate->rightIndent = rightIndent;
+    newstate->fitToPath = fitToPath;
+    newstate->fitToPathStretchingSpaces = fitToPathStretchingSpaces;
+    newstate->pathFromText = pathFromText;
+    newstate->pathFromTextAngle = pathFromTextAngle;
+    newstate->fitTextToPath = fitTextToPath;
+    newstate->scaleTextToPath = scaleTextToPath;
+    newstate->reverseText = reverseText;
+    newstate->groupLetters = groupLetters;
+    newstate->shapeStartWidth = shapeStartWidth;
+    newstate->shapeStartHeight = shapeStartHeight;
+    newstate->shapeEndWidth = shapeEndWidth;
+    newstate->shapeEndHeight = shapeEndHeight;
+    newstate->shapeSep = shapeSep;
+    newstate->betweenOrBy = betweenOrBy;
+    newstate->shapeSloped = shapeSloped;
+    newstate->shapeScaled = shapeScaled;
+    newstate->shapeEvenlySpread = shapeEvenlySpread;
     newstate->isUseAsBoundingBoxSet = isUseAsBoundingBoxSet;
     newstate->arrowDefault = arrowDefault;
     newstate->startArrow = startArrow;
@@ -656,10 +677,18 @@ void XWTikzState::copy(XWTikzState * newstate,bool n)
     newstate->isContinue = isContinue;
     newstate->handler = handler;
     newstate->tension = tension;
+    newstate->barWidth = barWidth;
+    newstate->barShift = barShift;
+    newstate->barIntervalWidth = barIntervalWidth;
+    newstate->barIntervalShift = barIntervalShift;
     newstate->mark = mark;
     newstate->markRepeat = markRepeat;
     newstate->markPhase = markPhase;
     newstate->markSize = markSize;
+    newstate->isMarkColorSet = isMarkColorSet; 
+    newstate->markColor = markColor;
+    newstate->markText = markText;
+    newstate->asNode = asNode;
 
     newstate->samples = samples;
     newstate->domainStart = domainStart;
@@ -1184,7 +1213,7 @@ void XWTikzState::drawArrow(int a)
       state->transformArrowStraight(&arrow,secondOnPath,firstOnPath);
   }
 
-  state->addShift(nextTip,0);
+  state->shift(nextTip,0);
   state->slant(arrowSlant,arrowSlant);
   if(arrowReversed)
     state->scale(-1,1);  
@@ -1202,6 +1231,8 @@ void XWTikzState::drawArrow(int a)
 
 void XWTikzState::flush()
 {
+  computePath();
+  
   if (driver && !operations.isEmpty() && !points.isEmpty())
   {
     if (isUseAsBoundingBoxSet)
@@ -2360,6 +2391,12 @@ XWTikzState * XWTikzState::restore()
   return oldstate;
 }
 
+void XWTikzState::rotate(double d)
+{
+  QTransform newtrans(cos(d),sin(d),-sin(d),cos(d),0,0);
+  transform = newtrans * transform;
+}
+
 XWTikzState * XWTikzState::save(bool ispathA)
 {
   if (driver && !isClipSet)
@@ -2421,6 +2458,12 @@ XWTikzState * XWTikzState::saveNode(XWTeXBox * boxA,int nt)
 
   nodes << node;
   return newstate;
+}
+
+void XWTikzState::scale(double sx,double sy)
+{
+  QTransform newtrans(sx,0,0,sy,0,0);
+  transform = newtrans * transform;
 }
 
 void XWTikzState::setAlign(int a)
@@ -2613,22 +2656,26 @@ void XWTikzState::setDrawColor(const QColor & c)
 
 void XWTikzState::setFadingRoate(double d)
 {
-  fadingTransform.rotate(d);
+  QTransform newtrans(cos(d),sin(d),-sin(d),cos(d),0,0);
+  fadingTransform = newtrans * fadingTransform;
 }
 
 void XWTikzState::setFadingScale(double sx,double sy)
 {
-  fadingTransform.scale(sx,sy);
+  QTransform newtrans(sx,0,0,sy,0,0);
+  fadingTransform = newtrans * fadingTransform;
 }
 
 void XWTikzState::setFadingShift(double dx,double dy)
 {
-  fadingTransform.translate(dx,dy);
+  QTransform newtrans(1,0,0,1,dx,dy);
+  fadingTransform = newtrans * fadingTransform;
 }
 
 void XWTikzState::setFadingSlant(double sx,double sy)
 {
-  fadingTransform.shear(sx,sy);
+  QTransform newtrans(1,sx,sy,1,0,0);
+  fadingTransform = newtrans * fadingTransform;
 }
 
 void XWTikzState::setFillColor(const QColor & c)
@@ -2761,7 +2808,8 @@ void XWTikzState::setMatrix(double a,double b,
                  double c,double d,
                  double dx, double dy)
 {
-  transform.setMatrix(a,b,0,c,d,0,dx,dy,1);
+  QTransform newtrans(a,b,c,d,dx,dy);
+  transform = newtrans * transform;
 }
 
 void XWTikzState::setMindmap(int m)
@@ -2771,7 +2819,11 @@ void XWTikzState::setMindmap(int m)
 
 void XWTikzState::setMirror(bool e)
 {
-  decorateTransform.setMatrix(1,0,0,e?-1:1,0,0,0,0,1);
+  if (e)
+  {
+    QTransform newtrans(1,0,0,-1,0,0);
+    decorateTransform = newtrans * decorateTransform;
+  }
 }
 
 void XWTikzState::setMiterLimit(double v)
@@ -2862,7 +2914,7 @@ void XWTikzState::setPlane(double xa, double ya,
                            double x, double y)
 {
   transformTriangle(x,y,xa,ya,xb,yb);
-  transform.scale(0.035146,0.035146);
+  scale(0.035146,0.035146);
   xVec = 28.4527559;
   yVec = 28.4527559;
   zVec = 0;
@@ -2894,9 +2946,8 @@ void XWTikzState::setPos(double p)
 
 void XWTikzState::setRaise(double r)
 {
-  double dx = decorateTransform.dx();
-  double dy = decorateTransform.dy() + r;
-  decorateTransform.translate(dx,dy);
+  QTransform newtrans(1,0,0,1,r,r);
+  decorateTransform = newtrans * decorateTransform;
 }
 
 void XWTikzState::setRectangleSplitPartAlign(const QList<int> & l)
@@ -3219,11 +3270,6 @@ void XWTikzState::setToken(int num)
   }
 }
 
-void XWTikzState::setTransform(const QTransform & transA)
-{
-  transform = transA;
-}
-
 void XWTikzState::setupArrow(int a)
 {
   int oldbm = arrowBendMode;
@@ -3276,7 +3322,8 @@ void XWTikzState::setVariables(const QString & nameA,const QString & var)
 
 void XWTikzState::shift(double dx,double dy)
 {
-  transform.translate(dx,dy);
+  QTransform newtrans(1,0,0,1,dx,dy);
+  transform = newtrans * transform;
 }
 
 void XWTikzState::shiftOnly()
@@ -3289,7 +3336,8 @@ void XWTikzState::shiftOnly()
 
 void XWTikzState::slant(double sx,double sy)
 {
-  transform.shear(sx,sy);
+  QTransform newtrans(1,sx,sy,1,0,0);
+  transform = newtrans * transform;
 }
 
 void XWTikzState::switchColor(const QColor & fromc,const QColor & toc)
@@ -3351,9 +3399,7 @@ void XWTikzState::toPath(XWTikzCoord * p)
 
 void XWTikzState::transformColumn()
 {
-  double x = transform.dx() + columnSep;
-  double y = transform.dy();
-  transform.translate(x,y);
+  shift(columnSep,0);
 }
 
 void XWTikzState::transformNode()
@@ -3367,7 +3413,7 @@ void XWTikzState::transformNode()
       transform = trans;
     }
     else
-      transform.translate(p.x(),p.y());
+      shift(p.x(),p.y());
   }
   else
     (this->*(tikzTimer))();
@@ -3375,9 +3421,7 @@ void XWTikzState::transformNode()
 
 void XWTikzState::transformRow(double h)
 {
-  double x = transform.dx();
-  double y = transform.dy() - rowSep - h;
-  transform.translate(x,y);
+  shift(0,h);
 }
 
 void XWTikzState::addArc(double sa,double ea, double xr,double yr)
@@ -3970,15 +4014,6 @@ void XWTikzState::constructPath()
         driver->closePath();
         break;
     }
-
-    if (cp.x() < pathMinX)
-      pathMinX = cp.x();
-    if (cp.x() > pathMaxX)
-      pathMaxX = cp.x();
-    if (cp.y() < pathMinY)
-      pathMinY = p.y();
-    if (cp.y() > pathMaxY)
-      pathMaxY = cp.y();
   }
 }
 
@@ -4358,7 +4393,7 @@ void XWTikzState::decorateTransformCurve(double t,
   isSlopedSet = true;
   isAllowUpsideDown = true;
   transformCurveAtTime(t,startpoint,c1,c2,endpoint);
-  transform *= decorateTransform;
+  transform = decorateTransform * transform;
 }
 
 void XWTikzState::decorateTransformLine(const QPointF & c,
@@ -4369,7 +4404,7 @@ void XWTikzState::decorateTransformLine(const QPointF & c,
   double y = c.y() + decoratedistance * sin(decorateangle);
   transform.translate(x,y);
   transform.rotate(decorateangle);
-  transform *= decorateTransform;
+  transform = decorateTransform * transform;
 }
 
 void XWTikzState::doNodes()
@@ -4569,7 +4604,7 @@ void XWTikzState::edgeFromParentCircleConnectionBarSwitch()
   state = restore();
 
   scale(length * 0.009962,1);
-  addShift(-50.1875, 0);
+  shift(-50.1875, 0);
 }
 
 void  XWTikzState::edgeFromParentDefault()
@@ -4844,7 +4879,7 @@ void XWTikzState::init()
   anchor = PGFcenter;
   angle = 0;
   textWidth = 85;
-  align = 0;
+  align = PGFleft;
   shape = PGFrectangle;
   fontSize = 10;
   innerXSep = 3.333;
@@ -4956,6 +4991,31 @@ void XWTikzState::init()
   startRadius = 2.5;
   endRadius = 2.5;
   decorationAngle = 20;
+  footLength = 10;
+  strideLength = 30;
+  footSep = 4;
+  footAngle = 10;
+  footOf = PGFhuman;
+  textFormatDelimiters.append(QChar('|'));
+  leftIndent = 0;
+  rightIndent = 0;
+  fitToPath = true;
+  fitToPathStretchingSpaces = true;
+  pathFromText = false;
+  pathFromTextAngle = 0;
+  fitTextToPath = false;
+  scaleTextToPath = false;
+  reverseText = false;
+  groupLetters = false;
+  shapeStartWidth = 2.5;
+  shapeStartHeight = 2.5;
+  shapeEndWidth = 2.5;
+  shapeEndHeight = 2.5;
+  shapeSep = 7.1132;
+  betweenOrBy = PGFbetweencenters;
+  shapeSloped = true;
+  shapeScaled = false;
+  shapeEvenlySpread = 0;
 
   isUseAsBoundingBoxSet = false;
 
@@ -4986,10 +5046,17 @@ void XWTikzState::init()
   isContinue = false;
   handler = 0;
   tension = 0.5;
+  barWidth = 10;
+  barShift = 0;
+  barIntervalWidth = 1;
+  barIntervalShift = 0.5;
   mark = 0;
   markRepeat = 0;
   markPhase = 0;
   markSize = 2;
+  markColor = Qt::black;
+  isMarkColorSet = false;
+  asNode = true;
 
   transformShape = false;
 
@@ -6719,7 +6786,8 @@ void XWTikzState::transformArrow(const QPointF & p1,const QPointF & p2)
   double y = ya / d;
   ya = -y;
 
-  transform.setMatrix(x,y,0,ya,x,0,p2.x(),p2.y(),1);
+  QTransform newtrans(x,y,ya,x,p2.x(),p2.y());
+  transform = newtrans * transform;
 }
 
 void XWTikzState::transformArrowBend()
@@ -6820,7 +6888,8 @@ void XWTikzState::transformArrowRigit(XWTikzArrow * a,double s, double e)
       y = v.y();
     }
 
-    transform.setMatrix(x,y,0,-y,x,0,xc,yc,1);
+    QTransform newtrans(x,y,-y,x,xc,yc);
+    transform = newtrans * transform;
   }
   else
   {
@@ -6835,7 +6904,7 @@ void XWTikzState::transformArrowRigit(XWTikzArrow * a,double s, double e)
     transformArrow(p1,p2);
   }
 
-  addShift(-s, 0);
+  shift(-s, 0);
 }
 
 void XWTikzState::transformArrowStraight(XWTikzArrow * a,
@@ -6843,8 +6912,8 @@ void XWTikzState::transformArrowStraight(XWTikzArrow * a,
                            const QPointF & c2)
 {
   transformArrow(c1, c2);
-  addShift(-arrowTotalLength,0);   
-  addShift(-a->backEnd,0);   
+  shift(-arrowTotalLength,0);   
+  shift(-a->backEnd,0);   
 }
 
 void XWTikzState::transformChild()
@@ -6857,16 +6926,14 @@ void XWTikzState::transformChild()
   double y = xc * sin(growLeft) + (siblingDistance * currentChild) * sin(growRight);
   x += levelDistance * cos(growAngle);
   y += levelDistance * sin(growAngle);
-  x += transform.dx();
-  y += transform.dy();
-  transform.translate(x,y);
+  shift(x,y);
 }
 
 void XWTikzState::transformCurveAtTime(double t,const QPointF & startpoint,const QPointF & c1, 
                       const QPointF & c2,const QPointF & endpoint)
 {
   QPointF d = curveAtTime(t,startpoint,c1,c2,endpoint);
-  transform.translate(d.x(),d.y());
+  shift(d.x(),d.y());
   if (!transformShape)
   {
     QTransform trans(1,0,0,1,d.x(),d.y());
@@ -6897,7 +6964,7 @@ void XWTikzState::transformCurveAtTime(double t,const QPointF & startpoint,const
 void XWTikzState::transformLineAtTime(double t, const QPointF & p1,const QPointF & p2)
 {
   QPointF d = lineAtTime(t,p1,p2);
-  transform.translate(d.x(),d.y());
+  shift(d.x(),d.y());
   if (!transformShape)
   {
     QTransform trans(1,0,0,1,d.x(),d.y());
@@ -6933,7 +7000,8 @@ void XWTikzState::transformTriangle(double xa,double ya,
   double b = ya - y;
   double c = xb - x;
   double d = yb - y;
-  transform.setMatrix(a,b,0,c,d,0,x,y,1);
+  QTransform newtrans(a,b,c,d,x,y);
+  transform = newtrans * transform;
 }
 
 double XWTikzState::veclen(double xA,double yA)

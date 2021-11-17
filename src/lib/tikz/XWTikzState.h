@@ -103,7 +103,6 @@ public:
   void addRectangle(XWTikzCoord * p);
   void addRectangle(const QPointF & p);
   void addRectangle(const QPointF & ll,const QPointF & ur);
-  void addShift(double xA,double yA);
   void addSine(XWTikzCoord * p);  
   void addSine(const QPointF & p);
   bool allowUpsideDown() {return isAllowUpsideDown;}  
@@ -118,7 +117,9 @@ public:
   void closePath();
   void computePath();
   void computePlotFunction(XWTikzCoord * exp);
-  void concat(XWTikzState * newstate);
+  void concat(double a,double b,
+                 double c,double d,
+                 double dx, double dy);
   void copy(XWTikzState * newstate,bool n = false);
   void counterClockwiseFrom(double a);
   void curveTo(double xA,double yA, double xB,double yB, double xC,double yC);
@@ -222,7 +223,6 @@ public:
   QColor getTopColor() {return topColor;}
   QPointF getToStart();
   QPointF getToTarget();
-  QTransform getTransform() {return transform;}
   QColor getUpperLeftColor() {return upperLeftColor;}
   QColor getUpperRightColor() {return upperRightColor;}
   double getValue(const QString & nameA);
@@ -293,7 +293,7 @@ public:
   void removeLastCoord();
   void resetArrowBoxArrows();
   void resetTransform() {transform.reset();}
-  void rotate(double d) {transform.rotate(d);}
+  void rotate(double d);
 
   XWTikzState * restore();
   void restoreTransform() {transform=oldTransform;}
@@ -301,7 +301,7 @@ public:
   XWTikzState *save(bool ispathA = true);
   XWTikzState *saveNode(XWTeXBox * boxA,int nt);
   void saveTransform() {oldTransform=transform;}
-  void scale(double sx,double sy) {transform.scale(sx,sy);}
+  void scale(double sx,double sy);
   void setAbsolute(bool e) {absolute=e;}
   void setAcceptingAnchor(int a) {acceptingAnchor=a;}
   void setAcceptingAngle(double a) {acceptingAngle=a;}
@@ -348,14 +348,19 @@ public:
   void setAtPosition(XWTikzExpress * p) {position=p;}
   void setAuto(int d);
   void setBallColor(const QColor & c) {ballColor=c;}
+  void setBarIntervalShift(double s) {barIntervalShift=s;}
+  void setBarIntervalWidth(double w) {barIntervalWidth=w;}
+  void setBarShift(double s) {barShift=s;}
+  void setBarWidth(double w) {barWidth=w;}
   void setBend(XWTikzCoord * p) {bend=p;}
-  void setBnedAngle(double a) {toBend=a;}
+  void setBendAngle(double a) {toBend=a;}
   void setBendAtEnd() {bendAtEnd=true;}
   void setBendAtStart() {bendAtStart=true;}
   void setBendHeight(double h);
   void setBendLeft(double a);
   void setBendPos(double v) {bendPosIsSet=true;bendPos=v;}
   void setBendRight(double a);
+  void setBetweenOrBy(int b) {betweenOrBy=b;}
   void setBottomColor(const QColor & c) {bottomColor=c;}
   void setBufferGateIECSymbol(const QString & t) {bufferGateIECSymbol=t;}
   void setCalloutPointerArc(double a) {calloutPointerArc=a;}
@@ -421,7 +426,13 @@ public:
   void setFillOpacity(double v) {fillOpacity=v;}
   void setFillRule(int r) {interiorRule=r;}
   void setFitFading(bool e) {fitFading=e;}
+  void setFitToPath(bool e) {fitToPath=e;}
+  void setFitToPathStretchingSpaces(bool e) {fitToPathStretchingSpaces=e;}
   void setFontSize(int s) {fontSize=s;}
+  void setFootAngle(double a) {footAngle=a;}
+  void setFootLength(double l) {footLength=l;}
+  void setFootOf(int o) {footOf=o;}
+  void setFootSep(double s) {footSep=s;}
   void setGrow(int g);
   void setGrowOpposite(int g);
   void setGrowthParentAnchor(int a) {growthParentAnchor=a;}
@@ -449,6 +460,7 @@ public:
   void setLabelPosition(double p) {labelAngle=p;}
   void setLastMousePoint(const QPointF & p) {lastMousePoint = p;}
   void setLeftColor(const QColor & c) {leftColor=c;}
+  void setLeftIndent(double l) {leftIndent=l;}
   void setLevel(int l) {level=l;}
   void setLevelDistance(double d) {levelDistance=d;}
   void setLineCap(int c);
@@ -469,6 +481,9 @@ public:
   void setMGHAaspect(double a) {MGHAaspect=a;}
   void setMGHAfill(double f) {MGHAfill=f;}
   void setMark(int m) {mark=m;}
+  void setMarkColor(const QColor & c) {isMarkColorSet=true;markColor=c;}
+  void setMarkText(const QString & t) {markText=t;}
+  void setMarkTextAsNode(bool e) {asNode=e;}
   void setMarkNode(const QString & n) {markNode=n;}
   void setMarkPhase(int p) {markPhase=p;}
   void setMarkRepeat(int r) {markRepeat=r;}
@@ -542,6 +557,7 @@ public:
   void setRelative(bool e) {relative=e;}
   void setReversePath(bool e) {reversePath=e;}
   void setRightColor(const QColor & c) {rightColor=c;}
+  void setRightIndent(double l) {rightIndent=l;}
   void setRoundedCorners(double v) {roundedCorners=v;}
   void setRoundedRectangleArcLength(double l) {roundedRectangleArcLength=l;}
   void setRoundedRectangleEastArc(int t) {roundedRectangleEastArc=t;}
@@ -561,6 +577,14 @@ public:
   void setShapeAspect(double a) {shapeAspect=a;}
   void setShapeBorderRotate(double a) {shapeBorderRotate=a;}
   void setShapeBorderUsesIncircle(bool e) {shapeBorderUsesIncircle=e;}
+  void setShapeEndHeight(double h) {shapeEndHeight=h;}
+  void setShapeEndWidth(double w) {shapeEndWidth=w;}
+  void setShapeEvenlySpread(int n) {shapeEvenlySpread=n;}
+  void setShapeScaled(bool e) {shapeScaled=e;}
+  void setShapeSep(double s) {shapeSep=s;}
+  void setShapeSloped(bool e) {shapeSloped=e;}
+  void setShapeStartHeight(double h) {shapeStartHeight=h;}
+  void setShapeStartWidth(double w) {shapeStartWidth=w;}
   void setShortenStart(double l) {shortenStart = l;}
   void setShortenEnd(double l) {shortenEnd = l;}
   void setSiblingAngle(double a) {siblingAngle=a;}
@@ -585,6 +609,7 @@ public:
   void setStartPosition(XWTikzExpress * p) {startPosition=p;}
   void setStep(double sx,double sy) {xstep = sx;ystep=sy;}
   void setStep(XWTikzExpress * s) {step=s;}
+  void setStrideLength(double l) {strideLength=l;}
   void setSwap() {isSwapSet=true;}
   void setTapeBendBottom(int s) {tapeBendBottom=s;}
   void setTapeBendHeight(double h) {tapeBendHeight=h;}
@@ -597,7 +622,6 @@ public:
   void setToken(int num);
   void setTokenDistance(double d) {tokenDistance=d;}
   void setTopColor(const QColor & c) {topColor=c;}
-  void setTransform(const QTransform & transA);
   void setTransformShape() {transformShape=true;}
   void setTrapeziumLeftAngle(double a) {trapeziumLeftAngle=a;}
   void setTrapeziumRightAngle(double a) {trapeziumRightAngle=a;}
@@ -894,6 +918,18 @@ private:
   double startRadius,endRadius,decorationAngle;
   double autoEndOnLength,autoCornerOnLength;
   int    curOperation;
+  double footLength, strideLength, footSep, footAngle;
+  int    footOf;
+  QString textFormatDelimiters;
+  double leftIndent,rightIndent;
+  bool fitToPath, fitToPathStretchingSpaces;
+  bool pathFromText;
+  double pathFromTextAngle;
+  bool  fitTextToPath, scaleTextToPath, reverseText, groupLetters;
+  double shapeStartWidth,shapeStartHeight,shapeEndWidth,shapeEndHeight;
+  double shapeSep;
+  bool  shapeSloped, shapeScaled;
+  int   shapeEvenlySpread, betweenOrBy;
 
   bool isUseAsBoundingBoxSet;
 
@@ -924,10 +960,18 @@ private:
   bool   isContinue;
   int    handler;
   double tension;
+  double barWidth;
+  double barShift;
+  double barIntervalWidth;
+  double barIntervalShift;
   int    mark;
   int    markRepeat;
   int    markPhase;
   double markSize;
+  QColor markColor;
+  bool   isMarkColorSet;
+  QString markText;
+  bool   asNode;
 
   int arrowDefault;
   XWTikzArrowSpecification * startArrow;

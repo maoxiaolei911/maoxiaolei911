@@ -622,7 +622,7 @@ void XWTikzShape::breakdowndiodeIECShape(bool dopath)
     state->setDraw(true);
     state = state->restore();
     state = state->save(false);
-    state->addShift(xc, yc);
+    state->shift(xc, yc);
     yc = 0.5 * yb - 0.5 * ya;
     state->scale(yc, yc);
     state->moveTo(-0.5, -1);
@@ -1155,7 +1155,7 @@ void XWTikzShape::genericdiodeIECShape(bool dopath)
     state->setDraw(true);
     state = state->restore();
     state = state->save(false);
-    state->addShift(xb, yc);
+    state->shift(xb, yc);
     yc = 0.5 * yb - 0.5 * ya;
     state->scale(yc, yc);
     doBeforeBackground();

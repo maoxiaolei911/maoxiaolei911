@@ -18,7 +18,25 @@ XWTikzDecoration::XWTikzDecoration(int dtypeA)
  cur(-1),
 sequenceNumber(0),
 distanceFromStart(0),
-computedWidth(0)
+computedWidth(0),
+ssw(0),
+ssh(0),
+beforeShape(0),
+afterShape(0),
+width(0),
+height(0),
+initialise(0),
+specialWidth(0),
+shapeSep(0),
+widthChange(0),
+heightChange(0),
+betweenBorders(false),
+spaceShift(0),
+characterShift(0),
+indentLeft(0),
+textShift(0),
+box(0),
+node(0)
 {
   switch (dtype)
   {
@@ -91,6 +109,76 @@ computedWidth(0)
       current_state = &XWTikzDecoration::doBumpsInitState;
       final_state = &XWTikzDecoration::doBumpsFinalState;
       break;
+
+    case PGFfootprints:
+      current_state = &XWTikzDecoration::doFootPrintsLeftState;
+      final_state = &XWTikzDecoration::doFootPrintsRightState;
+      break;
+
+    case PGFKochcurvetype1:
+      current_state = &XWTikzDecoration::doKochCurveType1InitState;
+      final_state = &XWTikzDecoration::nullState;
+      break;
+
+    case PGFKochcurvetype2:
+      current_state = &XWTikzDecoration::doKochCurveType2InitState;
+      final_state = &XWTikzDecoration::nullState;
+      break;
+
+    case PGFKochsnowflake:
+      current_state = &XWTikzDecoration::doKochSnowFlakeInitState;
+      final_state = &XWTikzDecoration::nullState;
+      break;
+
+    case PGFCantorset:
+      current_state = &XWTikzDecoration::doCantorSetInitState;
+      final_state = &XWTikzDecoration::nullState;
+      break;
+
+    case PGFticks:
+      current_state = &XWTikzDecoration::doTicksTicksState;
+      final_state = &XWTikzDecoration::doTicksFinalState;
+      break;
+
+    case PGFexpandingwaves:
+      current_state = &XWTikzDecoration::doExpandingWavesInitState;
+      final_state = &XWTikzDecoration::doExpandingWavesFinalState;
+      break;
+
+    case PGFwaves:
+      current_state = &XWTikzDecoration::doWavesInitState;
+      final_state = &XWTikzDecoration::doWavesFinalState;
+      break;
+
+    case PGFborder:
+      current_state = &XWTikzDecoration::doBorderTickState;
+      final_state = &XWTikzDecoration::doBorderFinalState;
+      break;
+
+    case PGFbrace:
+      current_state = &XWTikzDecoration::doBraceBraceState;
+      final_state = &XWTikzDecoration::doBraceFinalState;
+      break;
+
+    case PGFtextalongpath:
+      current_state = &XWTikzDecoration::doTextAlongPathInitState;
+      final_state = &XWTikzDecoration::doTextAlongPathFinalState;
+      break;
+
+    case PGFtriangles:
+      current_state = &XWTikzDecoration::doTrianglesInitState;
+      final_state = &XWTikzDecoration::doTrianglesFinalState;
+      break;
+
+    case PGFcrosses:
+      current_state = &XWTikzDecoration::doCrossesInitState;
+      final_state = &XWTikzDecoration::doCrossesFinalState;
+      break;
+
+    case PGFshapebackgrounds:
+      current_state = &XWTikzDecoration::doShapeBackgroundsInitState;
+      final_state = &XWTikzDecoration::doShapeBackgroundsFinalState;
+      break;
   }
 }
 
@@ -162,6 +250,62 @@ void XWTikzDecoration::doInitState(XWTikzState * stateA)
     case PGFbumps:
       doBumpsInitState(stateA);
       break;
+
+    case PGFfootprints:
+      doFootPrintsLeftState(stateA);
+      break;
+
+    case PGFKochcurvetype1:
+      doKochCurveType1InitState(stateA);
+      break;
+
+    case PGFKochcurvetype2:
+      doKochCurveType2InitState(stateA);
+      break;
+
+    case PGFKochsnowflake:
+      doKochSnowFlakeInitState(stateA);
+      break;
+
+    case PGFCantorset:
+      doCantorSetInitState(stateA);
+      break;
+
+    case PGFticks:
+      doTicksTicksState(stateA);
+      break;
+
+    case PGFexpandingwaves:
+      doExpandingWavesInitState(stateA);
+      break;
+
+    case PGFwaves:
+      doWavesInitState(stateA);
+      break;
+
+    case PGFborder:
+      doBorderTickState(stateA);
+      break;
+
+    case PGFbrace:
+      doBraceBraceState(stateA);
+      break;
+
+    case PGFtextalongpath:
+      doTextAlongPathInitState(stateA);
+      break;
+
+    case PGFtriangles:
+      doTrianglesInitState(stateA);
+      break;
+
+    case PGFcrosses:
+      doCrossesInitState(stateA);
+      break;
+
+    case PGFshapebackgrounds:
+      doShapeBackgroundsInitState(stateA);
+      break;
   }
 }
 
@@ -201,8 +345,7 @@ void XWTikzDecoration::circleConnectionBarBarState(XWTikzState * stateA)
   double tempdimb = stateA->endRadius;
   double xc = stateA->decorationSegmentAmplitude;
   QPointF ll(0.5 * tempdima, -0.5 * xc);
-  QPointF ur(stateA->decoratedRemainingDistance - 0.5 * tempdimb - 0.5 * tempdima, xc);
-  stateA->addRectangle(ll, ur);
+  stateA->rectangle(ll, stateA->decoratedRemainingDistance - 0.5 * tempdimb - 0.5 * tempdima, xc);
   current_state = &XWTikzDecoration::circleConnectionBarEndState;
 }
 

@@ -64,13 +64,13 @@ void XWTikzCell::doPath(XWTikzState * stateA, int align, double maxw)
       break;
   }
 
-  stateA->addShift(x,0);
+  stateA->shift(x,0);
   stateA->copy(state);
 
   for (int i = 0; i < cmds.size(); i++)
     cmds[i]->doPath(state,false);
 
-  stateA->addShift(x1,0);
+  stateA->shift(x1,0);
 }
 
 void XWTikzCell::dragTo(XWTikzState * stateA)

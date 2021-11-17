@@ -1276,7 +1276,7 @@ void XWTikzArrow::FastRoundArrow(XWTikzState * state)
         double tempdima = 0.5*state->lineWidth;
         state->moveTo((double)0,tempdima);
         state->lineTo(state->arrowInset,tempdima);
-        state->addShift(state->arrowInset,0);
+        state->shift(state->arrowInset,0);
         state->curveTo(0.55228475*state->arrowLength,tempdima,state->arrowLength,0.55228475*tempdima,state->arrowLength,0);
         state->curveTo(state->arrowLength,-0.55228475*tempdima,0.55228475*state->arrowLength,-tempdima,0,-tempdima);
         state->lineTo(0,-tempdima);
@@ -1465,7 +1465,7 @@ void XWTikzArrow::ImpliesArrow(XWTikzState * state)
 
     case XW_TIKZ_ARROW_CODE_DRAW:
       {
-        state->addShift(0.06*tempdima,0);
+        state->shift(0.06*tempdima,0);
         state->setLineWidth(tempdimb);
         state->setLineCap(PGFround);
         state->setLineJoin(PGFround);
@@ -1497,7 +1497,7 @@ void XWTikzArrow::impliesArrow(XWTikzState * state)
       break;
 
     case XW_TIKZ_ARROW_CODE_DRAW:
-      state->addShift(0.06*tmpa,0);
+      state->shift(0.06*tmpa,0);
       state->setLineWidth(tmpb);
       state->setDash(-1);
       state->setLineCap(PGFround);
@@ -1876,7 +1876,7 @@ void XWTikzArrow::leftToReversedArrow(XWTikzState * state)
       state = state->restore();
       state->setLineCap(PGFround);
       state->setLineWidth(0.8*state->lineWidth);
-      state->addShift(0.625 * state->lineWidth,0);
+      state->shift(0.625 * state->lineWidth,0);
       state->moveTo(3.75*a, 4*a);
       state->curveTo(3.5*a, 2.5*a, 0.75*a, 0.25*a, 0, 0.125*state->lineWidth);
       state->moveTo(3.75*a, 4*a);
@@ -2361,7 +2361,7 @@ void XWTikzArrow::rightToReversedArrow(XWTikzState * state)
       state = state->restore();
       state->setLineCap(PGFround);
       state->setLineWidth(0.8*state->lineWidth);
-      state->addShift(0.625 * state->lineWidth,0);
+      state->shift(0.625 * state->lineWidth,0);
       state->moveTo(3.75*a, -4*a);
       state->curveTo(3.5*a, -2.5*a, 0.75*a, -0.25*a, 0, -0.125*state->lineWidth);
       state->moveTo(3.75*a, -4*a);
@@ -2431,7 +2431,7 @@ void XWTikzArrow::RoundCapArrow(XWTikzState * state)
         if (state->arrowReversed)
         {
           state->scale(-1,1);
-          state->addShift(-state->arrowLength, 0);
+          state->shift(-state->arrowLength, 0);
         }
         double tempdima = 0.5*state->lineWidth;
         state->moveTo(-0.75*state->lineWidth,tempdima);
@@ -2439,7 +2439,7 @@ void XWTikzArrow::RoundCapArrow(XWTikzState * state)
         if (state->arrowReversed)
         {
           state->lineTo(state->arrowLength,tempdima);
-          state->addShift(state->arrowLength, 0);
+          state->shift(state->arrowLength, 0);
           state->scale(-1,1);
         }
         state->curveTo(0.55228475*state->arrowLength,tempdima,state->arrowLength,0.55228475*tempdima,state->arrowLength,0);
@@ -2500,7 +2500,7 @@ void XWTikzArrow::serifcmArrow(XWTikzState * state)
     case XW_TIKZ_ARROW_CODE_DRAW:
       {
         double a = 0.4 + 0.45 * state->lineWidth;
-        state->addShift(0.04 * state->lineWidth,0);
+        state->shift(0.04 * state->lineWidth,0);
         state->moveTo(-0.75*a, 0.5 * a);
         state->curveTo(-0.375*a, 0.5*state->lineWidth,-0.375*a, 0.7*state->lineWidth,-0.375*a,1.95*a);
         state->lineTo(0, 1.95 * a);
@@ -4208,7 +4208,7 @@ void XWTikzArrow::TriangleCapArrow(XWTikzState * state)
         if (state->arrowReversed)
         {
           state->scale(-1,1);
-          state->addShift(-state->arrowLength, 0);
+          state->shift(-state->arrowLength, 0);
         }
         double tempdima = 0.5*state->lineWidth;
         state->moveTo(-0.75*state->lineWidth,tempdima);
@@ -4216,7 +4216,7 @@ void XWTikzArrow::TriangleCapArrow(XWTikzState * state)
         if (state->arrowReversed)
         {
           state->lineTo(state->arrowLength,tempdima);
-          state->addShift(state->arrowLength, 0);
+          state->shift(state->arrowLength, 0);
           state->scale(-1,1);
         }
         state->lineTo(state->arrowLength,0);

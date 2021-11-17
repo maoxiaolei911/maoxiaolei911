@@ -452,6 +452,23 @@ void XWTeXTextBoxPart::draw(QPainter * painter)
     rows[i]->draw(painter);
 }
 
+void XWTeXTextBoxPart::drawChar(XWPDFDriver * driver, int i)
+{
+  if (i == 0)
+    curObj = head;
+
+  if (!curObj)
+    return ;
+
+  if (i >= curObj->getCharacterNumber())
+    curObj = curObj->next;
+
+  if (!curObj)
+    return ;
+
+  return curObj->drawChar(driver, i);
+}
+
 void XWTeXTextBoxPart::dragTo(XWPDFDriver * driver, double xA, double yA)
 {
   if (!curObj)
@@ -516,6 +533,54 @@ int XWTeXTextBoxPart::getAnchorPosition()
     return 0;
 
   return curObj->getAnchorPosition();
+}
+
+int XWTeXTextBoxPart::getCharacterNumber()
+{
+  int ret = 0;
+  XWTeXText * obj = head;
+  while (obj)
+  {
+    int i = obj->getCharacterNumber();
+    ret += i;
+    obj = obj->next;
+  }
+
+  return ret;
+}
+
+double XWTeXTextBoxPart::getCharHeight(int i)
+{
+  if (i == 0)
+    curObj = head;
+
+  if (!curObj)
+    return 0.0;
+
+  if (i >= curObj->getCharacterNumber())
+    curObj = curObj->next;
+
+  if (!curObj)
+    return 0.0;
+
+  return curObj->getCharHeight(i);
+}
+
+double XWTeXTextBoxPart::getCharWidth(int i)
+{
+  if (i == 0)
+    curObj = head;
+
+  if (!curObj)
+    return 0.0;
+
+  if (i >= curObj->getCharacterNumber())
+    curObj = curObj->next;
+
+  if (!curObj)
+    return 0.0;
+
+  return curObj->getCharWidth(i);
 }
 
 XWTeXText * XWTeXTextBoxPart::getCurrent()
@@ -645,6 +710,21 @@ QString XWTeXTextBoxPart::getSelectedText()
     return curObj->getSelectedText();
 
   return QString();
+}
+
+int XWTeXTextBoxPart::getSpaceNumber()
+{
+  int ret = 0;
+  XWTeXText * obj = head;
+  while (obj)
+  {
+    int i = obj->getSpaceNumber();
+    ret += i;
+    ret++;
+    obj = obj->next;
+  }
+
+  return ret;
 }
 
 QString XWTeXTextBoxPart::getText()
@@ -1066,6 +1146,23 @@ bool XWTeXTextBoxPart::insertText(const QString & str)
   box->push(cmd);
 
   return true;
+}
+
+bool XWTeXTextBoxPart::isSpace(int i)
+{
+  if (i == 0)
+    curObj = head;
+
+  if (!curObj)
+    return true;
+
+  if (i >= curObj->getCharacterNumber())
+    curObj = curObj->next;
+
+  if (!curObj)
+    return true;
+
+  return curObj->isSpace(i);
 }
 
 bool XWTeXTextBoxPart::keyInput(const QString & str)
@@ -1972,6 +2069,14 @@ void XWTeXTextBox::draw(QPainter * painter)
     parts[i]->draw(painter);
 }
 
+void XWTeXTextBox::drawChar(XWPDFDriver * driver, int i)
+{
+  if (cur < 0)
+    return ;
+
+  parts[cur]->drawChar(driver, i);
+}
+
 void XWTeXTextBox::dragTo(XWPDFDriver * driver, double xA, double yA)
 {
   if (cur < 0)
@@ -2002,6 +2107,30 @@ int XWTeXTextBox::getAnchorPosition()
     return 0;
 
   return parts[cur]->getAnchorPosition();
+}
+
+int XWTeXTextBox::getCharacterNumber()
+{
+  if (cur < 0)
+    return 0;
+
+  return parts[cur]->getCharacterNumber();
+}
+
+double XWTeXTextBox::getCharHeight(int i)
+{
+  if (cur < 0)
+    return 0.0;
+
+  return parts[cur]->getCharHeight(i);
+}
+
+double XWTeXTextBox::getCharWidth(int i)
+{
+  if (cur < 0)
+    return 0.0;
+
+  return parts[cur]->getCharWidth(i);
 }
 
 int XWTeXTextBox::getCursorPosition()
@@ -2081,6 +2210,14 @@ QString XWTeXTextBox::getSelectedText()
     return QString();
 
   return parts[cur]->getSelectedText();
+}
+
+int XWTeXTextBox::getSpaceNumber()
+{
+  if (cur < 0)
+    return 0;
+
+  return parts[cur]->getSpaceNumber();
 }
 
 QString XWTeXTextBox::getText()
@@ -2200,6 +2337,14 @@ bool XWTeXTextBox::insertText(const QString & str)
   }
 
   return parts[cur]->insertText(str);
+}
+
+bool XWTeXTextBox::isSpace(int i)
+{
+  if (cur < 0)
+    return true;
+
+  return parts[cur]->isSpace(i);
 }
 
 bool XWTeXTextBox::keyInput(const QString & str)

@@ -1028,7 +1028,7 @@ void XWTikzShape::rectangleSplitShape(bool dopath)
     northeast.setY(y);
     QPointF p = southwest - northeast;
     state = state->save(false);
-    state->addRectangle(southwest, p);
+    state->rectangle(southwest, southwest.x() - northeast.x(), southwest.y() - northeast.y());
     if (state->rectangleSplitDrawSplits)
     {
       for (int i = 0; i < parts; i++)

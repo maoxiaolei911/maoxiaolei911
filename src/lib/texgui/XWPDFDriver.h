@@ -165,6 +165,7 @@ public:
   void nonzeroFill();
   void nonzeroFillStroke();
 
+  void setChar(const QChar & c);
   void setChar(double xpos,double ypos, const QChar & c);
   void setColorSpace(const QString & csname, XWObject * obj);
   void setExtGState(const QString & gsname, XWObject * obj);

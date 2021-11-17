@@ -1154,14 +1154,17 @@ mark options
 no marks
 no markers
 sharp plot
+sharp cycle
 smooth
 tension
 smooth cycle
 const plot
 const plot mark left
 const plot mark right
+const plot mark mid
 jump mark left
 jump mark right
+jump mark mid
 ycomb
 xcomb
 polar comb
@@ -1174,6 +1177,29 @@ bar width
 bar shift
 bar interval shift
 bar interval width
+Mercedes star
+Mercedes star flipped
+asterisk
+10-pointed star
+oplus
+oplus*
+otimes
+otimes*
+|
+-
+square*
+triangle
+triangle*
+diamond*
+pentagon
+pentagon*
+halfcircle
+halfcircle*
+halfdiamond*
+halfsquare*
+halfsquare right*
+halfsquare left*
+heart
 mark color
 text mark
 text mark style
@@ -2059,9 +2085,17 @@ waves
 show path construction
 markings
 footprints
+gnome
+bird
+felis silvestris
+human
 crosses
 triangles
 shape backgrounds
+between centers
+between borders
+by centers
+by borders
 text along path
 Koch curve type 1
 Koch curve type 2

@@ -1005,6 +1005,48 @@ void XWTeXText::draw(QPainter * painter)
   }
 }
 
+void XWTeXText::drawChar(XWPDFDriver * driver, int i)
+{
+  QString fontname = getFontName();
+  switch (keyWord)
+  {
+    default:
+      doText(driver, 0, 0, 0, 0);
+      break;
+
+    case XW_TEX_TEXT:
+      if (i == 0)
+        driver->setFont(fontname,(double)fontSize, true);
+      if (i < text.length())
+        driver->setChar(text[i]);
+      else
+      {
+        if (head)
+        {
+          i -= text.length();
+          head->drawChar(driver, i);
+        }
+      }
+      break;
+
+    case XW_TEX_LETTER:
+    case XW_TEX_DIGIT:
+      if (i == 0)
+        driver->setFont(fontname,(double)fontSize, false);
+      if (i < text.length())
+        driver->setChar(text[i]);
+      else
+      {
+        if (head)
+        {
+          i -= text.length();
+          head->drawChar(driver, i);
+        }
+      }
+      break;
+  }
+}
+
 void XWTeXText::dragTo(XWPDFDriver * driver, double xA, double yA)
 {
   if (!hasSelect())
@@ -1106,6 +1148,118 @@ void XWTeXText::dropTo(double xA,double yA)
   }
   else
     anchorPos = i;
+}
+
+int XWTeXText::getCharacterNumber()
+{
+  int ret = 1;
+  switch (keyWord)
+  {
+    default:
+      break;
+
+    case XW_TEX_TEXT:
+    case XW_TEX_LETTER:
+    case XW_TEX_DIGIT:
+      ret = text.length();
+      break;
+  }
+
+  XWTeXText * obj = head;
+  while (obj)
+  {
+    int k = obj->getCharacterNumber();
+    ret += k;
+    obj = obj->next;
+  }
+
+  return ret;
+}
+
+double XWTeXText::getCharWidth(int i)
+{
+  double ret = 0;
+  switch (keyWord)
+  {
+    default:
+      ret = width;
+      break;
+
+    case XW_TEX_TEXT:
+      if (i >= 0 && i < text.length())
+      {
+        QFont font = QApplication::font();
+        font.setBold(bold);
+        font.setItalic(italic);
+        font.setPointSize(fontSize);
+        if (slant)
+          font.setStyle(QFont::StyleOblique);
+        if (sc)
+          font.setCapitalization(QFont::SmallCaps);
+        if (sf)
+          font.setStyleHint(QFont::SansSerif);
+        QFontMetricsF metrics(font);
+        
+        ret = metrics.width(text[i]);
+      }
+      break;
+
+    case XW_TEX_LETTER:
+    case XW_TEX_DIGIT:
+      if (i >= 0 && i < text.length())
+      {
+        QString fontname = getFontName();
+        QByteArray tfmname = fontname.toAscii();
+        XWTFMFile tfm(tfmname.constData());
+        ret = tfm.getWidth(text[i].unicode());
+      }
+      break;
+  }
+
+  return ret;
+}
+
+double XWTeXText::getCharHeight(int i)
+{
+  double ret = 0;
+  switch (keyWord)
+  {
+    default:
+      ret = height;
+      break;
+
+    case XW_TEX_TEXT:
+      if (i >= 0 && i < text.length())
+      {
+        QFont font = QApplication::font();
+        font.setBold(bold);
+        font.setItalic(italic);
+        font.setPointSize(fontSize);
+        if (slant)
+          font.setStyle(QFont::StyleOblique);
+        if (sc)
+          font.setCapitalization(QFont::SmallCaps);
+        if (sf)
+          font.setStyleHint(QFont::SansSerif);
+        QFontMetricsF metrics(font);
+        
+        ret = metrics.height();
+      }
+      break;
+
+    case XW_TEX_LETTER:
+    case XW_TEX_DIGIT:
+      if (i >= 0 && i < text.length())
+      {
+        QString fontname = getFontName();
+        QByteArray tfmname = fontname.toAscii();
+        XWTFMFile tfm(tfmname.constData());
+        ret = tfm.getHeight(text[i].unicode());
+      }
+      break;
+  }
+
+  return ret;
 }
 
 QString XWTeXText::getCurrentText()
@@ -3528,6 +3682,28 @@ QString XWTeXText::getSelectedText()
   return text.mid(textPos,anchorPos);
 }
 
+int XWTeXText::getSpaceNumber()
+{
+  int ret = 0;
+  switch (keyWord)
+  {
+    default:
+      break;
+
+    case XW_TEX_TEXT:
+      {
+        for (int i = 0; i < text.length(); i++)
+        {
+          if (text[i].isSpace())
+            ret++;
+        }
+      }
+      break;
+  }
+
+  return ret;
+}
+
 QString XWTeXText::getSubstring(int pos, int len)
 {
   return text.mid(pos,len);
@@ -4139,6 +4315,17 @@ void XWTeXText::insertAtAfter(XWTeXText * obj)
     }      
   }
   obj->setParent(parent());
+}
+
+bool XWTeXText::isSpace(int i)
+{
+  if (keyWord != XW_TEX_TEXT)
+    return false;
+
+  if (i < 0 || i >= text.length())
+    return false;
+
+  return text[i].isSpace();
 }
 
 bool XWTeXText::moveToNextChar()

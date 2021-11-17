@@ -19,7 +19,28 @@ XWTikzPlotHandlerWidget::XWTikzPlotHandlerWidget(QWidget * parent)
   connect(buttonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(buttonGroupClicked(QAbstractButton*)));
 
   QGridLayout *layout = new QGridLayout;
-  layout->addWidget(createButton("smooth"),0,0);
+  layout->addWidget(createButton("sharp"),0,0);
+  layout->addWidget(createButton("sharp cycle"),0,1);
+  layout->addWidget(createButton("only marks"),0,2);
+  layout->addWidget(createButton("smooth"),0,3);
+
+  layout->addWidget(createButton("smooth cycle"),1,0);
+  layout->addWidget(createButton("xcomb"),1,1);
+  layout->addWidget(createButton("ycomb"),1,2);
+  layout->addWidget(createButton("ybar"),1,3);
+
+  layout->addWidget(createButton("xbar"),2,0);
+  layout->addWidget(createButton("ybar interval"),2,1);
+  layout->addWidget(createButton("xbar interval"),2,2);
+  layout->addWidget(createButton("const plot"),2,3);
+
+  layout->addWidget(createButton("const plot mark right"),3,0);
+  layout->addWidget(createButton("const plot mark mid"),3,1);
+  layout->addWidget(createButton("jump mark right"),3,2);
+  layout->addWidget(createButton("jump mark left"),3,3);
+
+  layout->addWidget(createButton("jump mark mid"),4,0);
+  layout->addWidget(createButton("polar comb"),4,1);
 
   setLayout(layout);
 }
@@ -103,7 +124,39 @@ XWTikzPlotMarkWidget::XWTikzPlotMarkWidget(QWidget * parent)
   connect(buttonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(buttonGroupClicked(QAbstractButton*)));
 
   QGridLayout *layout = new QGridLayout;
-  layout->addWidget(createButton("ball"),0,0);
+  layout->addWidget(createButton("o"),0,0);
+  layout->addWidget(createButton("Mercedes star"),0,1);
+  layout->addWidget(createButton("Mercedes star flipped"),0,2);
+  layout->addWidget(createButton("asterisk"),0,3);
+
+  layout->addWidget(createButton("star"),1,0);
+  layout->addWidget(createButton("10-pointed star"),1,1);
+  layout->addWidget(createButton("oplus"),1,2);
+  layout->addWidget(createButton("oplus*"),1,3);
+
+  layout->addWidget(createButton("otimes"),2,0);
+  layout->addWidget(createButton("otimes*"),2,1);
+  layout->addWidget(createButton("|"),2,2);
+  layout->addWidget(createButton("-"),2,3);
+
+  layout->addWidget(createButton("square"),3,0);
+  layout->addWidget(createButton("square*"),3,1);
+  layout->addWidget(createButton("triangle"),3,2);
+  layout->addWidget(createButton("triangle*"),3,3);
+
+  layout->addWidget(createButton("diamond"),4,0);
+  layout->addWidget(createButton("diamond*"),4,1);
+  layout->addWidget(createButton("pentagon"),4,2);
+  layout->addWidget(createButton("pentagon*"),4,3);
+
+  layout->addWidget(createButton("halfcircle"),5,0);
+  layout->addWidget(createButton("halfcircle*"),5,1);
+  layout->addWidget(createButton("halfdiamond*"),5,2);
+  layout->addWidget(createButton("halfsquare*"),5,3);
+
+  layout->addWidget(createButton("halfsquare right*"),6,0);
+  layout->addWidget(createButton("halfsquare left*"),6,1);
+  layout->addWidget(createButton("heart"),6,2);
 
   setLayout(layout);
 }

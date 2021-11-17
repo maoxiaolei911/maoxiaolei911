@@ -1335,4 +1335,16 @@ public:
   QString getText();
 };
 
+class XWTikzTextAlign : public XWTIKZOptions
+{
+  Q_OBJECT
+
+public:
+  XWTikzTextAlign(XWTikzGraphic * graphicA, QObject * parent = 0);
+
+  void doPath(XWTikzState * state, bool showpoint = false);
+
+  QString getText();
+};
+
 #endif //XWTIKZOPTIONS_H

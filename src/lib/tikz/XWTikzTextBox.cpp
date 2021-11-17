@@ -96,6 +96,7 @@ void XWTikzTextBox::scan(const QString & str, int & len, int & pos)
           {
             XWTikzNodePart * np = new XWTikzNodePart(graphic,this);
             nodePart << np;
+            cur++;
           }
           continue;
         }

@@ -70,11 +70,15 @@ public:
   virtual void doContent(XWPDFDriver * driver);
   virtual void draw(QPainter * painter,const QRectF & r);
   virtual void draw(QPainter * painter);
+  virtual void drawChar(XWPDFDriver * driver, int i);
   void dragTo(XWPDFDriver * driver, double xA, double yA);
   void dragTo(QPainter * painter, double xA, double yA);
   virtual bool dropTo(double xA,double yA);
 
   int getAnchorPosition();
+  int getCharacterNumber();
+  double getCharHeight(int i);
+  double getCharWidth(int i);
   int getCursorPosition() {return textPos;}
   XWTeXTextRow * getCurrentRow();
   virtual XWTeXText * getCurrent();
@@ -85,6 +89,7 @@ public:
   XWTeXText * getObject(double xA, double yA);
   virtual QString getSelected();
   QString getSelectedText();
+  int     getSpaceNumber();
   virtual QString getText();
   virtual double getWidth(double maxw);
   void goToEnd();
@@ -97,6 +102,7 @@ public:
   void insert(XWTeXText * newobj);
   virtual bool insert(const QString & str, QUndoCommand * cmdA = 0);
   bool insertText(const QString & str);
+  bool isSpace(int i);
   bool isTextBox() {return true;}
 
   virtual bool keyInput(const QString & str);
@@ -170,11 +176,15 @@ public:
   virtual void doContent(XWPDFDriver * driver);
   virtual void draw(QPainter * painter,const QRectF & r);
   virtual void draw(QPainter * painter);
+  virtual void drawChar(XWPDFDriver * driver, int i);
   void dragTo(XWPDFDriver * driver, double xA, double yA);
   void dragTo(QPainter * painter, double xA, double yA);
   virtual bool dropTo(double xA,double yA);
 
   int getAnchorPosition();
+  int getCharacterNumber();
+  double getCharHeight(int i);
+  double getCharWidth(int i);
   int getCursorPosition();
   virtual XWTeXTextRow * getCurrentRow();
   virtual XWTeXText * getCurrent();
@@ -185,6 +195,7 @@ public:
   XWTeXText * getObject(double xA, double yA);
   virtual QString getSelected();
   QString getSelectedText();
+  int     getSpaceNumber();
   virtual QString getText();
   virtual double getWidth(double maxw, int nop = 0);
   void goToEnd();
@@ -197,6 +208,7 @@ public:
   void insert(XWTeXText * newobj);
   virtual bool insert(const QString & str, QUndoCommand * cmdA = 0);
   bool insertText(const QString & str);
+  bool isSpace(int i);
   bool isTextBox() {return true;}
 
   virtual bool keyInput(const QString & str);

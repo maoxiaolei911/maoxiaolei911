@@ -2606,6 +2606,26 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFdistance:
         case PGFtokendistance:
         case PGFtokens:
+        case PGFbarwidth:
+        case PGFbarshift:
+        case PGFbarintervalwidth:
+        case PGFbarintervalshift:
+        case PGFfootlength:
+        case PGFstridelength:
+        case PGFfootsep:
+        case PGFfootangle:
+        case PGFfootof:
+        case PGFshapewidth:
+        case PGFshapeheight:
+        case PGFshapesize:
+        case PGFshapesloped:
+        case PGFshapescaled:
+        case PGFshapestartwidth:
+        case PGFshapestartheight:
+        case PGFshapestartsize:
+        case PGFshapeendwidth:
+        case PGFshapeendheight:
+        case PGFshapeendsize:
           {
             XWTikzValue * v= new XWTikzValue(graphic,id,this);
             ops << v;
@@ -2648,7 +2668,6 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFinnercolor:
         case PGFoutercolor:
         case PGFdouble:
-        case PGFtext:
         case PGFcylinderendfill:
         case PGFcylinderbodyfill:
         case PGFconceptcolor:
@@ -2657,6 +2676,23 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
             XWTikzColor * c = new XWTikzColor(graphic,id,this);
             ops << c;
             c->scan(str,len,pos);
+          }
+          break;
+
+        case PGFtext:
+          {
+            if (keyWord == PGFdecoration)
+            {
+              XWTikzValue * v= new XWTikzValue(graphic,id,this);
+              ops << v;
+              v->scan(str,len,pos);
+            }
+            else
+            {
+              XWTikzColor * c = new XWTikzColor(graphic,id,this);
+              ops << c;
+              c->scan(str,len,pos);
+            }
           }
           break;
 
@@ -3495,6 +3531,30 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFcoloredtokens:
           {
             XWTikzColoredTokens * s = new XWTikzColoredTokens(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFtextalign:
+          {
+            XWTikzTextAlign * s = new XWTikzTextAlign(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFshapesep:
+          {
+            XWTikzShapeSep * s = new XWTikzShapeSep(graphic,this);
+            ops << s;
+            s->scan(str,len,pos);
+          }
+          break;
+
+        case PGFshapeevenlyspread:
+          {
+             XWTikzShapeEvenlySpread * s = new XWTikzShapeEvenlySpread(graphic,this);
             ops << s;
             s->scan(str,len,pos);
           }
@@ -8592,6 +8652,20 @@ void XWTikzEveryToken::doPath(XWTikzState * state, bool showpoint)
 }
 
 QString XWTikzEveryToken::getText()
+{
+  return getOptions();
+}
+
+XWTikzTextAlign::XWTikzTextAlign(XWTikzGraphic * graphicA, QObject * parent)
+:XWTIKZOptions(graphicA, PGFtextalign,parent)
+{}
+
+void XWTikzTextAlign::doPath(XWTikzState * state, bool showpoint)
+{
+  doPathDefault(state,showpoint);
+}
+
+QString XWTikzTextAlign::getText()
 {
   return getOptions();
 }

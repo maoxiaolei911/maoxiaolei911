@@ -141,9 +141,7 @@ void XWTikzPattern::doCheckerBoard(XWTikzState * state)
 		state = state->save();
 	  driver->beginPattern(name,0,0,0,11.381,11.381,11.381,11.381,&ref);
 	  QPointF ll(0,0);
-		QPointF ur(5.691,5.691);
-		state->addRectangle(ll,ur);
-		state->addRectangle(ur,ur);
+		state->rectangle(ll,5.691,5.691);
 	  state->setFill(true);
 	  state = state->restore();
 		driver->endPattern();
@@ -163,16 +161,15 @@ void XWTikzPattern::doCheckerBoardLightGray(XWTikzState * state)
 		QColor rgb = calulateColor(Qt::black,0.1);
 		state->setFillColor(rgb);
 		QPointF ll1(0,0);
-		QPointF ur1(11.666,11.666);
-		state->addRectangle(ll1,ur1);
+		state->rectangle(ll1,11.666,11.666);
 		state = state->restore();
 		state = state->save();
 		rgb = calulateColor(Qt::black,0.2);
 		state->setFillColor(rgb);
 		QPointF ll2(0,0);
 		QPointF ur2(5.691,5.691);
-		state->addRectangle(ll2,ur2);
-		state->addRectangle(ur2,ur2);
+		state->rectangle(ll2,5.691,5.691);
+		state->rectangle(ur2,5.691,5.691);
     state = state->restore();
 		driver->endPattern();
 	}
@@ -390,14 +387,13 @@ void XWTikzPattern::doHorizontalLinesDarkBlue(XWTikzState * state)
 		QColor rgb = calulateColor(Qt::blue,0.9);
 		state->setFillColor(rgb);
 		QPointF ll(0,0);
-		QPointF ur(100,2.5);
-		state->addRectangle(ll,ur);
+		state->rectangle(ll,100,2.5);
 		state = state->restore();
 		state = state->save();
 		rgb = calulateColor(Qt::blue,0.85);
 		state->setFillColor(rgb);
 		QPointF ll1(0,2);
-		state->addRectangle(ll1,ur);
+		state->rectangle(ll1,100,2.5);
 	  state = state->restore();
 		driver->endPattern();
 	}
@@ -416,13 +412,13 @@ void XWTikzPattern::doHorizontalLinesDarkGray(XWTikzState * state)
 		state->setFillColor(rgb);
 		QPointF ll(0,0);
 		QPointF ur(100,2.5);
-		state->addRectangle(ll,ur);
+		state->rectangle(ll,100,2.5);
 		state = state->restore();
 		state = state->save();
 		rgb = calulateColor(Qt::black,0.85);
 		state->setFillColor(rgb);
 		QPointF ll1(0,2);
-		state->addRectangle(ll1,ur);
+		state->rectangle(ll1,100,2.5);
 	  state = state->restore();
 		driver->endPattern();
 	}
@@ -440,14 +436,13 @@ void XWTikzPattern::doHorizontalLinesGray(XWTikzState * state)
 		QColor rgb = calulateColor(Qt::black,0.3);
 		state->setFillColor(rgb);
 		QPointF ll(0,0);
-		QPointF ur(100,2.5);
-		state->addRectangle(ll,ur);
+		state->rectangle(ll,100,2.5);
 		state = state->restore();
 		state = state->save();
 		rgb = calulateColor(Qt::black,0.35);
 		state->setFillColor(rgb);
 		QPointF ll1(0,2);
-		state->addRectangle(ll1,ur);
+		state->rectangle(ll1,100,2.5);
 	  state = state->restore();
 		driver->endPattern();
 	}
@@ -465,14 +460,13 @@ void XWTikzPattern::doHorizontalLinesLightBlue(XWTikzState * state)
 		QColor rgb = calulateColor(Qt::blue,0.1);
 		state->setFillColor(rgb);
 		QPointF ll(0,0);
-		QPointF ur(100,2.5);
-		state->addRectangle(ll,ur);
+		state->rectangle(ll,100,2.5);
 		state = state->restore();
 		state = state->save();
 		rgb = calulateColor(Qt::blue,0.15);
 		state->setFillColor(rgb);
 		QPointF ll1(0,2);
-		state->addRectangle(ll1,ur);
+		state->rectangle(ll1,100,2.5);
 	  state = state->restore();
 		driver->endPattern();
 	}
@@ -490,14 +484,13 @@ void XWTikzPattern::doHorizontalLinesLightGray(XWTikzState * state)
 		QColor rgb = calulateColor(Qt::black,0.1);
 		state->setFillColor(rgb);
 		QPointF ll(0,0);
-		QPointF ur(100,2.5);
-		state->addRectangle(ll,ur);
+		state->rectangle(ll,100,2.5);
 		state = state->restore();
 		state = state->save();
 		rgb = calulateColor(Qt::black,0.15);
 		state->setFillColor(rgb);
 		QPointF ll1(0,2);
-		state->addRectangle(ll1,ur);
+		state->rectangle(ll1,100,2.5);
 	  state = state->restore();
 		driver->endPattern();
 	}

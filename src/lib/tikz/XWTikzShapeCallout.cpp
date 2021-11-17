@@ -547,7 +547,7 @@ void XWTikzShape::rectangleCalloutShape(bool dopath)
     state->moveTo(beforecalloutpointer);
     state->lineTo(calloutpointer);
     state->lineTo(aftercalloutpointer);
-    state->addShift(centerPoint.x(),centerPoint.y());
+    state->shift(centerPoint.x(),centerPoint.y());
     state->lineTo(firstpoint);
     state->lineTo(secondpoint);
     state->lineTo(thirdpoint);

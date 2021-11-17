@@ -1435,6 +1435,61 @@ void XWPDFDriver::nonzeroFillStroke()
   addPageContent("B\n", 2);
 }
 
+void XWPDFDriver::setChar(const QChar & c)
+{
+	stringMode();
+	char buf[1000];
+	int len = 0;
+	buf[len++] = '[';
+	if (is_mb)
+  {
+		buf[len++] = '<';
+		buf[len++] = '0';
+		buf[len++] = '0';
+    int ch = c.unicode();
+    int first  = (((ch >> 8) & 0x00ff) >> 4) & 0x000f;
+    int second = (ch & 0x00ff) & 0x000f;
+    buf[len++] = ((first >= 10)  ? first  + 'W' : first  + '0');
+    buf[len++] = ((second >= 10)  ? second  + 'W' : second  + '0');
+    buf[len++] = '>';
+  }
+	else
+	{
+		buf[len++] = '(';
+	  int ch = (char)(c.unicode() & 0x00ff);
+	
+	  switch (ch)
+	  {
+		  case '(':
+			  buf[len++] = '\\';
+			  buf[len++] = '(';
+			  break;
+					
+		  case ')':
+		    buf[len++] = '\\';
+		    buf[len++] = ')';
+		    break;
+					
+ 		  case '\\':
+		    buf[len++] = '\\';
+		    buf[len++] = '\\';
+  	    break;
+					
+   	  default:
+	      buf[len++] = ch;
+		    break;
+	  }
+	  buf[len++] = (char)(c.unicode() & 0x00ff);
+	  buf[len++] = ')';
+	}
+	
+	buf[len++] = ']';
+	buf[len++] = 'T';
+	buf[len++] = 'J';
+	buf[len++] = '\n';
+	addPageContent(buf, len);
+}
+
 void XWPDFDriver::setChar(double xpos,double ypos, const QChar & c)
 {
 	double deltaX = xpos - ref_x;

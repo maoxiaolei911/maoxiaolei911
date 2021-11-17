@@ -33,6 +33,23 @@ XWTikzDecorationWidget::XWTikzDecorationWidget(QWidget * parent)
   layout->addWidget(createButton("coil"),2,2);
   layout->addWidget(createButton("bumps"),2,3);
 
+  layout->addWidget(createButton("footprints"),3,0);
+  layout->addWidget(createButton("Koch curve type 1"),3,1);
+  layout->addWidget(createButton("Koch curve type 2"),3,2);
+  layout->addWidget(createButton("Koch snowflake"),3,3);
+
+  layout->addWidget(createButton("Cantor set"),4,0);
+  layout->addWidget(createButton("triangles"),4,1);
+  layout->addWidget(createButton("crosses"),4,2);
+  layout->addWidget(createButton("shape backgrounds"),4,3);
+
+  layout->addWidget(createButton("ticks"),5,0);
+  layout->addWidget(createButton("expanding waves"),5,1);
+  layout->addWidget(createButton("waves"),5,2);
+  layout->addWidget(createButton("border"),5,3);
+
+  layout->addWidget(createButton("brace"),6,0);
+
   setLayout(layout);
 }
 
