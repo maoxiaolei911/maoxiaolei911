@@ -39,10 +39,12 @@
 #include "XWLaTeXEditorCore.h"
 #include "XWLaTeXFormularMainWindow.h"
 #include "XWTikzMainWindow.h"
+#include "XWTeXDocSearcher.h"
 #include "XWLaTeXEditorMainWindow.h"
 
 XWLaTeXEditorMainWindow::XWLaTeXEditorMainWindow()
 {
+	searcher = new XWTeXDocSearcher(this);
 	topPage = 0;
 	QString title = xwApp->getProductName();
  	setWindowTitle(title);
@@ -59,7 +61,14 @@ XWLaTeXEditorMainWindow::XWLaTeXEditorMainWindow()
 
    folderDock = new QDockWidget(tr("Folder"), this);
  	folderDock->setAllowedAreas(Qt::LeftDockWidgetArea);
+	 addDockWidget(Qt::LeftDockWidgetArea, folderDock);
+ 	folderDock->toggleViewAction()->setChecked(false);
+
+	 QTabWidget * tab = new QTabWidget(folderDock);
+	folderDock->setWidget(tab);
+
  	folder = new QTreeView(this);
+	 tab->addTab(folder,tr("Folder"));
  	folderModel = new QFileSystemModel;
 	QStringList filters;
 	filters << "*.tex" << "*.txt";
@@ -67,9 +76,16 @@ XWLaTeXEditorMainWindow::XWLaTeXEditorMainWindow()
 	folderModel->setNameFilterDisables(false);
  	folderModel->setRootPath(QDir::currentPath());
  	folder->setModel(folderModel);
- 	folderDock->setWidget(folder);
- 	addDockWidget(Qt::LeftDockWidgetArea, folderDock);
- 	folderDock->toggleViewAction()->setChecked(false);
+
+	 XWTeXDocSearchWidget * sw = new XWTeXDocSearchWidget(searcher, tab);
+	tab->addTab(sw,tr("Search"));
+	connect(sw, SIGNAL(positionActivated(int, double,double,double,double)), 
+	         this, SLOT(showSearchResult(int, double,double,double,double)));
+
+	XWTeXDocReplaceWidget * rw = new XWTeXDocReplaceWidget(searcher, tab);
+	tab->addTab(rw,tr("Replace"));
+	connect(rw, SIGNAL(positionActivated(int, double,double,double,double)), 
+	            this, SLOT(showSearchResult(int, double,double,double,double)));
 
    coreDock = new QDockWidget(tr("Preview"), this);
    coreDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
@@ -1352,6 +1368,15 @@ void XWLaTeXEditorMainWindow::showReplaceDialog()
 	cur->showReplaceDialog();
 }
 
+void XWLaTeXEditorMainWindow::showSearchResult(int pg, double minx, double miny, double maxx,double maxy)
+{
+	XWTeXDocumentCore * cur = activeMdiChild();
+	if (!cur)
+	  return ;
+
+	cur->displayPage(pg, minx, miny, maxx, maxy);
+}
+
 void XWLaTeXEditorMainWindow::updateActions()
 {
 	XWLaTeXDocument * doc = currentDoc();
@@ -1605,7 +1630,12 @@ void XWLaTeXEditorMainWindow::closeEvent(QCloseEvent *event)
 XWTeXDocumentCore * XWLaTeXEditorMainWindow::activeMdiChild()
 {
 	if (QMdiSubWindow *activeSubWindow = mdiArea->activeSubWindow())
-     return qobject_cast<XWTeXDocumentCore *>(activeSubWindow->widget());
+	{
+		XWTeXDocumentCore * ret = qobject_cast<XWTeXDocumentCore *>(activeSubWindow->widget());
+		searcher->setDoc(ret->document());
+		return ret;
+	}
+     
   return 0;
 }
 
@@ -1994,6 +2024,7 @@ XWTeXDocumentCore *XWLaTeXEditorMainWindow::createMdiChild(const QString &filena
 	XWLaTeXDocument * doc = new XWLaTeXDocument;
 	XWTeXDocumentCore *child = new XWTeXDocumentCore(doc);
 	child->loadFile(filename);
+	searcher->setDoc(doc);
   mdiArea->addSubWindow(child);
 
 	connect(doc, SIGNAL(sectionChanged()), this, SLOT(updateActions()));
@@ -2256,6 +2287,7 @@ void XWLaTeXEditorMainWindow::createMenus()
 XWLaTeXDocument * XWLaTeXEditorMainWindow::currentDoc()
 {
 	XWTeXDocumentCore * cur = activeMdiChild();
+	searcher->setDoc(cur->document());
 	return (XWLaTeXDocument*)(cur->document());
 }
 
@@ -2301,7 +2333,10 @@ QMdiSubWindow * XWLaTeXEditorMainWindow::findMdiChild(const QString &fileName)
       XWTeXDocumentCore *mdiChild = qobject_cast<XWTeXDocumentCore *>(window->widget());
       QString fn = mdiChild->getFileName();
       if (fn == fileName)
-          return window;
+			{
+				searcher->setDoc(mdiChild->document());
+				return window;
+			}
   }
   return 0;
 }

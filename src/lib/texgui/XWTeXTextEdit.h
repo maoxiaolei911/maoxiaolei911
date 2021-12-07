@@ -32,7 +32,6 @@ public:
 	virtual ~XWTeXTextEdit() {}
 
   void find(const QString & str, bool casesensitivity, bool wholeword, bool regexpA);
-	void findAll(const QString & str, bool casesensitivity, bool wholeword, bool regexpA);
 	void findNext();
 	
 	QString getFileName() {return fullFileName;}
@@ -49,7 +48,6 @@ public:
 	void loadFile(const QString & filename);
 
   void replace(const QString & str, const QString & bystr, bool casesensitivity, bool wholeword, bool regexpA);
-	void replaceAll(const QString & str, const QString & bystr, bool casesensitivity, bool wholeword, bool regexpA);
 	void replaceNext();
 	
 	void save();	
@@ -59,6 +57,7 @@ public:
   void setFileName(const QString & filename);
   void setHighlighter(XWTeXHighlighter * h);
 	void setOutputCodec(const QString & name);
+	void setSelected(int pos, int len);
 	
 signals:
 	void cursorChanged(int r, int c);

@@ -897,6 +897,14 @@ void XWTeXDocumentCore::displayPage(int pg, bool scrollToTop)
   }
 }
 
+void XWTeXDocumentCore::displayPage(int pg, double minx, double miny, double maxx,double maxy)
+{
+  topPage = pg;
+  XWTeXDocumentCorePage * page = getPage(topPage);
+  setSelection(page, minx,miny,maxx,maxy);
+  ensureCursorVisible();
+}
+
 void XWTeXDocumentCore::ensureCursorVisible()
 {
   lastDragLeft = lastDragTop = true;
@@ -912,14 +920,9 @@ void XWTeXDocumentCore::find()
 
 	bool casematch = findDialog->isCaseSensitive();
 	bool wholewords = findDialog->isWholeWords();
-	bool regexpmatch = findDialog->isRegexpMatch();
-	if (findDialog->isAll())
-	  doc->findAll(str,casematch,wholewords,regexpmatch);
-	else
-	{
-		doc->setFindCondition(str,casematch,wholewords,regexpmatch);
-	  doc->findNext();
-	}
+	bool regexpmatch = findDialog->isRegexpMatch();	
+	doc->setFindCondition(str,casematch,wholewords,regexpmatch);
+	doc->findNext();
 }
 
 void XWTeXDocumentCore::findNext()
@@ -981,27 +984,8 @@ void XWTeXDocumentCore::replace()
 	bool casematch = findDialog->isCaseSensitive();
 	bool wholewords = findDialog->isWholeWords();
 	bool regexpmatch = findDialog->isRegexpMatch();
-	if (findDialog->isAll())
-	  doc->replaceAll(str,bystr, casematch,wholewords,regexpmatch);
-	else
-	{
-		doc->setReplaceCondition(str,bystr, casematch,wholewords,regexpmatch);
-	  doc->replaceNext();
-	}
-}
-
-void XWTeXDocumentCore::replaceNext()
-{
-  QString str = replaceDialog->getText();
-	if (str.isEmpty())
-	  return ;
-
-  QString bystr = replaceDialog->getByText();
-	bool casematch = findDialog->isCaseSensitive();
-	bool wholewords = findDialog->isWholeWords();
-	bool regexpmatch = findDialog->isRegexpMatch();
-  doc->setReplaceCondition(str,bystr, casematch,wholewords,regexpmatch);
-  doc->replaceNext();
+	doc->setReplaceCondition(str,bystr, casematch,wholewords,regexpmatch);
+	doc->replaceNext();
 }
 
 void XWTeXDocumentCore::save()
@@ -1160,7 +1144,6 @@ void XWTeXDocumentCore::setSlideIndex()
 
 void XWTeXDocumentCore::showFindDialog()
 {
-  findDialog->hideAll(false);
   if (doc->hasSelect())
   {
     QString txt = doc->getCurrentSelected();
@@ -1171,7 +1154,6 @@ void XWTeXDocumentCore::showFindDialog()
 
 void XWTeXDocumentCore::showReplaceDialog()
 {
-  replaceDialog->hideAll(false);
   if (doc->hasSelect())
   {
     QString txt = doc->getCurrentSelected();

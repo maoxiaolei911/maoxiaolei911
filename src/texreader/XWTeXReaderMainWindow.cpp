@@ -41,10 +41,13 @@
 #include "XWTeXReaderCore.h"
 #include "XWTeXReaderDev.h"
 #include "XWTeXConsole.h"
+#include "XWSearcher.h"
+#include "XWDocSearchWidget.h"
 #include "XWTeXReaderMainWindow.h"
 
 XWTeXReaderMainWindow::XWTeXReaderMainWindow()
 {
+	searcher = new XWPDFSearcher(this);
 	QString title = xwApp->getProductName();
 	setWindowTitle(title);
     setWindowIcon(QIcon(":/images/xiuwen24.png"));
@@ -61,12 +64,20 @@ XWTeXReaderMainWindow::XWTeXReaderMainWindow()
     core = new XWTeXReaderCore(this, this);
     setCentralWidget(core);
     
-    dock = new QDockWidget(tr("Outline"), this);
+    dock = new QDockWidget(this);
     dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    outlineWin = new XWOutlineWindow(core, dock);
-    dock->setWidget(outlineWin);
-    addDockWidget(Qt::LeftDockWidgetArea, dock);
+		addDockWidget(Qt::LeftDockWidgetArea, dock);
     dock->toggleViewAction()->setChecked(false);
+
+		QTabWidget * tab = new QTabWidget(dock);
+		dock->setWidget(tab);
+
+    outlineWin = new XWOutlineWindow(core, tab);
+    tab->addTab(outlineWin,tr("Outline"));
+    XWTeXPDFSearchWidget * sw = new XWTeXPDFSearchWidget(searcher,tab);
+		tab->addTab(outlineWin,tr("Search"));
+		connect(sw, SIGNAL(positionActivated(int, double,double,double,double)), 
+		        this, SLOT(showSearchResult(int, double,double,double,double)));
     
     termDock = new QDockWidget(tr("Term out"), this);
   termDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
@@ -496,6 +507,9 @@ void XWTeXReaderMainWindow::rotate()
 		
 	if (r != core->getRotate())
 		core->setRotate(r);
+
+	searcher->setDPI(core->getDPI());
+	searcher->setRotate(core->getRotate());
 }
 
 void XWTeXReaderMainWindow::saveToDvi()
@@ -755,6 +769,8 @@ void XWTeXReaderMainWindow::saveToText()
 void XWTeXReaderMainWindow::setContinuousMode(bool e)
 {
 	core->setContinuousMode(e);
+	searcher->setDPI(core->getDPI());
+	searcher->setRotate(core->getRotate());
 }
 
 void XWTeXReaderMainWindow::setDisplay()
@@ -765,6 +781,8 @@ void XWTeXReaderMainWindow::setDisplay()
 		
 	setBackground();
 	core->setDisplay();
+	searcher->setDPI(core->getDPI());
+	searcher->setRotate(core->getRotate());
 }
 
 void XWTeXReaderMainWindow::setDoubleMode(bool e)
@@ -780,6 +798,8 @@ void XWTeXReaderMainWindow::setDoubleMode(bool e)
 		singlePageAct->setIcon(QIcon(":/images/doublepage.png"));
 		singlePageAct->setText(tr("Double page"));
 	}
+	searcher->setDPI(core->getDPI());
+	searcher->setRotate(core->getRotate());
 }
 
 void XWTeXReaderMainWindow::setFonts()
@@ -828,6 +848,8 @@ void XWTeXReaderMainWindow::setHoriMode(bool e)
 	if (e)
 		continuousPagesAct->setChecked(true);
 	core->setHoriMode(e);
+	searcher->setDPI(core->getDPI());
+	searcher->setRotate(core->getRotate());
 }
 
 void XWTeXReaderMainWindow::setPageStatus(int cur, int num)
@@ -945,11 +967,17 @@ void XWTeXReaderMainWindow::updateShow()
 		
 	if (topPage > 0)
 		core->displayPage(topPage);
+
+	searcher->setDoc(dvidoc);
+	searcher->setDPI(core->getDPI());
+	searcher->setRotate(core->getRotate());
 }
 
 void XWTeXReaderMainWindow::zoom(int idx)
 {
 	core->zoom(idx);
+	searcher->setDPI(core->getDPI());
+	searcher->setRotate(core->getRotate());
 }
 
 void XWTeXReaderMainWindow::closeEvent(QCloseEvent *event)
@@ -1721,6 +1749,12 @@ void XWTeXReaderMainWindow::setToolsBarsVisible(bool e)
 	a->setChecked(playToolsBar->isVisible());
 	a = markToolsBar->toggleViewAction();
 	a->setChecked(markToolsBar->isVisible());
+}
+
+void XWTeXReaderMainWindow::showSearchResult(int pg, double minx, double miny, 
+                                          double maxx, double maxy)
+{
+	core->displayPage(pg, minx, miny, maxx,maxy);
 }
 
 void XWTeXReaderMainWindow::updateActions()

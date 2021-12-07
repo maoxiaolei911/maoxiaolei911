@@ -28,7 +28,6 @@ HEADERS += $${XWTEXGUISRCDIR}/XWTeXGuiType.h \
 					 $${XWTEXGUISRCDIR}/XWTexEditSetting.h \
 					 $${XWTEXGUISRCDIR}/XWFindTextDialog.h \
 					 $${XWTEXGUISRCDIR}/XWReplaceDialog.h \
-					 $${XWTEXGUISRCDIR}/XWTextFinder.h \
 					 $${XWTEXGUISRCDIR}/XWLaTeXSymbolWidget.h \
 					 $${XWTEXGUISRCDIR}/XWLaTeXFormularWidget.h \
 					 $${XWTEXGUISRCDIR}/XWTeXBox.h \
@@ -56,7 +55,6 @@ SOURCES += $${XWTEXGUISRCDIR}/XWTeXGuiType.cpp \
 					 $${XWTEXGUISRCDIR}/XWTexEditSetting.cpp \
 					 $${XWTEXGUISRCDIR}/XWFindTextDialog.cpp \
 					 $${XWTEXGUISRCDIR}/XWReplaceDialog.cpp \
-					 $${XWTEXGUISRCDIR}/XWTextFinder.cpp \
 					 $${XWTEXGUISRCDIR}/XWLaTeXSymbolWidget.cpp \
 					 $${XWTEXGUISRCDIR}/XWLaTeXFormularWidget.cpp \
 					 $${XWTEXGUISRCDIR}/XWTeXBox.cpp \

@@ -171,25 +171,12 @@ void XWTeXDocument::drawPic(const QString & outname, const QString & fmt,double 
   }
 }
 
-void XWTeXDocument::findAll(const QString & str, 
-             bool casesensitivity, 
-             bool wholeword, 
-             bool regexpA)
+void XWTeXDocument::find(XWTeXDocSearhList * listA)
 {
-  findString = str;
-  findFlags = 0;
-  if (casesensitivity)
-	  findFlags |= QTextDocument::FindCaseSensitively;
-
-	if (wholeword)
-	  findFlags |= QTextDocument::FindWholeWords;
-
-	isRegexpFind = regexpA;
   for (int i = 0; i <= lastPage; i++)
   {
     XWTeXDocumentPage * pg = pages[i];
-    pg->reset();
-    pg->findAll();
+    pg->find(i, listA);
   }
 }
 
@@ -198,7 +185,7 @@ void XWTeXDocument::findNext()
   if (curPage > lastPage)
     curPage = 0;
 
-  while (!pages[curPage]->findNext(noNext))
+  while (!pages[curPage]->findNext())
   {
     curPage++;
     if (curPage > lastPage)
@@ -582,7 +569,7 @@ void XWTeXDocument::insertChildren(XWTeXDocumentObject*obj,
   }  
 }
 
-void XWTeXDocument::insertText(const QString & str,bool nobrp)
+void XWTeXDocument::insertText(const QString & str)
 {
   if (!curCursor)
     return ;
@@ -603,11 +590,8 @@ void XWTeXDocument::insertText(const QString & str,bool nobrp)
 
   undoStack->push(cmd);
   isModified = true;
-  if (!nobrp)
-  {
-    breakPage();    
-    emit modificationChanged(isModified);
-  }
+  breakPage();    
+  emit modificationChanged(isModified);
 }
 
 bool XWTeXDocument::isCurrentBlock(XWTeXDocumentBlock * block)
@@ -1111,41 +1095,73 @@ void XWTeXDocument::removeChildren(XWTeXDocumentObject**sobj,
   }
 }
 
-void XWTeXDocument::replaceAll(const QString & str, const QString & bystr, 
-                               bool casesensitivity, bool wholeword, 
-                               bool regexpA)
+void XWTeXDocument::replace(XWTeXDocSearhList * listA)
 {
-  findString = str;
-	replaceString = bystr;
-	findFlags = 0;
-	if (casesensitivity)
-	  findFlags |= QTextDocument::FindCaseSensitively;
-
-	if (wholeword)
-	  findFlags |= QTextDocument::FindWholeWords;
-
-	isRegexpFind = regexpA;
+  QList<XWTeXDocumentBlock*> blocklist;
   for (int i = 0; i <= lastPage; i++)
   {
     XWTeXDocumentPage * pg = pages[i];
-    pg->reset();
-    pg->replaceAll();
+    pg->find(blocklist);
   }
 
-  if (isModified)
+  if (blocklist.isEmpty())
+    return ;
+
+  QUndoCommand * cmd = new QUndoCommand();
+  QTextDocument::FindFlags op = getFindFlags();
+  for (int i = 0; i < blocklist.size(); i++)
   {
-    breakPage();
-    emit modificationChanged(isModified);
+    QString tmp = blocklist[i]->text;
+    QTextDocument d(tmp);
+    QTextCursor cursor(&d);
+    while (!cursor.isNull())
+    {
+      cursor = d.find(findString, cursor, op);
+      if (!cursor.isNull())
+        cursor.insertText(replaceString);
+    }
+    blocklist[i]->selectBlock();
+    new XWTeXDocumentDeleteString(blocklist[i], cmd);
+    new XWTeXDocumentInsertString(blocklist[i],tmp, cmd);
   }
-}
 
+  undoStack->push(cmd);
+  isModified = true;
+  breakPage();    
+
+  int k = 0;
+  bool r = false;
+  for (int i = 0; i < blocklist.size(); i++)
+  {
+    for (int j = k; j <= lastPage; j++)
+    {
+      XWTeXDocumentPage * pg = pages[i];
+      if (pg->find(j, blocklist[i], listA))
+      {
+        k++;
+        r = true;
+      }
+      else
+      {
+        if (r)
+        {
+          k--;
+          r = false;
+          break;
+        }
+      }
+    }
+  }
+
+  emit modificationChanged(isModified);
+}
 
 void XWTeXDocument::replaceNext()
 {
   if (curPage > lastPage)
     curPage = 0;
 
-  while (!pages[curPage]->replaceNext(noNext))
+  while (!pages[curPage]->replaceNext())
   {
     curPage++;
     if (curPage > lastPage)

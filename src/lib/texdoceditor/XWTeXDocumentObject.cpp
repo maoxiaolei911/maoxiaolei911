@@ -2658,6 +2658,18 @@ void XWTeXDocumentBlock::drawPic(QPainter * painter, double & curx, double & cur
   }
 }
 
+bool XWTeXDocumentBlock::find(int & s,int & e, double & cur, double & , double & , QString & )
+{
+  skip(s, e, cur);
+  return false;
+}                    
+
+bool XWTeXDocumentBlock::findReplaced(int & s,int & e, double & cur, double & , double & , QString &)
+{
+  skip(s, e, cur);
+  return false;
+}                    
+
 void XWTeXDocumentBlock::flushBottom(const QFont & fontA,const QColor & c,double & curx,double & cury, bool & firstcolumn)
 {
   dir = doc->getDirection();
@@ -3604,6 +3616,35 @@ void XWTeXDocumentBlock::setSelected(int s, int e)
   cursor->setStartPos(s);
   cursor->setEndPos(e);
   cursor->setHitPos(e + 1);
+}
+
+void XWTeXDocumentBlock::skip(int s, int e, double & cur)
+{
+  QFontMetricsF metrics(font);
+  double h = metrics.height();
+  switch (dir)
+  {
+    default:
+      for (; s <= e; s++)
+        cur += h;
+      break;
+
+    case TEX_DOC_WD_TLT:
+      for (; s <= e; s++)
+      {
+        double w = metrics.width(text[s]);
+        cur += w;
+      }
+      break;
+
+    case TEX_DOC_WD_TRT:
+      for (; s <= e; s++)
+      {
+        double w = metrics.width(text[s]);
+        cur -= w;
+      }
+      break;
+  }
 }
 
 double XWTeXDocumentBlock::width()
@@ -5882,42 +5923,111 @@ void XWTeXDocumentBlock::setSelectedForLTL(const QRectF & rect, double & curx, d
 }
 
 XWTeXDocumentText::XWTeXDocumentText(XWTeXDocument * docA, QObject * parent)
- : XWTeXDocumentBlock(TEX_DOC_B_TEXT,docA,parent),
-   curStart(0),
-   curEnd(0)
+ : XWTeXDocumentBlock(TEX_DOC_B_TEXT,docA,parent)
 {
   specialFont = false;
 }
 
-void XWTeXDocumentText::findAll()
+bool XWTeXDocumentText::find()
 {
-  XWTeXDocumentCursor * cor = doc->getCursor(this);
-  doc->setCurrentCursor(cor);
-  selecteds.clear();
-
   QString str  = doc->getFindString();
-  QRegExp regexp(str);
   QTextDocument::FindFlags op = doc->getFindFlags();
-
+  
   QTextDocument d(text);
   QTextCursor cursor(&d);
-  while (!cursor.isNull() && !cursor.atEnd())
-  {
-    if (doc->isRegexpMatch())
-      cursor = d.find(regexp, cursor, op);
-    else
-      cursor = d.find(str, cursor, op);
-
-    if (!cursor.isNull())
-    {
-      curStart = cursor.selectionStart();
-      curEnd = cursor.selectionEnd();
-      selecteds[curStart] = curEnd;
-    }
-  }
+  cursor = d.find(str, cursor, op);
+  return !cursor.isNull();
 }
 
-bool XWTeXDocumentText::findNext()
+bool XWTeXDocumentText::find(int & s,int & e, double & cur,
+                             double & mi, double & ma,
+                             QString & content)
+{
+  QString str  = doc->getFindString();
+  QTextDocument::FindFlags op = doc->getFindFlags();
+  
+  QTextDocument d(text);
+  QTextCursor cursor(&d);
+  cursor.setPosition(s);
+  cursor = d.find(str, cursor, op);
+  if (cursor.isNull() || cursor.position() > e)
+  {
+    skip(s, e, cur);
+    return false;
+  }
+
+  content = text.mid(s, e - s + 1);
+  QFontMetricsF metrics(font);
+  double h = metrics.height();
+  for (int i = s; i <= e; i++)
+  {
+    if (!metrics.inFont(text[i]))
+    {
+      QString fam = getUnicodeFontFamily(text[i]);
+      if (!fam.isEmpty())
+      {
+        font.setFamily(fam);
+        QFontMetricsF fm(font);
+        metrics = fm;
+        h = metrics.height();
+      }
+    }
+
+    switch (dir)
+    {
+      default:
+        {
+          cur += h;
+          if (i == cursor.position())
+            mi = cur - h;
+          else if ( i = cursor.position() + str.length())
+          {
+            ma = cur;
+            s = cursor.position();
+            e = i;
+            return true;
+          }
+        }
+        break;
+
+      case TEX_DOC_WD_TLT:
+        {
+          double w = metrics.width(text[i]);
+          cur += w;
+          if (i == cursor.position())
+            mi = cur - w;
+          else if ( i = cursor.position() + str.length())
+          {
+            ma = cur;
+            s = cursor.position();
+            e = i;
+            return true;
+          }
+        }
+        break;
+
+      case TEX_DOC_WD_TRT:
+        {
+          double w = metrics.width(text[i]);
+          cur -= w;
+          if (i == cursor.position())
+            ma = cur + w;
+          else if ( i = cursor.position() + str.length())
+          {
+            mi = cur;
+            s = cursor.position();
+            e = i;
+            return true;
+          }
+        }
+        break;
+    }
+  }
+  
+  return false;
+}
+
+bool XWTeXDocumentText::findNext(int s, int e)
 {
   XWTeXDocumentCursor * cor = doc->getCursor(this);
   doc->setCurrentCursor(cor);
@@ -5937,7 +6047,7 @@ bool XWTeXDocumentText::findNext()
   else
     cursor = d.find(str, cursor, op);
 
-  if (cursor.isNull())
+  if (cursor.isNull() || cursor.position() >= e)
   {
     cor->setStartPos(0);
     cor->setHitPos(text.length());
@@ -5950,6 +6060,122 @@ bool XWTeXDocumentText::findNext()
   cor->setEndPos(cursor.selectionEnd());
   cor->setHitPos(cor->getEndPos());
   return true;
+}
+
+bool XWTeXDocumentText::findReplaced(int & s,int & e, double & cur,
+                                     double & mi, double & ma,
+                                     QString & content)
+{
+  QString str  = doc->getReplaceString();
+  QTextDocument d(text);
+  QTextCursor cursor(&d);
+  cursor.setPosition(s);
+  int len = str.length();
+  if (len > 0)
+  {
+    QTextDocument::FindFlags op = doc->getFindFlags();
+    cursor = d.find(str, cursor, op);
+    if (cursor.isNull() || cursor.position() > e)
+    {
+      skip(s, e, cur);
+      return false;
+    }
+  }
+  else
+  {
+    cursor.setPosition(e);
+    len++;
+  } 
+  content = text.mid(s, e - s + 1);
+  QFontMetricsF metrics(font);
+  double h = metrics.height();
+  for (int i = s; i <= e; i++)
+  {
+    if (!metrics.inFont(text[i]))
+    {
+      QString fam = getUnicodeFontFamily(text[i]);
+      if (!fam.isEmpty())
+      {
+        font.setFamily(fam);
+        QFontMetricsF fm(font);
+        metrics = fm;
+        h = metrics.height();
+      }
+    }
+
+    switch (dir)
+    {
+      default:
+        {
+          cur += h;
+          if (i == cursor.position())
+          {
+            mi = cur - h;
+            s = i;
+            for (int j = 0; j < len; j++)
+            {
+              int k = i + j;
+              if (k <= e)
+                cur += h;
+            } 
+            ma = cur;
+            e = i + len;
+            return true;
+          }
+        }
+        break;
+
+      case TEX_DOC_WD_TLT:
+        {
+          double w = metrics.width(text[i]);
+          cur += w;
+          if (i == cursor.position())
+          {
+            mi = cur - w;
+            s = i;
+            for (int j = 0; j < len; j++)
+            {
+              int k = i + j;
+              if (k <= e)
+              {
+                w = metrics.width(text[i + j]);
+                cur += w;
+              }
+            }
+            ma = cur;
+            e = i + len;
+            return true;
+          }
+        }
+        break;
+
+      case TEX_DOC_WD_TRT:
+        {
+          double w = metrics.width(text[i]);
+          cur -= w;
+          if (i == cursor.position())
+          {
+            ma = cur + w;
+            s = i;
+            for (int j = 0; j < len; j++)
+            {
+              int k = i + j;
+              if (k <= e)
+              {
+                w = metrics.width(text[i + j]);
+                cur -= w;
+              }
+            }
+            ma = cur;
+            e = i + len;
+            return true;
+          }
+        }
+        break;
+    }
+  }
+  
+  return false;
 }
 
 void XWTeXDocumentText::insert(XWTeXDocumentObject * obj)
@@ -6014,47 +6240,7 @@ void XWTeXDocumentText::insert(XWTeXDocumentObject * obj)
   }
 }
 
-void XWTeXDocumentText::replaceAll()
-{
-  XWTeXDocumentCursor * cor = doc->getCursor(this);
-  doc->setCurrentCursor(cor);
-  selecteds.clear();
-
-  QString str  = doc->getFindString();
-  QRegExp regexp(str);
-  QString bystr = doc->getReplaceString();
-  QTextDocument::FindFlags op = doc->getFindFlags();
-
-  QTextDocument d;
-  QTextCursor cursor(&d);
-  curEnd = 0;
-  do 
-  {
-    d.setPlainText(text);
-    cursor.setPosition(curEnd);
-    if (doc->isRegexpMatch())
-      cursor = d.find(regexp, cursor, op);
-    else
-      cursor = d.find(str, cursor, op);
-    if (!cursor.isNull())
-    {
-      cor->setStartPos(cursor.selectionStart());      
-      cor->setEndPos(cursor.selectionStart() + str.length());
-      cor->setHitPos(cor->getEndPos());
-      doc->insertText(bystr, true);
-      cor->setStartPos(cursor.selectionStart());
-      cor->setEndPos(cursor.selectionStart() + bystr.length());
-      cor->setHitPos(cor->getEndPos());
-      curStart = cursor.selectionStart();
-      curEnd = curStart + bystr.length();
-      selecteds[curStart] = curEnd;
-    }
-  } while(!cursor.isNull() && !cursor.atEnd());
-
-  cor->setHitPos(text.length());
-}
-
-bool XWTeXDocumentText::replaceNext()
+bool XWTeXDocumentText::replaceNext(int s, int e)
 {
   XWTeXDocumentCursor * cor = doc->getCursor(this);
   doc->setCurrentCursor(cor);
@@ -6074,7 +6260,7 @@ bool XWTeXDocumentText::replaceNext()
   else
     cursor = d.find(str, cursor, op);
 
-  if (cursor.isNull())
+  if (cursor.isNull() || cursor.position() >= e)
   {
     cor->setStartPos(0);
     cor->setHitPos(text.length());
@@ -6091,18 +6277,6 @@ bool XWTeXDocumentText::replaceNext()
   cor->setEndPos(cursor.selectionStart() + bystr.length());
   cor->setHitPos(cor->getEndPos());
   return true;
-}
-
-void XWTeXDocumentText::resetSelect()
-{
-  XWTeXDocumentCursor * cursor = doc->getCursor(this);
-  cursor->setStartPos(0);
-  cursor->setHitPos(0);
-  cursor->setEndPos(0);
-  cursor->setSelected(false);
-  curStart = 0;
-  curEnd = 0;
-  selecteds.clear();
 }
 
 void XWTeXDocumentText::scan(const QString & str, int & len, int & pos)
@@ -6143,16 +6317,7 @@ void XWTeXDocumentText::write(QTextStream & strm, int & linelen)
 bool XWTeXDocumentText::isSelected(int i)
 {
   XWTeXDocumentCursor * cursor = doc->getCursor(this);
-  if (doc->isAllSelect() || cursor->isSelected(i))
-    return true;
-
-  if (selecteds.contains(i))
-  {
-    curStart = i;
-    curEnd = selecteds[i];
-  }    
-
-  return (i >= curStart && i < curEnd);
+  return (doc->isAllSelect() || cursor->isSelected(i));
 }
 
 XWTeXDocumentComment::XWTeXDocumentComment(XWTeXDocument * docA, QObject * parent)

@@ -23,13 +23,8 @@ class XW_TEXGUI_EXPORT XWFindTextDialog : public QDialog
 public:       
     XWFindTextDialog(QWidget * parent = 0);
 
-    bool allVisible();
-
     QString getText();
 
-    void hideAll(bool h);
-
-    bool isAll();
     bool isCaseSensitive();
     bool isRegexpMatch();
     bool isWholeWords();
@@ -47,7 +42,6 @@ private:
     QCheckBox *caseCheckBox;
     QCheckBox *wholeWordsCheckBox;
     QCheckBox *regexpCheckBox;
-    QCheckBox *allCheckBox;
     QDialogButtonBox *buttonBox;
     QPushButton *findButton;
 };

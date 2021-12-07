@@ -4,6 +4,7 @@
  **
  ****************************************************************************/
 #include <stdlib.h>
+#include "XWTeXDocSearcher.h"
 #include "XWTeXDocument.h"
 #include "XWTeXDocumentObject.h"
 #include "XWTeXDocumentPage.h"
@@ -139,59 +140,602 @@ void XWTeXDocumentRow::drawPic(QPainter * painter)
   }
 }
 
-bool XWTeXDocumentRow::findNext(bool & nonext)
+void XWTeXDocumentRow::find(int pg, XWTeXDocSearhList * list)
 {
-  if ((index == (blocks.size() - 1)) && (curBlock->getStartPos() > endPos))
+  double cur = 0.0;
+  double mi = 0.0;
+  double ma = 0.0;
+  QString content;
+  switch (dir)
   {
-     index = 0;
-     nonext = true;
-     return false;
-  }
+    default:
+      {
+        cur = miny;
+        if (blocks.size() == 1)
+        {
+          int s = startPos;
+          int e = endPos;
+          while (blocks[0]->find(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, minx,mi,maxx,ma,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+        else if (blocks.size() == 2)
+        {
+          int s = startPos;
+          int tmp = blocks[0]->getLength() - 1;
+          int e = tmp;
+          while (blocks[0]->find(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, minx,mi,maxx,ma,content);
+            s = e + 1;
+            e = tmp;
+            if (s > tmp)
+              break;
+          }
 
-  if (nonext)
-  {
-    nonext = false;
-    moveToHitPos();
-    return true;
-  }
+          s = 0;
+          e = endPos;
+          while (blocks[1]->find(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[1], s, e, pg, minx,mi,maxx,ma,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+        else
+        {
+          int s = startPos;
+          int tmp = blocks[0]->getLength() - 1;
+          int e = tmp;
+          while (blocks[0]->find(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, minx,mi,maxx,ma,content);
+            s = e + 1;
+            e = tmp;
+            if (s > tmp)
+              break;
+          }
 
-  nonext = false;
-  if (!curBlock->hasSelected())
+          for (int i = 1; i < blocks.size() - 1; i++)
+          {
+            s = 0;
+            tmp = blocks[i]->getLength() - 1;
+            e = tmp;
+            while (blocks[i]->find(s, e, cur, mi, ma, content))
+            {
+              list->createItem(blocks[i], s, e, pg, minx,mi,maxx,ma,content);
+              s = e + 1;
+              e = tmp;
+              if (s > tmp)
+                break;
+            }
+          }
+
+          s = 0;
+          e = endPos;
+          while (blocks[1]->find(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[1], s, e, pg, minx,mi,maxx,ma,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+      }      
+      break;
+
+    case TEX_DOC_WD_TLT:
+      {
+        cur = minx;
+        if (blocks.size() == 1)
+        {
+          int s = startPos;
+          int e = endPos;
+          while (blocks[0]->find(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, mi, miny,ma, maxy,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+        else if (blocks.size() == 2)
+        {
+          int s = startPos;
+          int tmp = blocks[0]->getLength() - 1;
+          int e = tmp;
+          while (blocks[0]->find(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, mi, miny,ma, maxy,content);
+            s = e + 1;
+            e = tmp;
+            if (s > tmp)
+              break;
+          }
+
+          s = 0;
+          e = endPos;
+          while (blocks[1]->find(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[1], s, e, pg, mi, miny,ma, maxy,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+        else
+        {
+          int s = startPos;
+          int tmp = blocks[0]->getLength() - 1;
+          int e = tmp;
+          while (blocks[0]->find(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, mi, miny,ma, maxy,content);
+            s = e + 1;
+            e = tmp;
+            if (s > tmp)
+              break;
+          }
+
+          for (int i = 1; i < blocks.size() - 1; i++)
+          {
+            s = 0;
+            tmp = blocks[i]->getLength() - 1;
+            e = tmp;
+            while (blocks[i]->find(s, e, cur, mi, ma, content))
+            {
+              list->createItem(blocks[i], s, e, pg, mi, miny,ma, maxy,content);
+              s = e + 1;
+              e = tmp;
+              if (s > tmp)
+                break;
+            }
+          }
+
+          s = 0;
+          e = endPos;
+          while (blocks[1]->find(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[1], s, e, pg, mi, miny,ma, maxy,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+      }
+      break;
+
+    case TEX_DOC_WD_TRT:
+      {
+        cur = maxx;
+        if (blocks.size() == 1)
+        {
+          int s = startPos;
+          int e = endPos;
+          while (blocks[0]->find(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, mi, miny,ma, maxy,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+        else if (blocks.size() == 2)
+        {
+          int s = startPos;
+          int tmp = blocks[0]->getLength() - 1;
+          int e = tmp;
+          while (blocks[0]->find(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, mi, miny,ma, maxy,content);
+            s = e + 1;
+            e = tmp;
+            if (s > tmp)
+              break;
+          }
+
+          s = 0;
+          e = endPos;
+          while (blocks[1]->find(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[1], s, e, pg, mi, miny,ma, maxy,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+        else
+        {
+          int s = startPos;
+          int tmp = blocks[0]->getLength() - 1;
+          int e = tmp;
+          while (blocks[0]->find(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, mi, miny,ma, maxy,content);
+            s = e + 1;
+            e = tmp;
+            if (s > tmp)
+              break;
+          }
+
+          for (int i = 1; i < blocks.size() - 1; i++)
+          {
+            s = 0;
+            tmp = blocks[i]->getLength() - 1;
+            e = tmp;
+            while (blocks[i]->find(s, e, cur, mi, ma, content))
+            {
+              list->createItem(blocks[i], s, e, pg, mi, miny,ma, maxy,content);
+              s = e + 1;
+              e = tmp;
+              if (s > tmp)
+                break;
+            }
+          }
+
+          s = 0;
+          e = endPos;
+          while (blocks[1]->find(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[1], s, e, pg, mi, miny,ma, maxy,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+      }
+      break;
+  }
+}
+
+void XWTeXDocumentRow::find(QList<XWTeXDocumentBlock*> & blocksA)
+{
+  for (int i = 0; i < blocks.size(); i++)
   {
-    if (index == blocks.size() - 1)
+    if (blocks[i]->find())
     {
-      index = 0;
+      if (!blocksA.contains(blocks[i]))
+        blocksA << blocks[i];
+    }
+  }
+}
+
+bool XWTeXDocumentRow::find(int pg, XWTeXDocumentBlock * blockA, 
+                            XWTeXDocSearhList * list)
+{
+  int k = blocks.indexOf(blockA);
+  if (k < 0)
+    return false;
+
+  double cur = 0.0;
+  double mi = 0.0;
+  double ma = 0.0;
+  QString content;
+  switch (dir)
+  {
+    default:
+      {
+        cur = miny;
+        if (blocks.size() == 1)
+        {
+          int s = startPos;
+          int e = endPos;
+          while (blocks[0]->findReplaced(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, minx,mi,maxx,ma,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+        else if (blocks.size() == 2)
+        {
+          int s = startPos;
+          int tmp = blocks[0]->getLength() - 1;
+          int e = tmp;
+          while (blocks[0]->findReplaced(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, minx,mi,maxx,ma,content);
+            s = e + 1;
+            e = tmp;
+            if (s > tmp)
+              break;
+          }
+
+          s = 0;
+          e = endPos;
+          while (blocks[1]->findReplaced(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[1], s, e, pg, minx,mi,maxx,ma,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+        else
+        {
+          int s = startPos;
+          int tmp = blocks[0]->getLength() - 1;
+          int e = tmp;
+          while (blocks[0]->findReplaced(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, minx,mi,maxx,ma,content);
+            s = e + 1;
+            e = tmp;
+            if (s > tmp)
+              break;
+          }
+
+          for (int i = 1; i < blocks.size() - 1; i++)
+          {
+            s = 0;
+            tmp = blocks[i]->getLength() - 1;
+            e = tmp;
+            while (blocks[i]->findReplaced(s, e, cur, mi, ma, content))
+            {
+              list->createItem(blocks[i], s, e, pg, minx,mi,maxx,ma,content);
+              s = e + 1;
+              e = tmp;
+              if (s > tmp)
+                break;
+            }
+          }
+
+          s = 0;
+          e = endPos;
+          while (blocks[1]->findReplaced(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[1], s, e, pg, minx,mi,maxx,ma,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+      }
+      break;
+
+    case TEX_DOC_WD_TLT:
+      {
+        cur = minx;
+        if (blocks.size() == 1)
+        {
+          int s = startPos;
+          int e = endPos;
+          while (blocks[0]->findReplaced(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, mi,miny,ma,maxy,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+        else if (blocks.size() == 2)
+        {
+          int s = startPos;
+          int tmp = blocks[0]->getLength() - 1;
+          int e = tmp;
+          while (blocks[0]->findReplaced(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, mi,miny,ma,maxy,content);
+            s = e + 1;
+            e = tmp;
+            if (s > tmp)
+              break;
+          }
+
+          s = 0;
+          e = endPos;
+          while (blocks[1]->findReplaced(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[1], s, e, pg, mi,miny,ma,maxy,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+        else
+        {
+          int s = startPos;
+          int tmp = blocks[0]->getLength() - 1;
+          int e = tmp;
+          while (blocks[0]->findReplaced(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, mi,miny,ma,maxy,content);
+            s = e + 1;
+            e = tmp;
+            if (s > tmp)
+              break;
+          }
+
+          for (int i = 1; i < blocks.size() - 1; i++)
+          {
+            s = 0;
+            tmp = blocks[i]->getLength() - 1;
+            e = tmp;
+            while (blocks[i]->findReplaced(s, e, cur, mi, ma, content))
+            {
+              list->createItem(blocks[i], s, e, pg, mi,miny,ma,maxy,content);
+              s = e + 1;
+              e = tmp;
+              if (s > tmp)
+                break;
+            }
+          }
+
+          s = 0;
+          e = endPos;
+          while (blocks[1]->findReplaced(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[1], s, e, pg, mi,miny,ma,maxy,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+      }
+      break;
+
+    case TEX_DOC_WD_TRT:
+      {
+        cur = maxx;
+        if (blocks.size() == 1)
+        {
+          int s = startPos;
+          int e = endPos;
+          while (blocks[0]->findReplaced(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, mi,miny,ma,maxy,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+        else if (blocks.size() == 2)
+        {
+          int s = startPos;
+          int tmp = blocks[0]->getLength() - 1;
+          int e = tmp;
+          while (blocks[0]->findReplaced(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, mi,miny,ma,maxy,content);
+            s = e + 1;
+            e = tmp;
+            if (s > tmp)
+              break;
+          }
+
+          s = 0;
+          e = endPos;
+          while (blocks[1]->findReplaced(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[1], s, e, pg, mi,miny,ma,maxy,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+        else
+        {
+          int s = startPos;
+          int tmp = blocks[0]->getLength() - 1;
+          int e = tmp;
+          while (blocks[0]->findReplaced(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[0], s, e, pg, mi,miny,ma,maxy,content);
+            s = e + 1;
+            e = tmp;
+            if (s > tmp)
+              break;
+          }
+
+          for (int i = 1; i < blocks.size() - 1; i++)
+          {
+            s = 0;
+            tmp = blocks[i]->getLength() - 1;
+            e = tmp;
+            while (blocks[i]->findReplaced(s, e, cur, mi, ma, content))
+            {
+              list->createItem(blocks[i], s, e, pg, mi,miny,ma,maxy,content);
+              s = e + 1;
+              e = tmp;
+              if (s > tmp)
+                break;
+            }
+          }
+
+          s = 0;
+          e = endPos;
+          while (blocks[1]->findReplaced(s, e, cur, mi, ma, content))
+          {
+            list->createItem(blocks[1], s, e, pg, mi,miny,ma,maxy,content);
+            s = e + 1;
+            e = endPos;
+            if (s > endPos)
+              break;
+          }
+        }
+      }
+      break;
+  }
+
+  return true;
+}
+
+bool XWTeXDocumentRow::findNext()
+{
+  if (index == 0)
+  {
+    if (blocks.size() == 1)
+    {
+      if (blocks[index]->findNext(startPos, endPos))
+      {
+        moveToHitPos();
+        return true;
+      }
+
       return false;
+    }
+    else
+    {
+      if (blocks[index]->findNext(startPos, blocks[index]->getLength() - 1))
+      {
+        moveToHitPos();
+        return true;
+      }
     }
 
     index++;
-    curBlock = blocks[index];
   }
 
-  if (curBlock->findNext())
+  if (index == blocks.size() - 1)
   {
-    if ((index == (blocks.size() - 1)) && (curBlock->getStartPos() > endPos))
+    if (blocks.size() == 2)
     {
-      nonext = true;
-      index = 0;
-      return false;
+      if (blocks[index]->findNext(0, endPos))
+      {
+        moveToHitPos();
+        return true;
+      }
     }
 
+    index++;
+  }
+
+  if (index >= blocks.size())
+  {
+    index = 0;
+    return false;
+  }
+
+  if (blocks[index]->findNext(0, blocks[index]->getLength() - 1))
+  {
     moveToHitPos();
     return true;
   }
 
   return false;
-}
-
-void XWTeXDocumentRow::findAll()
-{
-  int i = 0;
-  if (startPos > 0)
-    i++;
-
-  for (; i < blocks.size(); i++)
-    blocks[i]->findAll();
 }
 
 bool XWTeXDocumentRow::hitTest(const QPointF & p)
@@ -518,60 +1062,39 @@ void XWTeXDocumentRow::moveToStart()
   curBlock->moveToRowStart(curx,cury,startPos);
 }
 
-void XWTeXDocumentRow::replaceAll()
+bool XWTeXDocumentRow::replaceNext()
 {
-  int i = 0;
-  if (startPos > 0)
-    i++;
-
-  for (; i < blocks.size(); i++)
-    blocks[i]->replaceAll();
-}
-
-bool XWTeXDocumentRow::replaceNext(bool & nonext)
-{
-  if ((index == (blocks.size() - 1)) && (curBlock->getStartPos() > endPos))
+  if (index == 0)
   {
-    index = 0;
-    nonext = true;
-    return false;
-  }     
-
-  if (nonext)
-  {
-    nonext = false;
-    moveToHitPos();
-    return true;
-  }
-
-  nonext = false;
-  if (!curBlock->hasSelected())
-  {
-    if (index == blocks.size() - 1)
+    if (blocks.size() == 1)
+      return blocks[index]->replaceNext(startPos, endPos);
+    else
     {
-      index = 0;
-      return false;
+      if (blocks[index]->replaceNext(startPos, blocks[index]->getLength()))
+        return true;
     }
 
     index++;
-    curBlock = blocks[index];
   }
 
-  if (curBlock->replaceNext())
+  if (index == blocks.size() - 1)
   {
-    if ((index == (blocks.size() - 1)) && (curBlock->getStartPos() > endPos))
+    if (blocks.size() == 2)
     {
-      nonext = true;
-      index = 0;
-      return false;
+      if (blocks[index]->replaceNext(0, endPos))
+        return true;
     }
 
-    moveToHitPos();
-    return true;
+    index++;
   }
 
-  index = 0;
-  return false;
+  if (index >= blocks.size())
+  {
+    index = 0;
+    return false;
+  }
+
+  return blocks[index]->replaceNext(0, blocks[index]->getLength());
 }
 
 void XWTeXDocumentRow::reset()
@@ -856,7 +1379,37 @@ void XWTeXDocumentPage::drawPic(QPainter * painter)
     rows[i]->drawPic(painter);
 }
 
-bool XWTeXDocumentPage::findNext(bool & nonext)
+void XWTeXDocumentPage::find(int pg, XWTeXDocSearhList * list)
+{
+  for (int i = 0; i <= lastRow; i++)
+    rows[i]->find(pg, list);
+}
+
+void XWTeXDocumentPage::find(QList<XWTeXDocumentBlock*> & blocksA)
+{
+  for (int i = 0; i <= lastRow; i++)
+    rows[i]->find(blocksA);
+}
+
+bool XWTeXDocumentPage::find(int pg, XWTeXDocumentBlock * blockA, 
+                            XWTeXDocSearhList * list)
+{
+  bool ret = false;
+  for (int i = 0; i <= lastRow; i++)
+  {
+    if (rows[i]->find(pg, blockA, list))
+      ret = true;
+    else
+    {
+      if (ret)
+        break;
+    }
+  }
+
+  return ret;
+}
+
+bool XWTeXDocumentPage::findNext()
 {
   if (curRow > lastRow)
     curRow = 0;
@@ -864,7 +1417,7 @@ bool XWTeXDocumentPage::findNext(bool & nonext)
   bool r = false;
   while (!r)
   {
-    r = rows[curRow]->findNext(nonext);
+    r = rows[curRow]->findNext();
     if (r)
       break;
 
@@ -874,12 +1427,6 @@ bool XWTeXDocumentPage::findNext(bool & nonext)
   }
 
   return r;
-}
-
-void XWTeXDocumentPage::findAll()
-{
-  for (int i = 0; i <= lastRow; i++)
-    rows[i]->findAll();
 }
 
 XWTeXDocumentRow * XWTeXDocumentPage::getCurrentRow()
@@ -1075,13 +1622,7 @@ void XWTeXDocumentPage::moveToStart()
   rows[curRow]->moveToStart();
 }
 
-void XWTeXDocumentPage::replaceAll()
-{
-  for (int i = 0; i <= lastRow; i++)
-    rows[i]->replaceAll();
-}
-
-bool XWTeXDocumentPage::replaceNext(bool & nonext)
+bool XWTeXDocumentPage::replaceNext()
 {
   if (curRow > lastRow)
     curRow = 0;
@@ -1089,7 +1630,7 @@ bool XWTeXDocumentPage::replaceNext(bool & nonext)
   bool r = false;
   while (!r)
   {
-    r = rows[curRow]->replaceNext(nonext);
+    r = rows[curRow]->replaceNext();
     if (r)
       break;
       

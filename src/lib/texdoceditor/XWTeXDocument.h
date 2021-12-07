@@ -27,6 +27,7 @@ class XWTeXDocumentObject;
 class XWTeXDocumentBlock;
 class XWTeXDocumentPage;
 class XWTeXDocumentCursor;
+class XWTeXDocSearhList;
 
 class XW_TEXDOCUMENT_EXPORT XWTeXDocument : public QObject
 {
@@ -61,10 +62,7 @@ public:
   void drawPage(int pageno,QPainter * painter, const QColor & pagecolor, const QRectF & rect);
   void drawPic(const QString & outname, const QString & fmt,double xscale, double yscale, const QColor & pagecolor);
 
-  void findAll(const QString & str, 
-             bool casesensitivity, 
-             bool wholeword, 
-             bool regexpA);
+  void find(XWTeXDocSearhList * listA);
   void findNext();
   void footnoteSize();
 
@@ -137,7 +135,7 @@ public:
   virtual void insertChildren(XWTeXDocumentObject*obj, 
                                          XWTeXDocumentObject*sobj, 
                                          XWTeXDocumentObject*eobj);
-  void insertText(const QString & str,bool nobrp=false);
+  void insertText(const QString & str);
   bool isAllSelect() {return allSelect;}
   bool isAppendix() {return isappendix;}
   bool isCurrentBlock(XWTeXDocumentBlock * block);
@@ -180,9 +178,7 @@ public:
   virtual void removeChildren(XWTeXDocumentObject**sobj, 
                                            XWTeXDocumentObject**eobj,
                                            XWTeXDocumentObject**obj);
-          void replaceAll(const QString & str, const QString & bystr, 
-                          bool casesensitivity, bool wholeword, 
-                          bool regexpA);
+          void replace(XWTeXDocSearhList * listA);
           void replaceNext();
           void resetBibitemCounter() {bibitemCounter=0;}
           void resetChapterCounter() {chapterCounter=0;}
@@ -405,7 +401,6 @@ protected:
   QString findString;
   QString replaceString;
   bool isRegexpFind;
-  bool noNext;
   QTextDocument::FindFlags findFlags;
 };
 

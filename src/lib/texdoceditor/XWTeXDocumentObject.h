@@ -210,16 +210,23 @@ public:
                     double & curx, double & cury);
   virtual void drawPic(QPainter * painter, double & curx, double & cury);
 
-  virtual void findAll() {}
-  virtual bool findNext() {return false;}
+  virtual bool find() {return false;}
+  virtual bool find(int & s,int & e, double & cur,
+                    double & mi, double & ma,
+                    QString & content);
+  virtual bool findReplaced(int & s,int & e, double & cur,
+                            double & mi, double & ma,
+                            QString & content);
+  virtual bool findNext(int,int) {return false;}
   virtual void flushBottom(const QFont & fontA,const QColor & c,double & curx,double & cury, bool & firstcolumn);
   virtual void flushBottom(double & curx,double & cury, bool & firstcolumn);
 
   QChar getChar(int i);
   int   getCurrentPos();
   int   getEndPos();
+  int   getLength() {return text.length();}
   virtual QString getMimeData();
-  XWTeXDocumentObject * getObject();
+  XWTeXDocumentObject * getObject();  
   QString getSelected();
   int     getStartPos();
   QString getText() {return text;}
@@ -257,8 +264,7 @@ public:
   virtual void moveToRowStart(double & curx, double & cury,int pos);
           void moveToStart();
 
-  virtual void replaceAll() {}
-  virtual bool replaceNext() {return false;}
+  virtual bool replaceNext(int, int) {return false;}
   virtual void resetSelect();
 
           void scanBeamerSpec(const QString & str, int & len, int & pos);
@@ -286,6 +292,7 @@ public:
   virtual void setSelected(const QRectF & rect, double & curx, double & cury);
           void setSelected(int s, int e);
           void setText(const QString & str) {text = str;}
+          void skip(int s, int e, double & cur);
 
           double width();
   virtual void write(QTextStream & strm, int & linelen);
@@ -341,14 +348,18 @@ class XW_TEXDOCUMENT_EXPORT XWTeXDocumentText : public XWTeXDocumentBlock
 public:
   XWTeXDocumentText(XWTeXDocument * docA, QObject * parent = 0);
 
-  void findAll();
-  bool findNext();
+  bool find();
+  bool find(int & s,int & e, double & cur,
+            double & mi, double & ma,
+            QString & content);
+  bool findNext(int s, int e);
+  bool findReplaced(int & s,int & e, double & cur,
+                            double & mi, double & ma,
+                            QString & content);
 
   void insert(XWTeXDocumentObject * obj);
 
-  void replaceAll();
-  bool replaceNext();
-  void resetSelect();
+  bool replaceNext(int s, int e);
 
   void scan(const QString & str, int & len, int & pos);
 
@@ -356,10 +367,6 @@ public:
 
 protected:
   bool isSelected(int i);
-
-public:
-  int curStart,curEnd;
-  QHash<int, int> selecteds;
 };
 
 class XW_TEXDOCUMENT_EXPORT XWTeXDocumentComment : public XWTeXDocumentBlock

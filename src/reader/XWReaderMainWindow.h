@@ -24,6 +24,7 @@ class QIcon;
 class QColor;
 class QToolButton;
 class QDoubleSpinBox;
+class XWPDFSearcher;
 
 class XWReaderMainWindow : public QMainWindow
 {
@@ -129,10 +130,13 @@ private slots:
 	void setSubject(const QString & s);
 	void setTitle(const QString & t);
 	void setToolsBarsVisible(bool e);
+	void showSearchResult(int pg, double minx, double miny, 
+                         double maxx, double maxy);
 	
 	void updateActions();
 	
 private:
+  XWPDFSearcher * searcher;
 	XWReaderCore * core;
 	QDockWidget *dock;
 	XWOutlineWindow * outlineWin;

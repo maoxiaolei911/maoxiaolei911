@@ -88,48 +88,6 @@ void XWTeXTextEdit::find(const QString & str, bool casesensitivity, bool wholewo
 	  regexp.setPattern(str);
 }
 
-void XWTeXTextEdit::findAll(const QString & str, bool casesensitivity, bool wholeword, bool regexpA)
-{
-	findString = str;
-	findFlags = 0;
-	if (casesensitivity)
-	  findFlags |= QTextDocument::FindCaseSensitively;
-
-	if (wholeword)
-	  findFlags |= QTextDocument::FindWholeWords;
-
-	isRegexpFind = regexpA;
-	if (isRegexpFind)
-	  regexp.setPattern(str);
-
-	if (isFirstTime == false)
-	  undo();
-
-  isFirstTime = true;
-	QTextCursor cursor(document());
-	highlightCursor = cursor;
-	cursor.beginEditBlock();
-	while (!highlightCursor.isNull() && !highlightCursor.atEnd())
-	{
-		if (isRegexpFind)
-			highlightCursor = document()->find(regexp, highlightCursor, findFlags);
-		else
-		  highlightCursor = document()->find(findString, highlightCursor, findFlags);
-
-		if (!highlightCursor.isNull())
-		{
-			QTextCharFormat colorFormat = highlightCursor.charFormat();
-			QTextCharFormat f = colorFormat;
-			colorFormat.setForeground(f.background());
-			colorFormat.setBackground(f.foreground());
-			highlightCursor.mergeCharFormat(colorFormat);
-			isFirstTime = false;
-		}
-	}
-
-	cursor.endEditBlock();
-}
-
 void XWTeXTextEdit::findNext()
 {
 	highlightCursor = textCursor();
@@ -357,46 +315,6 @@ void XWTeXTextEdit::replace(const QString & str, const QString & bystr,
 	  regexp.setPattern(str);
 }
 
-void XWTeXTextEdit::replaceAll(const QString & str, const QString & bystr, 
-                            bool casesensitivity, bool wholeword, 
-														bool regexpA)
-{
-	findString = str;
-	replaceString = bystr;
-	findFlags = 0;
-	if (casesensitivity)
-	  findFlags |= QTextDocument::FindCaseSensitively;
-
-	if (wholeword)
-	  findFlags |= QTextDocument::FindWholeWords;
-
-	isRegexpFind = regexpA;
-	if (isRegexpFind)
-	  regexp.setPattern(str);
-
-	QTextCursor cursor(document());
-	highlightCursor = cursor;
-	cursor.beginEditBlock();
-	while (!highlightCursor.isNull() && !highlightCursor.atEnd())
-	{
-		if (isRegexpFind)
-			highlightCursor = document()->find(regexp, highlightCursor, findFlags);
-		else
-		  highlightCursor = document()->find(findString, highlightCursor, findFlags);
-
-		if (!highlightCursor.isNull())
-		{
-			QTextCharFormat colorFormat = highlightCursor.charFormat();
-			QTextCharFormat f = colorFormat;
-			colorFormat.setForeground(f.background());
-			colorFormat.setBackground(f.foreground());
-			highlightCursor.insertText(replaceString, colorFormat);
-		}
-	}
-
-	cursor.endEditBlock();
-}
-
 void XWTeXTextEdit::replaceNext()
 {
 	highlightCursor = textCursor();
@@ -517,6 +435,13 @@ void XWTeXTextEdit::setOutputCodec(const QString & name)
 		document()->setModified(true);
 		setWindowModified(document()->isModified());
 	}
+}
+
+void XWTeXTextEdit::setSelected(int pos, int len)
+{
+	highlightCursor.setPosition(pos, QTextCursor::MoveAnchor);
+	highlightCursor.setPosition(pos + len, QTextCursor::KeepAnchor);
+	setTextCursor(highlightCursor);
 }
 
 void XWTeXTextEdit::insertFormular(const QString & str)

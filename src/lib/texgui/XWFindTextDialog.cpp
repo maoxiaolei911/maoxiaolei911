@@ -18,7 +18,6 @@ XWFindTextDialog::XWFindTextDialog(QWidget * parent)
     caseCheckBox = new QCheckBox(tr("Match &case"));
     wholeWordsCheckBox = new QCheckBox(tr("Match &Whole words"));
     regexpCheckBox = new QCheckBox(tr("&Regexps match"));
-    allCheckBox = new QCheckBox(tr("Find all"));
     findButton = new QPushButton(tr("&Go"));
     findButton->setDefault(true);
 
@@ -34,7 +33,6 @@ XWFindTextDialog::XWFindTextDialog(QWidget * parent)
     leftLayout->addWidget(caseCheckBox);
     leftLayout->addWidget(wholeWordsCheckBox);
     leftLayout->addWidget(regexpCheckBox);
-    leftLayout->addWidget(allCheckBox);
 
     QGridLayout *mainLayout = new QGridLayout;
     mainLayout->addLayout(leftLayout, 0, 0);
@@ -47,24 +45,9 @@ XWFindTextDialog::XWFindTextDialog(QWidget * parent)
     setLayout(mainLayout);
 }
 
-bool XWFindTextDialog::allVisible()
-{
-    return allCheckBox->isVisible();
-}
-
 QString XWFindTextDialog::getText()
 {
     return lineEdit->text();
-}
-
-void XWFindTextDialog::hideAll(bool h)
-{
-    allCheckBox->setVisible(!h);
-}
-
-bool XWFindTextDialog::isAll()
-{
-    return allCheckBox->isChecked();
 }
 
 bool XWFindTextDialog::isCaseSensitive()

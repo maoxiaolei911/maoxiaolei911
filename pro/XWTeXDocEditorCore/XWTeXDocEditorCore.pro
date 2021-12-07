@@ -13,6 +13,7 @@ HEADERS += $${XWTEXDOCEDITORSRCDIR}/XWTeXDocumentType.h \
            $${XWTEXDOCEDITORSRCDIR}/XWTeXDocumentUndoCommand.h \
 					 $${XWTEXDOCEDITORSRCDIR}/XWTeXDocumentObject.h \
 					 $${XWTEXDOCEDITORSRCDIR}/XWTeXObject.h \
+					 $${XWTEXDOCEDITORSRCDIR}/XWTeXDocSearcher.h \
 					 $${XWTEXDOCEDITORSRCDIR}/XWTikzObject.h \
 					 $${XWTEXDOCEDITORSRCDIR}/XWPSTricksObject.h \
 					 $${XWTEXDOCEDITORSRCDIR}/XWTeXDocumentPage.h \
@@ -29,6 +30,7 @@ SOURCES += $${XWTEXDOCEDITORSRCDIR}/XWTexDocFontSetting.cpp \
            $${XWTEXDOCEDITORSRCDIR}/XWTeXDocumentUndoCommand.cpp \
 					 $${XWTEXDOCEDITORSRCDIR}/XWTeXDocumentObject.cpp \
 					 $${XWTEXDOCEDITORSRCDIR}/XWTeXObject.cpp \
+					 $${XWTEXDOCEDITORSRCDIR}/XWTeXDocSearcher.cpp \
 					 $${XWTEXDOCEDITORSRCDIR}/XWTikzObject.cpp \
 					 $${XWTEXDOCEDITORSRCDIR}/XWPSTricksObject.cpp \
 					 $${XWTEXDOCEDITORSRCDIR}/XWTeXDocumentPage.cpp \
@@ -48,8 +50,8 @@ OBJECTS_DIR = $${TMPDIR}/obj/XWTeXDocEditorCore
 CONFIG(debug, debug|release) {
 	DEFINES += XW_DEBUG
     TARGET = XWTeXDocEditorCored
-    LIBS += -lXWCored -lXWTeXGuid
+    LIBS += -lXWCored -lXWGuiCored -lXWTeXGuid
 } else {
     TARGET = XWTeXDocEditorCore
-    LIBS += -lXWCore -lXWTeXGui
+    LIBS += -lXWCore -lXWGuiCore -lXWTeXGui
 }

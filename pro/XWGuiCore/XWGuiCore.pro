@@ -25,6 +25,8 @@ HEADERS += $${XWGUICORESRCDIR}/XWDocCanvas.h \
 		   $${XWGUICORESRCDIR}/XWRecentFileWindow.h \
 		   $${XWGUICORESRCDIR}/XWReferenceWindow.h \
 		   $${XWGUICORESRCDIR}/XWSearchWindow.h \
+			 $${XWGUICORESRCDIR}/XWDocSearchWidget.h \
+			 $${XWGUICORESRCDIR}/XWSearcher.h \
 		   $${XWGUICORESRCDIR}/XWTexFontWindow.h \
 		   $${XWGUICORESRCDIR}/XWToImageWindow.h \
 		   $${XWGUICORESRCDIR}/XWToPDFWindow.h \
@@ -54,6 +56,8 @@ SOURCES += $${XWGUICORESRCDIR}/XWDocCanvas.cpp \
 		   $${XWGUICORESRCDIR}/XWRecentFileWindow.cpp \
 		   $${XWGUICORESRCDIR}/XWReferenceWindow.cpp \
 		   $${XWGUICORESRCDIR}/XWSearchWindow.cpp \
+			 $${XWGUICORESRCDIR}/XWDocSearchWidget.cpp \
+			 $${XWGUICORESRCDIR}/XWSearcher.cpp \
 		   $${XWGUICORESRCDIR}/XWTexFontWindow.cpp \
 		   $${XWGUICORESRCDIR}/XWToImageWindow.cpp \
 		   $${XWGUICORESRCDIR}/XWToPDFWindow.cpp \

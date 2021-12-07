@@ -35,6 +35,7 @@ class XWTeXEditorDev;
 class XWLaTeXEditorCore;
 class XWLaTeXEditorDev;
 class XWLaTeXSymbolToolBox;
+class XWTeXDocSearcher;
 
 class XWLaTeXEditorMainWindow : public QMainWindow
 {
@@ -200,6 +201,7 @@ private slots:
 	void setPaper(int index);
 	void showFindDialog();
 	void showReplaceDialog();
+	void showSearchResult(int pg, double minx, double miny, double maxx,double maxy);
 
 	void updateActions();
 
@@ -224,6 +226,7 @@ private:
 	void setBackground();
 
 private:
+  XWTeXDocSearcher * searcher;
 	QMdiArea *mdiArea;
   QSignalMapper *windowMapper;
 	XWLaTeXEditorDev * dev;

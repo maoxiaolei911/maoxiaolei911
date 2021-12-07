@@ -304,6 +304,7 @@ public slots:
 	virtual void displayPage(int pg);
 	
 	virtual void displayPage(int pg, bool scrollToTop);
+	virtual void displayPage(int pg, double xMin, double yMin, double xMax, double yMax);
 	
 	virtual void doAction(XWLinkAction *action);	
 	virtual void doOutline(XWOutlineItem *item);

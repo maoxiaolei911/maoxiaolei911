@@ -28,6 +28,7 @@ class XWFindTextDialog;
 class XWReplaceDialog;
 class XWTextFinder;
 class XWLaTeXSymbolToolBox;
+class XWQTextDocumentSearcher;
 
 class XWTeXFmtEditorMainWindow : public QMainWindow
 {
@@ -47,6 +48,7 @@ protected:
 	void closeEvent(QCloseEvent *event);
 
 private slots:
+  void activeFile(const QString & filename);
 	void build();
 	void buildR();
 
@@ -57,8 +59,6 @@ private slots:
   void editTikz();
 
   void find();
-  void findInFiles();
-  void finishedInFiles();
 
 	void newFile();
 	void newFromTmplate();
@@ -71,7 +71,6 @@ private slots:
   void paste();
 
   void replace();
-  void replaceInFiles();
 
   void save();
   void setActiveSubWindow(QWidget *window);
@@ -83,11 +82,10 @@ private slots:
   void showAboutHard();
   void showAboutSoft();
   void showFindDialog();
-	void showFindInFilesDialog();
 	void showReplaceDialog();
-	void showReplaceInFilesDialog();
   void showFonts();
   void showProductHelp();
+  void showSearchResult(int pos, int len);
   void switchLayoutDirection();
 
   void updateMenus();
@@ -109,6 +107,7 @@ private:
   QString getLocalPath();
 
 private:
+  XWQTextDocumentSearcher * searcher;
 	XWTeXFmtEditorDev * dev;
   QMdiArea *mdiArea;
   QSignalMapper *windowMapper;
@@ -147,8 +146,6 @@ private:
   QAction *pasteAct;
   QAction * findAct;
 	QAction * replaceAct;
-	QAction * findInAct;
-	QAction * replaceInAct;
 
   QActionGroup * inputCodecActs;
   QActionGroup * outputCodecActs;

@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** °æÈ¨ËùÓÐ (C) 2006-2007 ÐãÎÄ¹«Ë¾.
+ ** ï¿½ï¿½È¨ï¿½ï¿½ï¿½ï¿½ (C) 2006-2007 ï¿½ï¿½ï¿½Ä¹ï¿½Ë¾.
  **
  ****************************************************************************/
 #ifndef XWTEXREADERMAINWINDOW_H
@@ -27,6 +27,7 @@ class XWTeXReaderCore;
 class XWTeXReaderDev;
 class XWOutlineWindow;
 class XWTeXConsole;
+class XWPDFSearcher;
 
 class XWTeXReaderMainWindow : public QMainWindow
 {
@@ -131,10 +132,13 @@ private slots:
 	void setSubject(const QString & s);
 	void setTitle(const QString & t);
 	void setToolsBarsVisible(bool e);
+	void showSearchResult(int pg, double minx, double miny, 
+                         double maxx, double maxy);
 	
 	void updateActions();
 	
 private:
+  XWPDFSearcher * searcher;
 	XWTeXReaderDev * dev;
 	XWTeXReaderCore * core;
 	QDockWidget *dock;

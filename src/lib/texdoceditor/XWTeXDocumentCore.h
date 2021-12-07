@@ -193,6 +193,7 @@ public slots:
 
 	virtual void displayPage(int pg);
 	virtual void displayPage(int pg, bool scrollToTop);
+	virtual void displayPage(int pg, double minx, double miny, double maxx,double maxy);
 
 	virtual void ensureCursorVisible();
 
@@ -208,7 +209,6 @@ public slots:
   virtual void redo();
 					void repaintCursor();
 					void replace();
-					void replaceNext();
 
   virtual void save();
   virtual void saveAs();

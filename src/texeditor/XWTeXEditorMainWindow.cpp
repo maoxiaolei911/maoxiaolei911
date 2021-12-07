@@ -45,13 +45,16 @@
 #include "XWTeXDocTemplateWindow.h"
 #include "XWFindTextDialog.h"
 #include "XWReplaceDialog.h"
-#include "XWTextFinder.h"
 #include "XWLaTeXFormularMainWindow.h"
 #include "XWTikzMainWindow.h"
+#include "XWSearcher.h"
+#include "XWDocSearchWidget.h"
 #include "XWTeXEditorMainWindow.h"
 
 XWTeXEditorMainWindow::XWTeXEditorMainWindow()
 {
+	searcher = new XWQTextDocumentSearcher(this);
+
 	QString title = xwApp->getProductName();
 	setWindowTitle(title);
   setWindowIcon(QIcon(":/images/xiuwen24.png"));
@@ -71,9 +74,16 @@ XWTeXEditorMainWindow::XWTeXEditorMainWindow()
   windowMapper = new QSignalMapper(this);
   connect(windowMapper, SIGNAL(mapped(QWidget*)), this, SLOT(setActiveSubWindow(QWidget*)));
 
-  folderDock = new QDockWidget(tr("Folder"), this);
+  folderDock = new QDockWidget(this);
 	folderDock->setAllowedAreas(Qt::LeftDockWidgetArea);
+	addDockWidget(Qt::LeftDockWidgetArea, folderDock);
+	folderDock->toggleViewAction()->setChecked(false);
+
+	QTabWidget * tab = new QTabWidget(folderDock);
+	folderDock->setWidget(tab);
+
 	folder = new QTreeView(this);
+	tab->addTab(folder,tr("Folder"));
 	folderModel = new QFileSystemModel;
 	QStringList filters;
 	filters << "*.tex" << "*.txt";
@@ -81,9 +91,16 @@ XWTeXEditorMainWindow::XWTeXEditorMainWindow()
 	folderModel->setNameFilterDisables(false);
 	folderModel->setRootPath(QDir::currentPath());
 	folder->setModel(folderModel);
-	folderDock->setWidget(folder);
-	addDockWidget(Qt::LeftDockWidgetArea, folderDock);
-	folderDock->toggleViewAction()->setChecked(false);
+
+	XWQTextDocumentSearchWidget * sw = new XWQTextDocumentSearchWidget(searcher, tab);
+	tab->addTab(sw,tr("Search"));
+	connect(sw, SIGNAL(positionActivated(int, int)), this, SLOT(showSearchResult(int, int)));
+	connect(sw, SIGNAL(fileActivated(const QString&)), this, SLOT(activeFile(const QString&)));
+
+	XWQTextDocumentReplaceWidget * rw = new XWQTextDocumentReplaceWidget(searcher, tab);
+	tab->addTab(rw,tr("Replace"));
+	connect(rw, SIGNAL(positionActivated(int, int)), this, SLOT(showSearchResult(int, int)));
+	connect(rw, SIGNAL(fileActivated(const QString&)), this, SLOT(activeFile(const QString&)));
 
   outlineDock = new QDockWidget(tr("Outline"), this);
   outlineDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
@@ -111,7 +128,6 @@ XWTeXEditorMainWindow::XWTeXEditorMainWindow()
 
 	findDialog = new XWFindTextDialog(this);
 	replaceDialog = new XWReplaceDialog(this);
-	finder = new XWTextFinder(this);
 
   fileLabel = new QLabel(tr("Title: "), this);
   QPalette newPalette = fileLabel->palette();
@@ -159,7 +175,6 @@ XWTeXEditorMainWindow::XWTeXEditorMainWindow()
 	connect(findDialog, SIGNAL(findClicked()), this, SLOT(find()));
 	connect(findDialog, SIGNAL(editingFinished()), this, SLOT(find()));
 	connect(replaceDialog, SIGNAL(replaceClicked()), this, SLOT(replace()));
-	connect(finder, SIGNAL(finished()), this, SLOT(finishedInFiles()));
 }
 
 XWTeXEditorMainWindow::~XWTeXEditorMainWindow()
@@ -485,12 +500,21 @@ void XWTeXEditorMainWindow::open()
 		path = fn.dirPart();
 	}
 
+	searcher->setPath(path);
+
 	QString filename = QFileDialog::getOpenFileName(this,
 		                                            tr("Open file"),
 		                                            path,
 		                                            tr("Files (*.tex)"));
 	if (filename.isEmpty())
 		return ;
+
+	int i = filename.lastIndexOf(QChar('/'));
+	if (i > 0)
+	{
+		QString p = filename.left(i);
+		searcher->setPath(p);
+	}
 
 	QMdiSubWindow *existing = findMdiChild(filename);
 	if (existing)
@@ -520,6 +544,7 @@ void XWTeXEditorMainWindow::openFolder()
   if (dir.isEmpty())
 	  return ;
 
+  searcher->setRoot(dir);
 	folderModel->setRootPath(dir);
 	folder->setRootIndex(folderModel->index(dir));
 	QString wintitle = QString(tr("Folder %1")).arg(dir);
@@ -1037,14 +1062,22 @@ void XWTeXEditorMainWindow::closeEvent(QCloseEvent *event)
 	QMainWindow::closeEvent(event);
 }
 
+void XWTeXEditorMainWindow::activeFile(const QString & filename)
+{
+	QMdiSubWindow *existing = findMdiChild(filename);
+	if (existing)
+	{
+     mdiArea->setActiveSubWindow(existing);
+     return;
+  }
+
+	XWTeXTextEdit *child = createMdiChild();
+  child->loadFile(filename);
+  child->show();
+}
+
 void XWTeXEditorMainWindow::find()
 {
-	if (!findDialog->allVisible())
-	{
-		findInFiles();
-		return ;
-	}
-
 	XWTeXTextEdit *cur = activeMdiChild();
 	if (!cur)
 	  return ;
@@ -1056,48 +1089,20 @@ void XWTeXEditorMainWindow::find()
 	bool casematch = findDialog->isCaseSensitive();
 	bool wholewords = findDialog->isWholeWords();
 	bool regexpmatch = findDialog->isRegexpMatch();
-	if (findDialog->isAll())
-	  cur->findAll(str,casematch,wholewords,regexpmatch);
-	else
-	{
-		cur->find(str,casematch,wholewords,regexpmatch);
-	  cur->findNext();
-	}
-}
-
-void XWTeXEditorMainWindow::findInFiles()
-{
-	QModelIndex index = folder->currentIndex();
-	if (!index.isValid())
-	  return ;
-
-	QString str = findDialog->getText();
-	if (str.isEmpty())
-	  return ;
-
-	bool casematch = findDialog->isCaseSensitive();
-	bool wholewords = findDialog->isWholeWords();
-	bool regexpmatch = findDialog->isRegexpMatch();
-
-	QString path = folderModel->filePath(index);
-	finder->find(mdiArea, path, str, casematch, wholewords, regexpmatch);
-}
-
-void XWTeXEditorMainWindow::finishedInFiles()
-{
-	XWTeXTextEdit *child = finder->takeNewEditor();
-	while (child)
-	{
-		connect(child, SIGNAL(copyAvailable(bool)), cutAct, SLOT(setEnabled(bool)));
-    connect(child, SIGNAL(copyAvailable(bool)), copyAct, SLOT(setEnabled(bool)));
-    connect(child, SIGNAL(cursorChanged(int, int)), this, SLOT(setSourceLabel(int, int)));
-		child = finder->takeNewEditor();
-	}
+	cur->find(str,casematch,wholewords,regexpmatch);
+	cur->findNext();
 }
 
 void XWTeXEditorMainWindow::openFile(const QModelIndex & index)
 {
 	QString filename = folderModel->filePath(index);
+	int i = filename.lastIndexOf(QChar('/'));
+	if (i > 0)
+	{
+		QString p = filename.left(i);
+		searcher->setPath(p);
+	}
+
 	QMdiSubWindow *existing = findMdiChild(filename);
 	if (existing)
 	{
@@ -1112,12 +1117,6 @@ void XWTeXEditorMainWindow::openFile(const QModelIndex & index)
 
 void XWTeXEditorMainWindow::replace()
 {
-	if (!replaceDialog->allVisible())
-	{
-		replaceInFiles();
-		return ;
-	}
-
 	XWTeXTextEdit *cur = activeMdiChild();
 	if (!cur)
 	  return ;
@@ -1131,33 +1130,8 @@ void XWTeXEditorMainWindow::replace()
 	bool wholewords = replaceDialog->isWholeWords();
 	bool regexpmatch = replaceDialog->isRegexpMatch();
 	
-	if (replaceDialog->isAll())
-	  cur->replaceAll(str,bystr,casematch,wholewords,regexpmatch);
-	else
-	{
-		cur->replace(str,bystr,casematch,wholewords,regexpmatch);
-		cur->replaceNext();
-	}	
-}
-
-void XWTeXEditorMainWindow::replaceInFiles()
-{
-	QModelIndex index = folder->currentIndex();
-	if (!index.isValid())
-	  return ;
-
-	QString str = replaceDialog->getText();
-	if (str.isEmpty())
-	  return ;
-
-	QString bystr = replaceDialog->getByText();
-
-	bool casematch = replaceDialog->isCaseSensitive();
-	bool wholewords = replaceDialog->isWholeWords();
-	bool regexpmatch = replaceDialog->isRegexpMatch();
-
-	QString path = folderModel->filePath(index);
-	finder->replace(mdiArea, path, str, bystr, casematch, wholewords, regexpmatch);
+	cur->replace(str,bystr,casematch,wholewords,regexpmatch);
+	cur->replaceNext();
 }
 
 void XWTeXEditorMainWindow::setAuthor(const QString & a)
@@ -1259,23 +1233,6 @@ void XWTeXEditorMainWindow::showFindDialog()
 	if (!cur)
 	  return ;
 
-	findDialog->hideAll(false);
-	if (cur->hasSelected())
-	{
-		QString str = cur->getSelected();
-		findDialog->setText(str);
-
-	}
-	findDialog->show();
-}
-	
-void XWTeXEditorMainWindow::showFindInFilesDialog()
-{
-	XWTeXTextEdit *cur = activeMdiChild();
-	if (!cur)
-	  return ;
-
-	findDialog->hideAll(true);
 	if (cur->hasSelected())
 	{
 		QString str = cur->getSelected();
@@ -1291,7 +1248,6 @@ void XWTeXEditorMainWindow::showReplaceDialog()
 	if (!cur)
 	  return ;
 
-	replaceDialog->hideAll(false);
 	if (cur->hasSelected())
 	{
 		QString str = cur->getSelected();
@@ -1300,21 +1256,14 @@ void XWTeXEditorMainWindow::showReplaceDialog()
 	}
 	replaceDialog->show();
 }
-	
-void XWTeXEditorMainWindow::showReplaceInFilesDialog()
+
+void XWTeXEditorMainWindow::showSearchResult(int pos, int len)
 {
 	XWTeXTextEdit *cur = activeMdiChild();
 	if (!cur)
 	  return ;
 
-	replaceDialog->hideAll(true);
-	if (cur->hasSelected())
-	{
-		QString str = cur->getSelected();
-		replaceDialog->setText(str);
-
-	}
-	replaceDialog->show();
+	cur->setSelected(pos, len);
 }
 
 void XWTeXEditorMainWindow::updateActions()
@@ -1381,7 +1330,12 @@ void XWTeXEditorMainWindow::updateActions()
 XWTeXTextEdit * XWTeXEditorMainWindow::activeMdiChild()
 {
 	if (QMdiSubWindow *activeSubWindow = mdiArea->activeSubWindow())
-     return qobject_cast<XWTeXTextEdit *>(activeSubWindow->widget());
+	{
+		XWTeXTextEdit *ret = qobject_cast<XWTeXTextEdit *>(activeSubWindow->widget());
+		searcher->setDoc(ret->document());
+		return ret;
+	}
+
   return 0;
 }
 
@@ -1466,12 +1420,6 @@ void XWTeXEditorMainWindow::createActions()
 	replaceAct = new QAction(tr("&Replace"), this);
 	replaceAct->setShortcuts(QKeySequence::Replace);
 	connect(replaceAct, SIGNAL(triggered()), this, SLOT(showReplaceDialog()));
-
-	findInAct = new QAction(tr("Find in files"), this);
-	connect(findInAct, SIGNAL(triggered()), this, SLOT(showFindInFilesDialog()));
-
-	replaceInAct = new QAction(tr("Replace in files"), this);
-	connect(replaceInAct, SIGNAL(triggered()), this, SLOT(showReplaceInFilesDialog()));
 
   inputCodecActs = new QActionGroup(this);
   connect(inputCodecActs, SIGNAL(triggered(QAction*)), this, SLOT(setInputCodec(QAction*)));
@@ -1732,7 +1680,7 @@ XWTeXTextEdit * XWTeXEditorMainWindow::createMdiChild()
   connect(child, SIGNAL(copyAvailable(bool)), cutAct, SLOT(setEnabled(bool)));
   connect(child, SIGNAL(copyAvailable(bool)), copyAct, SLOT(setEnabled(bool)));
   connect(child, SIGNAL(cursorChanged(int, int)), this, SLOT(setSourceLabel(int, int)));
-
+  searcher->setDoc(child->document());
   return child;
 }
 
@@ -1827,9 +1775,6 @@ void XWTeXEditorMainWindow::createMenus()
 
   editMenu->addAction(findAct);
   editMenu->addAction(replaceAct);
-	editMenu->addSeparator();
-  editMenu->addAction(findInAct);
-	editMenu->addAction(replaceInAct);
 
 	editMenu->addSeparator();
   QMenu * cmenu = editMenu->addMenu(tr("Input codec"));
@@ -1995,7 +1940,10 @@ QMdiSubWindow *XWTeXEditorMainWindow::findMdiChild(const QString &fileName)
       XWTeXTextEdit *mdiChild = qobject_cast<XWTeXTextEdit *>(window->widget());
       QString fn = mdiChild->getFileName();
       if (fn == fileName)
-          return window;
+			{
+				searcher->setDoc(mdiChild->document());
+				return window;
+			}
   }
   return 0;
 }
@@ -2049,6 +1997,8 @@ QString XWTeXEditorMainWindow::getLocalPath()
 	QDir d(path);
 	if (!d.exists())
 		d.mkdir(path);
+
+	searcher->setPath(path);
 
 	return path;
 }

@@ -1803,6 +1803,18 @@ void XWGuiCore::displayPage(int pg, bool scrollToTop)
   	scrollTo(page->xDest + page->w - viewport()->width(), page->yDest);
 }
 
+void XWGuiCore::displayPage(int pg, double xMin, double yMin, double xMax, double yMax)
+{
+	int newSelectULX = 0;
+	int newSelectULY = 0;
+	int newSelectLRX = 0;
+	int newSelectLRY = 0;
+	cvtDevToWindow(pg, (int)floor(xMin), (int)floor(yMin), &newSelectULX, &newSelectULY);
+	cvtDevToWindow(pg, (int)ceil(xMax), (int)ceil(yMax), &newSelectLRX, &newSelectLRY);
+  setSelection(pg,  newSelectULX, newSelectULY, newSelectLRX, newSelectLRY);
+  displayPage(pg);
+}
+
 void XWGuiCore::doAction(XWLinkAction *action)
 {
 	if (!doc || !action)

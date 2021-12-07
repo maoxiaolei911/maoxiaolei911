@@ -19,6 +19,7 @@
 
 class XWTeXDocument;
 class XWTeXDocumentBlock;
+class XWTeXDocSearhList;
 
 class XW_TEXDOCUMENT_EXPORT XWTeXDocumentRow
 {
@@ -32,8 +33,10 @@ public:
   void draw(QPainter * painter,const QColor & pagecolor,const QRectF & rect);
   void drawPic(QPainter * painter);
 
-  bool findNext(bool & nonext);
-  void findAll();
+  void find(int pg, XWTeXDocSearhList * list);
+  void find(QList<XWTeXDocumentBlock*> & blocksA);
+  bool find(int pg, XWTeXDocumentBlock * blockA, XWTeXDocSearhList * list);
+  bool findNext();
 
   void   getBoundRect(double & minX, double & minY, double & maxX, double & maxY)
     {minX = minx; minY = miny; maxX = maxx; maxY = maxy;}
@@ -55,8 +58,7 @@ public:
   bool moveToPreviousWord(bool & m);
   void moveToStart();
 
-  void replaceAll();
-  bool replaceNext(bool & nonext);
+  bool replaceNext();
   void reset();
 
   void selectEnd(double & minX, double & minY, double & maxX, double & maxY);
@@ -98,8 +100,10 @@ public:
   void draw(QPainter * painter,const QColor & pagecolor,const QRectF & rect);
   void drawPic(QPainter * painter);
 
-  bool findNext(bool & nonext);
-  void findAll();
+  void find(int pg, XWTeXDocSearhList * list);
+  void find(QList<XWTeXDocumentBlock*> & blocksA);
+  bool find(int pg, XWTeXDocumentBlock * blockA, XWTeXDocSearhList * list);
+  bool findNext();
 
   XWTeXDocumentRow * getCurrentRow();
   XWTeXDocumentRow * getNewRow();
@@ -121,8 +125,7 @@ public:
   void moveToRowStart();
   void moveToStart();
 
-  void replaceAll();
-  bool replaceNext(bool & nonext);
+  bool replaceNext();
   void reset();
 
   void selectAll(double & minX, double & minY, double & maxX, double & maxY);
