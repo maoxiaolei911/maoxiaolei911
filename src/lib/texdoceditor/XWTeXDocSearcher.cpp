@@ -84,14 +84,15 @@ XWTeXDocSearchWidget::XWTeXDocSearchWidget(XWTeXDocSearcher * searcherA, QWidget
   textLabel = new QLabel(tr("text:"), this);
   textEdit = new QLineEdit(this);
 
-  startMenu = new QMenu(this);
+  startButton = new QToolButton(this);
+  startButton->setPopupMode(QToolButton::MenuButtonPopup);
 
   list = new XWTeXDocSearhList(this);
 
   QGridLayout *toplayout = new QGridLayout;
   toplayout->addWidget(textLabel,0,0);
   toplayout->addWidget(textEdit,0,1,1,2);
-  toplayout->addWidget(startMenu,0,2);
+  toplayout->addWidget(startButton,0,3);
 
   QVBoxLayout *layout = new QVBoxLayout;
   layout->addLayout(toplayout);
@@ -99,10 +100,12 @@ XWTeXDocSearchWidget::XWTeXDocSearchWidget(XWTeXDocSearcher * searcherA, QWidget
 
   setLayout(layout);
 
-  QAction * a = startMenu->addAction(tr("search"));
+  QAction * a = new QAction(tr("search"),startButton);
+  startButton->setDefaultAction(a);
   connect(a, SIGNAL(triggered()), this, SLOT(search()));
 
-  QMenu * submenu = startMenu->addMenu(tr("setting"));
+  QMenu * submenu = new QMenu(startButton);
+  startButton->setMenu(submenu);
   a = submenu->addAction(tr("case sensitivity"));
   a->setCheckable(true);
   a->setChecked(true);
@@ -151,7 +154,8 @@ XWTeXDocReplaceWidget::XWTeXDocReplaceWidget(XWTeXDocSearcher * searcherA,QWidge
   replacingLabel = new QLabel(tr("replaced by:"), this);
   replacingEdit = new QLineEdit(this);
 
-  startMenu = new QMenu(this);
+  startButton = new QToolButton(this);
+  startButton->setPopupMode(QToolButton::MenuButtonPopup);
 
   list = new XWTeXDocSearhList(this);
 
@@ -160,7 +164,7 @@ XWTeXDocReplaceWidget::XWTeXDocReplaceWidget(XWTeXDocSearcher * searcherA,QWidge
   toplayout->addWidget(textEdit,0,1,1,2);
   toplayout->addWidget(replacingLabel,1,0);
   toplayout->addWidget(replacingEdit,1,1,1,2);
-  toplayout->addWidget(startMenu,1,2);
+  toplayout->addWidget(startButton,1,3);
 
   QVBoxLayout *layout = new QVBoxLayout;
   layout->addLayout(toplayout);
@@ -168,10 +172,12 @@ XWTeXDocReplaceWidget::XWTeXDocReplaceWidget(XWTeXDocSearcher * searcherA,QWidge
 
   setLayout(layout);
 
-  QAction * a = startMenu->addAction(tr("replace"));
+  QAction * a = new QAction(tr("replace"), startButton);
+  startButton->setDefaultAction(a);
   connect(a, SIGNAL(triggered()), this, SLOT(replace()));
 
-  QMenu * submenu = startMenu->addMenu(tr("setting"));
+  QMenu * submenu = new QMenu(startButton);
+  startButton->setMenu(submenu);
   a = submenu->addAction(tr("case sensitivity"));
   a->setCheckable(true);
   a->setChecked(true);

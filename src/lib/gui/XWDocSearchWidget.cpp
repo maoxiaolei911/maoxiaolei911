@@ -65,14 +65,15 @@ XWTeXPDFSearchWidget::XWTeXPDFSearchWidget(XWPDFSearcher * searcherA,QWidget * p
   textLabel = new QLabel(tr("text:"), this);
   textEdit = new QLineEdit(this);
 
-  startMenu = new QMenu(this);
+  startButton = new QToolButton(this);
+	startButton->setPopupMode(QToolButton::MenuButtonPopup);
 
   list = new XWPDFSearhList(this);
 
   QGridLayout *toplayout = new QGridLayout;
   toplayout->addWidget(textLabel,0,0);
   toplayout->addWidget(textEdit,0,1,1,2);
-  toplayout->addWidget(startMenu,0,2);
+  toplayout->addWidget(startButton,0,3);
 
   QVBoxLayout *layout = new QVBoxLayout;
   layout->addLayout(toplayout);
@@ -80,10 +81,12 @@ XWTeXPDFSearchWidget::XWTeXPDFSearchWidget(XWPDFSearcher * searcherA,QWidget * p
 
   setLayout(layout);
 
-  QAction * a = startMenu->addAction(tr("search"));
+  QAction * a = new QAction(tr("search"), startButton);
+  startButton->setDefaultAction(a);
   connect(a, SIGNAL(triggered()), this, SLOT(search()));
 
-  QMenu * submenu = startMenu->addMenu(tr("setting"));
+  QMenu * submenu = new QMenu(startButton);
+  startButton->setMenu(submenu);
   a = submenu->addAction(tr("case sensitivity"));
   a->setCheckable(true);
   a->setChecked(true);
@@ -185,14 +188,15 @@ XWQTextDocumentSearchWidget::XWQTextDocumentSearchWidget(XWQTextDocumentSearcher
   textLabel = new QLabel(tr("text:"), this);
   textEdit = new QLineEdit(this);
 
-  startMenu = new QMenu(this);
+  startButton = new QToolButton(this);
+  startButton->setPopupMode(QToolButton::MenuButtonPopup);
 
   list = new XWQTextDocumentSearchList(searcherA,this);
 
   QGridLayout *toplayout = new QGridLayout;
   toplayout->addWidget(textLabel,0,0);
   toplayout->addWidget(textEdit,0,1,1,2);
-  toplayout->addWidget(startMenu,0,2);
+  toplayout->addWidget(startButton,0,3);
 
   QVBoxLayout *layout = new QVBoxLayout;
   layout->addLayout(toplayout);
@@ -200,10 +204,12 @@ XWQTextDocumentSearchWidget::XWQTextDocumentSearchWidget(XWQTextDocumentSearcher
 
   setLayout(layout);
 
-  QAction * a = startMenu->addAction(tr("search"));
+  QAction * a = new QAction(tr("search"), startButton);
+  startButton->setDefaultAction(a);
   connect(a, SIGNAL(triggered()), this, SLOT(search()));
-
-  QMenu * submenu = startMenu->addMenu(tr("setting"));
+  
+  QMenu * submenu = new QMenu(startButton);
+  startButton->setMenu(submenu);
   a = submenu->addAction(tr("case sensitivity"));
   a->setCheckable(true);
   a->setChecked(true);
@@ -279,7 +285,8 @@ XWQTextDocumentReplaceWidget::XWQTextDocumentReplaceWidget(XWQTextDocumentSearch
   replacingLabel = new QLabel(tr("replaced by:"), this);
   replacingEdit = new QLineEdit(this);
 
-  startMenu = new QMenu(this);
+  startButton = new QToolButton(this);
+  startButton->setPopupMode(QToolButton::MenuButtonPopup);
 
   list = new XWQTextDocumentSearchList(searcherA,this);
 
@@ -288,7 +295,7 @@ XWQTextDocumentReplaceWidget::XWQTextDocumentReplaceWidget(XWQTextDocumentSearch
   toplayout->addWidget(textEdit,0,1,1,2);
   toplayout->addWidget(replacingLabel,1,0);
   toplayout->addWidget(replacingEdit,1,1,1,2);
-  toplayout->addWidget(startMenu,1,2);
+  toplayout->addWidget(startButton,1,3);
 
   QVBoxLayout *layout = new QVBoxLayout;
   layout->addLayout(toplayout);
@@ -296,10 +303,12 @@ XWQTextDocumentReplaceWidget::XWQTextDocumentReplaceWidget(XWQTextDocumentSearch
 
   setLayout(layout);
 
-  QAction * a = startMenu->addAction(tr("replace"));
+  QAction * a = new QAction(tr("replace"), startButton);
+  startButton->setDefaultAction(a);
   connect(a, SIGNAL(triggered()), this, SLOT(replace()));
 
-  QMenu * submenu = startMenu->addMenu(tr("setting"));
+  QMenu * submenu = new QMenu(startButton);
+  startButton->setMenu(submenu);
   a = submenu->addAction(tr("case sensitivity"));
   a->setCheckable(true);
   a->setChecked(true);

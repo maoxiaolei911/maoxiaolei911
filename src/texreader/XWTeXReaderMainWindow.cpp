@@ -75,7 +75,7 @@ XWTeXReaderMainWindow::XWTeXReaderMainWindow()
     outlineWin = new XWOutlineWindow(core, tab);
     tab->addTab(outlineWin,tr("Outline"));
     XWTeXPDFSearchWidget * sw = new XWTeXPDFSearchWidget(searcher,tab);
-		tab->addTab(outlineWin,tr("Search"));
+		tab->addTab(sw,tr("Search"));
 		connect(sw, SIGNAL(positionActivated(int, double,double,double,double)), 
 		        this, SLOT(showSearchResult(int, double,double,double,double)));
     

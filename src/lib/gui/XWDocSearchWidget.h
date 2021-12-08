@@ -13,7 +13,7 @@
 
 class QLabel;
 class QLineEdit;
-class QMenu;
+class QToolButton;
 class QAction;
 class QTreeWidgetItem;
 class XWPDFSearcher;
@@ -71,7 +71,7 @@ private:
   XWPDFSearcher * searcher;
   QLabel     * textLabel;
   QLineEdit  * textEdit;
-  QMenu * startMenu;
+  QToolButton * startButton;
   XWPDFSearhList * list;
 };
 
@@ -120,7 +120,7 @@ private:
   XWQTextDocumentSearcher * searcher;
   QLabel     * textLabel;
   QLineEdit  * textEdit;
-  QMenu * startMenu;
+  QToolButton * startButton;
   XWQTextDocumentSearchList * list;
 };
 
@@ -147,7 +147,7 @@ private:
   QLineEdit  * textEdit;
   QLabel     * replacingLabel;
   QLineEdit  * replacingEdit;
-  QMenu * startMenu;
+  QToolButton * startButton;
   XWQTextDocumentSearchList * list;
 };
 

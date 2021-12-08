@@ -50,7 +50,6 @@ XWTeXFmtEditorMainWindow::XWTeXFmtEditorMainWindow()
 	folderModel = new QFileSystemModel;
 	folderModel->setRootPath(QDir::currentPath());
 	folder->setModel(folderModel);
-	folderDock->setWidget(folder);
 	
 	XWQTextDocumentReplaceWidget * sw = new XWQTextDocumentReplaceWidget(searcher,tab);
 	tab->addTab(sw,tr("Search"));

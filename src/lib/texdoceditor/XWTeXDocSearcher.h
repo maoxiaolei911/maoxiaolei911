@@ -14,7 +14,7 @@
 
 class QLabel;
 class QLineEdit;
-class QMenu;
+class QToolButton;
 class QAction;
 class XWTeXDocumentBlock;
 class XWTeXDocument;
@@ -89,7 +89,7 @@ private:
   XWTeXDocSearcher * searcher;
   QLabel     * textLabel;
   QLineEdit  * textEdit;
-  QMenu * startMenu;
+  QToolButton * startButton;
   XWTeXDocSearhList * list;
 };
 
@@ -115,7 +115,7 @@ private:
   QLineEdit  * textEdit;
   QLabel     * replacingLabel;
   QLineEdit  * replacingEdit;
-  QMenu * startMenu;
+  QToolButton * startButton;
   XWTeXDocSearhList * list;
 };
 
