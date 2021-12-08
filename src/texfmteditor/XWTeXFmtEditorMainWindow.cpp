@@ -51,7 +51,7 @@ XWTeXFmtEditorMainWindow::XWTeXFmtEditorMainWindow()
 	folderModel->setRootPath(QDir::currentPath());
 	folder->setModel(folderModel);
 	
-	XWQTextDocumentReplaceWidget * sw = new XWQTextDocumentReplaceWidget(searcher,tab);
+	XWQTextDocumentSearchWidget * sw = new XWQTextDocumentSearchWidget(searcher,tab);
 	tab->addTab(sw,tr("Search"));
 	connect(sw, SIGNAL(positionActivated(int, int)), this, SLOT(showSearchResult(int, int)));
 	connect(sw, SIGNAL(fileActivated(const QString&)), this, SLOT(activeFile(const QString&)));
