@@ -219,11 +219,15 @@ void XWTeXDocReplaceWidget::setWholeWord(bool e)
 }
 
 XWTeXDocSearcher::XWTeXDocSearcher(QObject * parent)
-:XWSearcher(parent)
+:XWSearcher(parent),
+ doc(0)
 {}
 
 void XWTeXDocSearcher::run()
 {
+  if (!doc)
+    return ;
+    
   if (isReplace)
   {
     doc->setReplaceCondition(text, replacing,caseSensitivity,wholeWord, false);
