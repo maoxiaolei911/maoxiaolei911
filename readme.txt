@@ -1,8 +1,8 @@
   The Xiuwen package is a simplified TeX/LaTeX system with a TeX compiler 
 based on the aleph based implementation in Qt C++, and the entire package 
 consists of:
-  1. DVI/PDF reader supports dvipdfmx, dvips driver, DVI/PDF to text, 
-     picture DVI to PDF with landscape viewing and on-screen markup.
+  1. DVI/PDF reader supports dvipdfmx, dvips driver, DVI/PDF to text/picture, 
+     DVI to PDF, with landscape viewing and on-screen markup.
   2. TeX/LaTeX reader converts text files directly to DVI view.
   3. LaTeX text editor reduces the difficulty of use for beginners, 
      supporting left-right horizontal and left-right vertical rows. 
@@ -124,4 +124,3 @@ TeX/LaTeX システムです。をベースにしたQt C++の実装で、パッ�
   作成し、その中にサブディレクトリを作成することもできます。サブモジュールをコンパイル
   する場合。 引数proを指定して、そのディレクトリでqmakeコマンドを実行します。ディレクト
   リに移動し、関連する Makefile ファイルを生成し、その後を実行し、対応するmakeを実行します。
-  
