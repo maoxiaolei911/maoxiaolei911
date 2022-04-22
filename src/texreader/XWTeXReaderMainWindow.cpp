@@ -64,7 +64,7 @@ XWTeXReaderMainWindow::XWTeXReaderMainWindow()
     core = new XWTeXReaderCore(this, this);
     setCentralWidget(core);
     
-    dock = new QDockWidget(this);
+    dock = new QDockWidget(tr("Outline"), this);
     dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 		addDockWidget(Qt::LeftDockWidgetArea, dock);
     dock->toggleViewAction()->setChecked(false);

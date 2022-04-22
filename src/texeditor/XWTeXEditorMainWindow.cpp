@@ -74,7 +74,7 @@ XWTeXEditorMainWindow::XWTeXEditorMainWindow()
   windowMapper = new QSignalMapper(this);
   connect(windowMapper, SIGNAL(mapped(QWidget*)), this, SLOT(setActiveSubWindow(QWidget*)));
 
-  folderDock = new QDockWidget(this);
+  folderDock = new QDockWidget(tr("Folder"),this);
 	folderDock->setAllowedAreas(Qt::LeftDockWidgetArea);
 	addDockWidget(Qt::LeftDockWidgetArea, folderDock);
 	folderDock->toggleViewAction()->setChecked(false);

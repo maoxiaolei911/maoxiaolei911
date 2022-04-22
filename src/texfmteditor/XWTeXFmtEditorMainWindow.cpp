@@ -37,7 +37,7 @@ XWTeXFmtEditorMainWindow::XWTeXFmtEditorMainWindow()
 	setWindowTitle(title);
   setWindowIcon(QIcon(":/images/xiuwen24.png"));
 
-	folderDock = new QDockWidget( this);
+	folderDock = new QDockWidget(tr("Folder"),this);
 	folderDock->setAllowedAreas(Qt::LeftDockWidgetArea);
 	addDockWidget(Qt::LeftDockWidgetArea, folderDock);
 	folderDock->toggleViewAction()->setChecked(false);
