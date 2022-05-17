@@ -2496,7 +2496,7 @@ void XWTikzScope::doScope(XWTikzState * state)
       XWTikzForeach * s = (XWTikzForeach*)(cmds[i]);
       s->doScope(state);
     }
-    else if (cmds[i]->getKeyWord() == PGFforeach)
+    else if (cmds[i]->getKeyWord() == PGFspy)
       spies << cmds[i];
     else
       cmds[i]->doPath(state,false);
