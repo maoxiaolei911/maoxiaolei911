@@ -45,8 +45,7 @@ public:
 	XWLaTeXEditorMainWindow();
 	~XWLaTeXEditorMainWindow();
 
-    bool loadFile(const QString & filename);
-    bool loadFmt(const QString & fmt);
+  bool loadFmt(const QString & fmt);
 
 public slots:
   void editFormular();
@@ -103,6 +102,7 @@ public slots:
   void label();
   void lemma();
 	void list();
+	bool loadFile(const QString & filename);
 	void loadFmt();
 	void location();
 
@@ -205,6 +205,8 @@ private slots:
 
 	void updateActions();
 
+	void wizard();
+
 private:
 	XWTeXDocumentCore *activeMdiChild();
 
@@ -268,6 +270,7 @@ private:
 	QToolBar * markToolsBar;
 	QToolButton * markToolsButton;
 
+  QAction *newWizardAct;
   QAction *importAct;
   QAction *openAct;
 	QAction *openFolderAct;

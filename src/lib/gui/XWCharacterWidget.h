@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** °æÈ¨ËùÓÐ (C) 2006-2007 ÐãÎÄ¹«Ë¾.
+ ** ï¿½ï¿½È¨ï¿½ï¿½ï¿½ï¿½ (C) 2006-2007 ï¿½ï¿½ï¿½Ä¹ï¿½Ë¾.
  **
  ****************************************************************************/
 #ifndef XWCHARACTERWIDGET_H
@@ -21,7 +21,7 @@ class XWFTFontEngine;
 class XWFTFont;
 class XWFontFilePK;
 
-class XWCharacterWidget : public QWidget
+class XW_GUI_EXPORT XWCharacterWidget : public QWidget
 {
 	Q_OBJECT
 

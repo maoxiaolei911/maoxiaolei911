@@ -40,6 +40,7 @@
 #include "XWLaTeXFormularMainWindow.h"
 #include "XWTikzMainWindow.h"
 #include "XWTeXDocSearcher.h"
+#include "XWLaTeXWizard.h"
 #include "XWLaTeXEditorMainWindow.h"
 
 XWLaTeXEditorMainWindow::XWLaTeXEditorMainWindow()
@@ -122,40 +123,6 @@ XWLaTeXEditorMainWindow::XWLaTeXEditorMainWindow()
 
 XWLaTeXEditorMainWindow::~XWLaTeXEditorMainWindow()
 {}
-
-bool XWLaTeXEditorMainWindow::loadFile(const QString & filename)
-{
-	if (filename.isEmpty())
-		return false;
-
-	XWDocSea sea;
-	QString fullname = sea.findTex(filename);
-	if (fullname.isEmpty())
-	{
-		xwApp->openError(filename, false);
-		xwApp->showErrs();
-		return false;
-	}
-
-	QFile file(fullname);
-	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-	{
-		xwApp->openError(fullname, false);
-		xwApp->showErrs();
-		return false;
-	}
-
-	QMdiSubWindow *existing = findMdiChild(fullname);
-	if (existing)
-     mdiArea->setActiveSubWindow(existing);
-  else
-  {
-  	XWTeXDocumentCore *child = createMdiChild(fullname);
-  	child->show();
-  }
-
-	return true;
-}
 
 bool XWLaTeXEditorMainWindow::loadFmt(const QString & fmt)
 {
@@ -473,6 +440,40 @@ void XWLaTeXEditorMainWindow::lemma()
 void XWLaTeXEditorMainWindow::list()
 {
 	currentDoc()->insertList();
+}
+
+bool XWLaTeXEditorMainWindow::loadFile(const QString & filename)
+{
+	if (filename.isEmpty())
+		return false;
+
+	XWDocSea sea;
+	QString fullname = sea.findTex(filename);
+	if (fullname.isEmpty())
+	{
+		xwApp->openError(filename, false);
+		xwApp->showErrs();
+		return false;
+	}
+
+	QFile file(fullname);
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		xwApp->openError(fullname, false);
+		xwApp->showErrs();
+		return false;
+	}
+
+	QMdiSubWindow *existing = findMdiChild(fullname);
+	if (existing)
+     mdiArea->setActiveSubWindow(existing);
+  else
+  {
+  	XWTeXDocumentCore *child = createMdiChild(fullname);
+  	child->show();
+  }
+
+	return true;
 }
 
 void XWLaTeXEditorMainWindow::loadFmt()
@@ -1620,6 +1621,13 @@ void XWLaTeXEditorMainWindow::updateActions()
 	}
 }
 
+void XWLaTeXEditorMainWindow::wizard()
+{
+	XWLaTeXWizard w(this);
+  connect(&w, SIGNAL(fileNameChanged(const QString & )), this, SLOT(loadFile(const QString & )));
+	w.show();
+}
+
 void XWLaTeXEditorMainWindow::closeEvent(QCloseEvent *event)
 {
 	saveToolsBarStatus();
@@ -1642,6 +1650,10 @@ XWTeXDocumentCore * XWLaTeXEditorMainWindow::activeMdiChild()
 void XWLaTeXEditorMainWindow::createActions()
 {
 	//File
+	newWizardAct = new QAction(tr("&New from wizard"), this);
+  newWizardAct->setStatusTip(tr("Create a new file from wizard"));
+  connect(newWizardAct, SIGNAL(triggered()), this, SLOT(wizard()));
+	
 	importAct = new QAction(QIcon(":/images/import.png"), tr("&New from template"), this);
   importAct->setStatusTip(tr("Create a new file from template"));
   connect(importAct, SIGNAL(triggered()), this, SLOT(newFromTmplate()));
@@ -2035,6 +2047,7 @@ XWTeXDocumentCore *XWLaTeXEditorMainWindow::createMdiChild(const QString &filena
 void XWLaTeXEditorMainWindow::createMenus()
 {
 	fileMenu = menuBar()->addMenu(tr("&File"));
+	fileMenu->addAction(newWizardAct);
 	fileMenu->addAction(importAct);
   fileMenu->addAction(openAct);
 	fileMenu->addAction(openFolderAct);

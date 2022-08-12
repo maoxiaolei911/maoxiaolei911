@@ -12,12 +12,14 @@ INCLUDEPATH += $${XWLATEXEDITORSRCDIR}
 
 HEADERS += $${XWLATEXEDITORSRCDIR}/XWLaTeXEditorCore.h \
            $${XWLATEXEDITORSRCDIR}/XWLaTeXEditorDev.h \
+           $${XWLATEXEDITORSRCDIR}/XWLaTeXWizard.h \
            $${XWLATEXEDITORSRCDIR}/XWLaTeXEditorMainWindow.h \
            $${XWLATEXEDITORSRCDIR}/XWLaTeXEditor.h
 
 SOURCES += $${XWLATEXEDITORSRCDIR}/XWLaTeXEditorCore.cpp \
            $${XWLATEXEDITORSRCDIR}/XWLaTeXEditorDev.cpp \
            $${XWLATEXEDITORSRCDIR}/XWLaTeXEditorMainWindow.cpp \
+           $${XWLATEXEDITORSRCDIR}/XWLaTeXWizard.cpp \
            $${XWLATEXEDITORSRCDIR}/XWLaTeXEditor.cpp \
            $${XWLATEXEDITORSRCDIR}/latexeditor.cpp
 
