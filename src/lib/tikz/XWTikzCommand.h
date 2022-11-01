@@ -22,6 +22,7 @@ class XWTikzCoordinate;
 class XWTikzNode;
 class XWTikzMatrix;
 class XWTikzScope;
+class XWTikzForeach;
 
 #define XW_TIKZ_GROUP -2
 
@@ -388,6 +389,7 @@ public:
   bool hitTest(XWTikzState * state);
 
   void insert(int i, XWTikzCommand * cmd);
+  void insertSrc(const QString & src);
   bool insertText(XWTikzState * state);
   bool isMe(const QString & nameA,XWTikzState * state);
 
@@ -411,22 +413,22 @@ private:
   QList<XWTikzCommand*> cmds;
 };
 
-class XWTikzForeach : public XWTikzCommand
+class XWTikzForeachCmd : public XWTikzCommand
 {
   Q_OBJECT
 
 public:
-  XWTikzForeach(XWTikzGraphic * graphicA,XWTikzScope *scopeA,QObject * parent = 0);
+  XWTikzForeachCmd(XWTikzGraphic * graphicA,XWTikzScope *scopeA,QObject * parent = 0);
 
   bool back(XWTikzState * state);
 
   bool cut(XWTikzState * state);
 
   bool del(XWTikzState * state);
+  void doCopy(XWTikzState * state);
   void doOperation(XWTikzState * state, bool showpoint = false);
   void doPath(XWTikzState * state, bool showpoint = false);
   void doPathNoOptions(XWTikzState * state);
-  void doScope(XWTikzState * state);
   bool dropTo(XWTikzState * state);
 
   int getAnchorPosition();
@@ -441,7 +443,7 @@ public:
   bool goToNext();
   bool goToNextOperation();
   bool goToNextPath();
-  void goToOperationEnd();  
+  void goToOperationEnd();
   void goToOperationStart();
   void goToPathEnd();
   void goToPathStart();
@@ -463,10 +465,7 @@ public:
   void scan(const QString & str, int & len, int & pos);
 
 private:
-  int cur;
-  QStringList variables;
-  QStringList list;
-  QList<XWTikzCommand*> cmds;
+  XWTikzForeach * body;
 };
 
 class XWTikzCoordinatePath : public XWTikzCommand

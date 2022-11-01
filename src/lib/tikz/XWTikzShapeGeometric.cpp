@@ -314,7 +314,7 @@ void XWTikzShape::circularSectorShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     state->moveTo(sectorcenter);
     state->lineTo(arcstart);
     if (endangle > 360)
@@ -704,7 +704,7 @@ void XWTikzShape::cylinderShape(bool dopath)
       xradius = x;
       y = yradius - outersep;
       yradius = y;
-      state = state->save(false);
+      state = state->save();
       state->shift(centerPoint.x(), centerPoint.y());
       state->rotate(rotate);
       state->moveTo(afterbottom);
@@ -714,7 +714,7 @@ void XWTikzShape::cylinderShape(bool dopath)
       state->closePath();
       state->setFillColor(state->cylinderBodyFill);
       state = state->restore();
-      state = state->save(false);
+      state = state->save();
       state->moveTo(beforetop);
       state->addArc(90,-270,xradius,yradius);
       state->closePath();
@@ -722,7 +722,7 @@ void XWTikzShape::cylinderShape(bool dopath)
       state = state->restore();
     }
     
-    state = state->save(false);
+    state = state->save();
     x = xradius - outersep;
     xradius = x;
     y = yradius - outersep;
@@ -1088,7 +1088,7 @@ void XWTikzShape::dartShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     state->moveTo(tippoint);
     state->lineTo(lefttailpoint);
     state->lineTo(tailcenterpoint);
@@ -1201,7 +1201,7 @@ void XWTikzShape::diamondShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     double xc = outernortheast.x() - 1.414213 * state->outerXSep;
     double yc = outernortheast.y() - 1.414213 * state->outerYSep;
     state->moveTo(xc,0);
@@ -1328,7 +1328,7 @@ void XWTikzShape::ellipseShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     double xr = state->xradius - state->outerXSep;
     double yr = state->yradius - state->outerYSep;
     QPointF a(xr,0),b(0,yr);
@@ -1670,7 +1670,7 @@ void XWTikzShape::isosceleTriangleShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     state->shift(centerPoint.x(),centerPoint.y());
     state->rotate(rotate);
     state->moveTo(apex);
@@ -2109,7 +2109,7 @@ void XWTikzShape::kiteShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     state->moveTo(toppoint);
     state->lineTo(leftpoint);
     state->lineTo(bottompoint);
@@ -2253,7 +2253,7 @@ void XWTikzShape::regularPolygonShape(bool dopath)
   {
     x = centerPoint.x() + radius * cos(startangle);
     y = centerPoint.y() + radius * sin(startangle);
-    state = state->save(false);
+    state = state->save();
     state->moveTo(x,y);
     double angle = startangle;
     for (int i = 1; i <= sides; i++)
@@ -2610,7 +2610,7 @@ void XWTikzShape::semicircleShape(bool dopath)
     semicircleradius = x;
     x = semicirclecenterpoint.x() + semicircleradius * cos(rotate);
     y = semicirclecenterpoint.y() + semicircleradius * sin(rotate);
-    state = state->save(false);
+    state = state->save();
     state->moveTo(x,y);
     state->rotate(rotate);
     state->addArc(0,180,semicircleradius,semicircleradius);
@@ -2794,7 +2794,7 @@ void XWTikzShape::starShape(bool dopath)
     double angle = startangle;
     x = centerPoint.x() + outerradius * cos(startangle);
     y = centerPoint.y() + outerradius * sin(startangle);
-    state = state->save(false);
+    state = state->save();
     state->moveTo(x,y);
     for (int i = 1; i <= totalstarpoints; i++)
     {
@@ -3225,7 +3225,7 @@ void XWTikzShape::trapeziumShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     state->moveTo(lowerleftpoint);
     state->lineTo(upperleftpoint);
     state->lineTo(upperrightpoint);

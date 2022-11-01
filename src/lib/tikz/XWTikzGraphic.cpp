@@ -16,6 +16,7 @@
 #include "XWTikzState.h"
 #include "XWTikzCommandDialog.h"
 #include "XWTikzUndoCommand.h"
+#include "pstlabo.h"
 #include "XWTikzGraphic.h"
 
 
@@ -224,11 +225,6 @@ void XWTikzGraphic::doCopy(XWTikzState * state)
     {
       XWTikzScope * s = (XWTikzScope*)(cmds[i]);
       s->doCopy(state);
-    }
-    else if (cmds[i]->getKeyWord() == PGFforeach)
-    {
-      XWTikzForeach * s = (XWTikzForeach*)(cmds[i]);
-      s->doScope(state);
     }
     else if (cmds[i]->getKeyWord() == PGFspy)
       spies << cmds[i];
@@ -526,11 +522,6 @@ void XWTikzGraphic::doGraphic(XWPDFDriver * driver)
       XWTikzScope * s = (XWTikzScope*)(cmds[i]);
       s->doScope(&state);
     }
-    else if (cmds[i]->getKeyWord() == PGFforeach)
-    {
-      XWTikzForeach * s = (XWTikzForeach*)(cmds[i]);
-      s->doScope(&state);
-    }
     else if (cmds[i]->getKeyWord() == PGFspy)
       spies << cmds[i];
     else
@@ -612,23 +603,13 @@ void XWTikzGraphic::doScope(XWPDFDriver * driver)
     return ;
 
   if (cmds[cur]->getKeyWord() != PGFscope && 
-     cmds[cur]->getKeyWord() != XW_TIKZ_GROUP &&
-     cmds[cur]->getKeyWord() != PGFforeach)
+     cmds[cur]->getKeyWord() != XW_TIKZ_GROUP)
      return ;
 
-  
   XWTikzState state(this,driver);
   options->doPath(&state,false);
-  if (cmds[cur]->getKeyWord() != PGFforeach)
-  {
-    XWTikzScope * s = (XWTikzScope*)(cmds[cur]);
-    s->doScope(&state);
-  }
-  else
-  {
-    XWTikzForeach * s = (XWTikzForeach*)(cmds[cur]);
-    s->doScope(&state);
-  }
+  XWTikzScope * s = (XWTikzScope*)(cmds[cur]);
+  s->doScope(&state);
 }
 
 void XWTikzGraphic::doSpyConnection(XWTikzState * state)
@@ -1232,21 +1213,6 @@ void XWTikzGraphic::goToNextOperation()
       }
       break;
 
-    case PGFforeach:
-      {
-        XWTikzForeach * sc = (XWTikzForeach*)(cmds[cur]);
-        if (!sc->goToNextOperation())
-        {
-          if (cur >= cmds.size() - 1)
-            return ;
-          cur++;
-          cmds[cur]->goToStart();
-        }
-
-        emit viewChanged();
-      }
-      break;
-
     default:
       break;
   }
@@ -1263,20 +1229,6 @@ void XWTikzGraphic::goToNextPath()
     case XW_TIKZ_GROUP:
       {
         XWTikzScope * sc = (XWTikzScope*)(cmds[cur]);
-        if (!sc->goToNextPath())
-        {
-          if (cur >= cmds.size() - 1)
-            return ;
-          cur++;
-          cmds[cur]->goToStart();
-        }
-        emit viewChanged();
-      }
-      break;
-
-    case PGFforeach:
-      {
-        XWTikzForeach * sc = (XWTikzForeach*)(cmds[cur]);
         if (!sc->goToNextPath())
         {
           if (cur >= cmds.size() - 1)
@@ -1403,20 +1355,6 @@ void XWTikzGraphic::goToPreviousOperation()
       }
       break;
 
-    case PGFforeach:
-      {
-        XWTikzForeach * sc = (XWTikzForeach*)(cmds[cur]);
-        if (!sc->goToPreviousOperation())
-        {
-          if (cur <= 0)
-            return ;
-          cur--;
-          cmds[cur]->goToEnd();
-        }
-        emit viewChanged();
-      }
-      break;
-
     case PGFpath:
     case PGFdraw:
     case PGFfill:
@@ -1454,20 +1392,6 @@ void XWTikzGraphic::goToPreviousPath()
     case XW_TIKZ_GROUP:
       {
         XWTikzScope * sc = (XWTikzScope*)(cmds[cur]);
-        if (!sc->goToPreviousPath())
-        {
-          if (cur <= 0)
-            return ;
-          cur--;
-          cmds[cur]->goToEnd();
-        }
-        emit viewChanged();
-      }
-      break;
-
-    case PGFforeach:
-      {
-        XWTikzForeach * sc = (XWTikzForeach*)(cmds[cur]);
         if (!sc->goToPreviousPath())
         {
           if (cur <= 0)
@@ -2118,6 +2042,256 @@ void XWTikzGraphic::addVHLines()
     cmds[cur]->addVHLines();
 }
 
+void XWTikzGraphic::insertBallon()
+{
+  insertSrc(XW_TIKZ_BALLON);
+}
+
+void XWTikzGraphic::insertBallonReflux()
+{
+  insertSrc(XW_TIKZ_BALLON_REFLUX(0,0));
+}
+
+void XWTikzGraphic::insertBecBunsen()
+{
+  insertSrc(XW_TIKZ_BECBUNSEN(1,-5));
+}
+
+void XWTikzGraphic::insertBecBunsenGrille()
+{
+  insertSrc(XW_TIKZ_BECBUNSENGRILLE(1,-5));
+}
+
+void XWTikzGraphic::insertBecher()
+{
+  insertSrc(XW_TIKZ_BECHER_CORPS);
+}
+
+void XWTikzGraphic::insertBilles()
+{
+  QString src = Billes();
+  if ((cur >= 0) && (cur <= (cmds.size() - 1)) && 
+      ((cmds[cur]->getKeyWord() == PGFscope) ||
+       (cmds[cur]->getKeyWord() == XW_TIKZ_GROUP)))
+  {
+    XWTikzScope * s = (XWTikzScope*)(cmds[cur]);
+    s->insertSrc(src);
+    return ;
+  }
+
+  insertSrc(src);
+}
+
+void XWTikzGraphic::insertBouchon()
+{
+  insertSrc(XW_TIKZ_TUBEESSAIS_BOUCHON(0,3.5));
+}
+
+void XWTikzGraphic::insertBulles()
+{
+  QString src = bulles();
+  if ((cur >= 0) && (cur <= (cmds.size() - 1)) && 
+      ((cmds[cur]->getKeyWord() == PGFscope) ||
+       (cmds[cur]->getKeyWord() == XW_TIKZ_GROUP)))
+  {
+    XWTikzScope * s = (XWTikzScope*)(cmds[cur]);
+    s->insertSrc(src);
+    return ;
+  }
+
+  insertSrc(src);
+}
+
+void XWTikzGraphic::insertBULLES()
+{
+  QString src = BULLES();
+  if ((cur >= 0) && (cur <= (cmds.size() - 1)) && 
+      ((cmds[cur]->getKeyWord() == PGFscope) ||
+       (cmds[cur]->getKeyWord() == XW_TIKZ_GROUP)))
+  {
+    XWTikzScope * s = (XWTikzScope*)(cmds[cur]);
+    s->insertSrc(src);
+    return ;
+  }
+
+  insertSrc(src);
+}
+
+void XWTikzGraphic::insertBullesChampagne()
+{
+  QString src = bullesChampagne();
+  if ((cur >= 0) && (cur <= (cmds.size() - 1)) && 
+      ((cmds[cur]->getKeyWord() == PGFscope) ||
+       (cmds[cur]->getKeyWord() == XW_TIKZ_GROUP)))
+  {
+    XWTikzScope * s = (XWTikzScope*)(cmds[cur]);
+    s->insertSrc(src);
+    return ;
+  }
+
+  insertSrc(src);
+}
+
+void XWTikzGraphic::insertBurette()
+{
+  insertSrc(XW_TIKZ_BURETTE_CORPS(0,4.5));
+}
+
+void XWTikzGraphic::insertClouFer()
+{
+  QString src = clouFer();
+  if ((cur >= 0) && (cur <= (cmds.size() - 1)) && 
+      ((cmds[cur]->getKeyWord() == PGFscope) ||
+       (cmds[cur]->getKeyWord() == XW_TIKZ_GROUP)))
+  {
+    XWTikzScope * s = (XWTikzScope*)(cmds[cur]);
+    s->insertSrc(src);
+    return ;
+  }
+
+  insertSrc(src);
+}
+
+void XWTikzGraphic::insertCoude()
+{
+  insertSrc(XW_TIKZ_TUBEESSAIS_COUDE(0,3.5));
+}
+
+void XWTikzGraphic::insertCoudeU()
+{
+  insertSrc(XW_TIKZ_TUBEESSAIS_COUDEU(0,3.5));
+}
+
+void XWTikzGraphic::insertCoudeUB()
+{
+  insertSrc(XW_TIKZ_TUBEESSAIS_COUDEUB(0,3.5));
+}
+
+void XWTikzGraphic::insertCristallisoir()
+{
+  insertSrc(XW_TIKZ_CRISTALLISOIR(8,-5));
+}
+
+void XWTikzGraphic::insertDistillationFractionnee()
+{
+  insertSrc(XW_TIKZ_DISTILLATIONFRACTIONNEE);
+}
+
+void XWTikzGraphic::insertDosageAimant()
+{
+  insertSrc(XW_TIKZ_DOSAGE_AIMANT(0,1.5));
+}
+
+void XWTikzGraphic::insertDosagePHmetre()
+{
+  insertSrc(XW_TIKZ_DOSAGE_PHMETRE(-3,0));
+}
+
+void XWTikzGraphic::insertEprouvette()
+{
+  insertSrc(XW_TIKZ_EPROUVETTE_CORPS(0,0));
+}
+
+void XWTikzGraphic::insertErlen()
+{
+  insertSrc(XW_TIKZ_ERLEN_CORPS);
+}
+
+void XWTikzGraphic::insertDroit()
+{
+  insertSrc(XW_TIKZ_TUBEESSAIS_DROIT(0,3.5));
+}
+
+void XWTikzGraphic::insertEntonnoir()
+{
+  insertSrc(XW_TIKZ_ENTONNOIR_CORPS(0,1.5));
+}
+
+void XWTikzGraphic::insertFilaments()
+{
+  QString src = filaments();
+  if ((cur >= 0) && (cur <= (cmds.size() - 1)) && 
+      ((cmds[cur]->getKeyWord() == PGFscope) ||
+       (cmds[cur]->getKeyWord() == XW_TIKZ_GROUP)))
+  {
+    XWTikzScope * s = (XWTikzScope*)(cmds[cur]);
+    s->insertSrc(src);
+    return ;
+  }
+
+  insertSrc(src);
+}
+
+void XWTikzGraphic::insertFiolejauge()
+{
+  insertSrc(XW_TIKZ_FIOLEJAUGE);
+}
+
+void XWTikzGraphic::insertFlacon()
+{
+  insertSrc(XW_TIKZ_FLACON_CORPS);
+}
+
+void XWTikzGraphic::insertGrenailleZinc()
+{
+  QString src = grenailleZinc();
+  if ((cur >= 0) && (cur <= (cmds.size() - 1)) && 
+      ((cmds[cur]->getKeyWord() == PGFscope) ||
+       (cmds[cur]->getKeyWord() == XW_TIKZ_GROUP)))
+  {
+    XWTikzScope * s = (XWTikzScope*)(cmds[cur]);
+    s->insertSrc(src);
+    return ;
+  }
+
+  insertSrc(src);
+}
+
+void XWTikzGraphic::insertPince()
+{
+  insertSrc(XW_TIKZ_TUBEESSAIS_PINCE(0,3.2));
+}
+
+void XWTikzGraphic::insertPipette()
+{
+  insertSrc(XW_TIKZ_PIPETTE_CORPS(0,0));
+}
+
+void XWTikzGraphic::insertTournureCuivre()
+{
+  QString src = tournureCuivre();
+  if ((cur >= 0) && (cur <= (cmds.size() - 1)) && 
+      ((cmds[cur]->getKeyWord() == PGFscope) ||
+       (cmds[cur]->getKeyWord() == XW_TIKZ_GROUP)))
+  {
+    XWTikzScope * s = (XWTikzScope*)(cmds[cur]);
+    s->insertSrc(src);
+    return ;
+  }
+
+  insertSrc(src);
+}
+
+void XWTikzGraphic::insertTubeEssais()
+{
+  insertSrc(XW_TIKZ_TUBEESSAIS_CORPS);
+}
+
+void XWTikzGraphic::insertTubeRecourbe()
+{
+  insertSrc(XW_TIKZ_TUBERECOURBE(1,-5));
+}
+
+void XWTikzGraphic::insertTubeRecourbeCourt()
+{
+  insertSrc(XW_TIKZ_TUBERECOURBE_COURT(0,3.5));
+}
+
+void XWTikzGraphic::insertTubeEssaisDoubleTube()
+{
+  insertSrc(XW_TIKZ_TUBEESSAIS_DOUBLETUBE(0,3.5));
+}
+
 void XWTikzGraphic::initUnits()
 {
   if (units.contains("ampere"))
@@ -2189,6 +2363,45 @@ void XWTikzGraphic::undo()
 {
   undoStack->undo();
   emit changed();
+}
+
+void XWTikzGraphic::insertSrc(const QString & src)
+{
+  if (src.length() <= 0)
+    return ;
+
+  QUndoCommand *cmd = new QUndoCommand;
+  int len = src.length();
+  int pos = 0;
+  XWTikzCommand * obj = 0;
+  while (pos < len)
+  {
+    if (src[pos] == QChar('\\'))
+    {
+      QString key = XWTeXBox::scanControlSequence(src,len,pos);
+      int id = lookupPGFID(key);
+      if (id == PGFbegin)
+      {
+        key = XWTeXBox::scanEnviromentName(src,len,pos);
+        id = lookupPGFID(key);
+      }
+      obj = createPGFObject(this,0,id,this);
+      obj->scan(src,len,pos);
+      XWTikzAddPath * c = new XWTikzAddPath(this,cur + 1,obj,cmd);
+    }
+    else  if (src[pos] == QChar('{'))
+    {
+      obj = new XWTikzScope(this,0,XW_TIKZ_GROUP,this);
+      obj->scan(src,len,pos);
+      XWTikzAddPath * c = new XWTikzAddPath(this,cur + 1,obj,cmd);
+    }
+    else if (src[pos] == QChar('%'))
+      XWTeXBox::skipComment(src,len,pos);
+    else
+      pos++;
+  }
+
+  push(cmd);
 }
 
 void XWTikzGraphic::reset()

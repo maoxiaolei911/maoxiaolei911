@@ -42,7 +42,7 @@ XWTikzCommand * createPGFObject(XWTikzGraphic * graphicA,XWTikzScope *scopeA,int
       break;
 
     case PGFforeach:
-      obj = new XWTikzForeach(graphicA,scopeA,parent);
+      obj = new XWTikzForeachCmd(graphicA,scopeA,parent);
       break;
 
     case PGFnode:
@@ -944,7 +944,7 @@ void XWTikzPath::doOperation(XWTikzState * state, bool showpoint)
   if (cur < 0 || cur >= ops.size())
     return ;
 
-  state = state->save();
+  state = state->save(true);
 
   state->setDraw(true);
   state->setFill(false);
@@ -963,7 +963,7 @@ void XWTikzPath::doPath(XWTikzState * state, bool showpoint)
 {
   if (options->hasPre())
   {
-    state = state->save();
+    state = state->save(true);
 
     options->doPre(state);
     for (int i = 0; i < ops.size(); i++)
@@ -972,7 +972,7 @@ void XWTikzPath::doPath(XWTikzState * state, bool showpoint)
     state = state->restore();
   }
   
-  state = state->save();
+  state = state->save(true);
   switch (keyWord)
   {
     default:
@@ -1017,7 +1017,7 @@ void XWTikzPath::doPath(XWTikzState * state, bool showpoint)
 
   if (options->hasPost())
   {
-    state = state->save();
+    state = state->save(true);
 
     options->doPost(state);
     for (int i = 0; i < ops.size(); i++)
@@ -1029,7 +1029,7 @@ void XWTikzPath::doPath(XWTikzState * state, bool showpoint)
 
 void XWTikzPath::doPathNoOptions(XWTikzState * state)
 {
-  state = state->save();
+  state = state->save(true);
   for (int i = 0; i < ops.size(); i++)
     ops[i]->doPath(state,false);
   state = state->restore();
@@ -1037,7 +1037,7 @@ void XWTikzPath::doPathNoOptions(XWTikzState * state)
 
 void XWTikzPath::dragTo(XWTikzState * state)
 {
-  state = state->save();
+  state = state->save(true);
 
   options->doCompute(state);
   state->setDraw(true);
@@ -1653,6 +1653,11 @@ void XWTikzPath::scan(const QString & str, int & len, int & pos)
           }
           break;
 
+        case 'f':
+          pos += 7;
+          obj = new XWTikzForeach(graphic,scope,this);
+          break;
+
         case 'g':
           pos += 4;
           obj = new XWTikzGrid(graphic,this);
@@ -1726,6 +1731,8 @@ void XWTikzPath::scan(const QString & str, int & len, int & pos)
       }
     }
   }
+
+  cur = ops.size() - 1;
 }
 
 XWTikzOperation * XWTikzPath::takeAt(int i)
@@ -2122,11 +2129,6 @@ void XWTikzScope::doCopy(XWTikzState * state)
       XWTikzScope * s = (XWTikzScope*)(cmds[i]);
       s->doCopy(state);
     }
-    else if (cmds[i]->getKeyWord() == PGFforeach)
-    {
-      XWTikzForeach * s = (XWTikzForeach*)(cmds[i]);
-      s->doScope(state);
-    }
     else if (cmds[i]->getKeyWord() == PGFspy)
       spies << cmds[i];
     else
@@ -2437,7 +2439,7 @@ void XWTikzScope::doOperation(XWTikzState * state, bool showpoint)
   if (cur < 0 || cur >= cmds.size())
     return ;
 
-  state = state->save(false);
+  state = state->save();
 
   options->doPath(state,showpoint);
   cmds[cur]->doOperation(state,showpoint);
@@ -2450,7 +2452,7 @@ void XWTikzScope::doPath(XWTikzState * state, bool showpoint)
   if (cur < 0 || cur >= cmds.size())
     return ;
 
-  state = state->save(false);
+  state = state->save();
 
   options->doPath(state,showpoint);
   cmds[cur]->doPath(state,showpoint);  
@@ -2477,7 +2479,7 @@ void XWTikzScope::doRootConcept(XWTikzState * state)
 
 void XWTikzScope::doScope(XWTikzState * state)
 {
-  state = state->save(false);
+  state = state->save();
 
   options->doPath(state);
   int tcur = cur;
@@ -2489,11 +2491,6 @@ void XWTikzScope::doScope(XWTikzState * state)
         cmds[i]->getKeyWord() == XW_TIKZ_GROUP)
     {
       XWTikzScope * s = (XWTikzScope*)(cmds[i]);
-      s->doScope(state);
-    }
-    else if (cmds[i]->getKeyWord() == PGFforeach)
-    {
-      XWTikzForeach * s = (XWTikzForeach*)(cmds[i]);
       s->doScope(state);
     }
     else if (cmds[i]->getKeyWord() == PGFspy)
@@ -2720,7 +2717,7 @@ QList<QPointF> XWTikzScope::getIntersections(const QList<int> & operationsA,
                                   const QList<QPointF> & pointsA,
                                   XWTikzState * state)
 {
-  state = state->save(false);
+  state = state->save();
   QList<QPointF> ret;
 
   if (namedPath1 > -1)
@@ -2914,14 +2911,6 @@ bool XWTikzScope::goToNextOperation()
           return goToNext();
       }
       break;
-
-    case PGFforeach:
-      {
-        XWTikzForeach * sc = (XWTikzForeach*)(cmds[cur]);
-        if (!sc->goToNextOperation())
-          return goToNext();
-      }
-      break;
   }
 
   return true;
@@ -3017,14 +3006,6 @@ bool XWTikzScope::goToPreviousOperation()
       }
       break;
 
-    case PGFforeach:
-      {
-        XWTikzForeach * sc = (XWTikzForeach*)(cmds[cur]);
-        if (!sc->goToPreviousOperation())
-          return goToPrevious();
-      }
-      break;
-
     case PGFtikzset:
     case PGFtikzstyle:
       break;
@@ -3105,6 +3086,54 @@ void XWTikzScope::insert(int i, XWTikzCommand * cmd)
     cmds << cmd;
   else
     cmds.insert(i,cmd);
+}
+
+void XWTikzScope::insertSrc(const QString & src)
+{
+  if (src.length() <= 0)
+    return ;
+
+  if ((cur >= 0) && (cur <= (cmds.size() - 1)) && 
+      ((cmds[cur]->getKeyWord() == PGFscope) ||
+       (cmds[cur]->getKeyWord() == XW_TIKZ_GROUP)))
+  {
+    XWTikzScope * s = (XWTikzScope*)(cmds[cur]);
+    s->insertSrc(src);
+    return ;
+  }
+
+  QUndoCommand *cmd = new QUndoCommand;
+  int len = src.length();
+  int pos = 0;
+  XWTikzCommand * obj = 0;
+  while (pos < len)
+  {
+    if (src[pos] == QChar('\\'))
+    {
+      QString key = XWTeXBox::scanControlSequence(src,len,pos);
+      int id = lookupPGFID(key);
+      if (id == PGFbegin)
+      {
+        key = XWTeXBox::scanEnviromentName(src,len,pos);
+        id = lookupPGFID(key);
+      }
+      obj = createPGFObject(graphic,this,id,this);
+      obj->scan(src,len,pos);
+      XWTikzAddScopePath * c = new XWTikzAddScopePath(this,cur + 1,obj,cmd);
+    }
+    else  if (src[pos] == QChar('{'))
+    {
+      obj = new XWTikzScope(graphic,this,XW_TIKZ_GROUP,this);
+      obj->scan(src,len,pos);
+      XWTikzAddScopePath * c = new XWTikzAddScopePath(this,cur + 1,obj,cmd);
+    }
+    else if (src[pos] == QChar('%'))
+      XWTeXBox::skipComment(src,len,pos);
+    else
+      pos++;
+  }
+
+  graphic->push(cmd);
 }
 
 bool XWTikzScope::insertText(XWTikzState * state)
@@ -3300,518 +3329,183 @@ XWTikzCommand * XWTikzScope::takeAt(int i)
   return cmds.takeAt(i);
 }
 
-XWTikzForeach::XWTikzForeach(XWTikzGraphic * graphicA,XWTikzScope *scopeA,QObject * parent)
+XWTikzForeachCmd::XWTikzForeachCmd(XWTikzGraphic * graphicA,XWTikzScope *scopeA,QObject * parent)
 :XWTikzCommand(graphicA,scopeA,PGFforeach,parent),
-cur(-1)
-{}
-
-bool XWTikzForeach::back(XWTikzState * state)
+ body(0)
 {
-  if (cur < 0 || cur >= cmds.size())
-    return false;
-
-  return cmds[cur]->back(state);
+  body = new XWTikzForeach(graphicA,scopeA);
 }
 
-bool XWTikzForeach::cut(XWTikzState * state)
+bool XWTikzForeachCmd::back(XWTikzState * state)
 {
-  if (cur < 0 || cur >= cmds.size())
-    return false;
-
-  return cmds[cur]->cut(state);
+  return body->back(state);
 }
 
-bool XWTikzForeach::del(XWTikzState * state)
+bool XWTikzForeachCmd::cut(XWTikzState * state)
 {
-  if (cur < 0 || cur >= cmds.size())
-    return false;
-
-  return cmds[cur]->del(state);
+  return body->cut(state);
 }
 
-void XWTikzForeach::doOperation(XWTikzState * state, bool showpoint)
+bool XWTikzForeachCmd::del(XWTikzState * state)
 {
-  if (cur < 0 || cur >= cmds.size())
-    return;
-
-  options->doPath(state,showpoint); 
-  for (int i = 0; i < list.size(); i++)
-  {
-    QString tmp = list[i];
-    QStringList vars = tmp.split(QChar('/'));
-    for (int j = 0; j < vars.size(); j++)
-    {
-      QString var = vars[j];
-      state->setVariables(variables[j],var);
-    }
-
-    cmds[cur]->doOperation(state,showpoint);
-  }
+  return body->del(state);
 }
 
-void XWTikzForeach::doPath(XWTikzState * state, bool showpoint)
+void XWTikzForeachCmd::doCopy(XWTikzState * state)
 {
-  if (cur < 0 || cur >= cmds.size())
-    return;
-
-  options->doPath(state,showpoint);  
-  for (int i = 0; i < list.size(); i++)
-  {
-    QString tmp = list[i];
-    QStringList vars = tmp.split(QChar('/'));
-    for (int j = 0; j < vars.size(); j++)
-    {
-      QString var = vars[j];
-      state->setVariables(variables[j],var);
-    }
-
-    cmds[cur]->doPath(state,showpoint);
-  }
+  body->doCopy(state);
 }
 
-void XWTikzForeach::doPathNoOptions(XWTikzState * state)
+void XWTikzForeachCmd::doOperation(XWTikzState * state, bool showpoint)
 {
-  if (cur < 0 || cur >= cmds.size())
-    return;
-
-  for (int i = 0; i < list.size(); i++)
-  {
-    QString tmp = list[i];
-    QStringList vars = tmp.split(QChar('/'));
-    for (int j = 0; j < vars.size(); j++)
-    {
-      QString var = vars[j];
-      state->setVariables(variables[j],var);
-    }
-
-    cmds[cur]->doPath(state,false);
-  }
+  body->doOperation(state,showpoint);
 }
 
-void XWTikzForeach::doScope(XWTikzState * state)
+void XWTikzForeachCmd::doPath(XWTikzState * state, bool showpoint)
 {
-  options->doPath(state,false);  
-  for (int i = 0; i < list.size(); i++)
-  {
-    QString tmp = list[i];
-    QStringList vars = tmp.split(QChar('/'));
-    for (int j = 0; j < vars.size(); j++)
-    {
-      QString var = vars[j];
-      state->setVariables(variables[j],var);
-    }
-
-    for (int k = 0; k < cmds.size(); k++)
-      cmds[k]->doPath(state,false);
-  }
+  body->doPath(state,showpoint);
 }
 
-bool XWTikzForeach::dropTo(XWTikzState * state)
+void XWTikzForeachCmd::doPathNoOptions(XWTikzState * state)
 {
-  options->doCompute(state);
-  bool ret = false;
-  switch (graphic->getCurrentScope())
-  {
-    case XW_TIKZ_S_OPERATION:
-    case XW_TIKZ_S_PATH:
-      if (cur >= 0 && cur < cmds.size())
-        ret = cmds[cur]->dropTo(state);
-      break;
+  body->doPathNoOptions(state);
+}
 
-    default:
-      for (int i = 0; i < cmds.size(); i++)
-      {
-        ret = cmds[i]->dropTo(state);
-        if (ret)
-          break;
-      }
-      break;
-  }
+bool XWTikzForeachCmd::dropTo(XWTikzState * state)
+{
+  return body->dropTo(state);
+}
+
+int XWTikzForeachCmd::getAnchorPosition()
+{
+  return body->getAnchorPosition();
+}
+
+XWTikzOperation * XWTikzForeachCmd::getCurrentOperation()
+{
+  return body->getCurrentOperation();
+}
+
+XWTikzCoord * XWTikzForeachCmd::getCurrentPoint()
+{
+  return body->getCurrentPoint();
+}
+
+int XWTikzForeachCmd::getCursorPosition()
+{
+  return body->getCursorPosition();
+}
+
+QString XWTikzForeachCmd::getCurrentText()
+{
+  return body->getCurrentText();
+}
+
+QString XWTikzForeachCmd::getSelectedText()
+{
+  return body->getSelectedText();
+}
+
+QString XWTikzForeachCmd::getText()
+{
+  QString ret = body->getText();
+  ret.insert(0,QChar('\\'));
   return ret;
 }
 
-int XWTikzForeach::getAnchorPosition()
+QString XWTikzForeachCmd::getTips(XWTikzState * state)
 {
-  if (cur < 0 || cur >= cmds.size())
-    return 0;
-
-  return cmds[cur]->getAnchorPosition();
+  return body->getTips(state);
 }
 
-XWTikzOperation * XWTikzForeach::getCurrentOperation()
+void XWTikzForeachCmd::goToEnd()
 {
-  if (cur < 0 || cur >= cmds.size())
-    return 0;
-
-  return cmds[cur]->getCurrentOperation();
+  body->goToEnd();
 }
 
-XWTikzCoord * XWTikzForeach::getCurrentPoint()
+bool XWTikzForeachCmd::goToNext()
 {
-  if (cur < 0 || cur >= cmds.size())
-    return 0;
-
-  return cmds[cur]->getCurrentPoint();
+  return body->goToNext();
 }
 
-int XWTikzForeach::getCursorPosition()
+bool XWTikzForeachCmd::goToNextOperation()
 {
-  if (cur < 0 || cur >= cmds.size())
-    return 0;
-
-  return cmds[cur]->getCursorPosition();
+  return body->goToNextOperation();
 }
 
-QString XWTikzForeach::getCurrentText()
+bool XWTikzForeachCmd::goToNextPath()
 {
-  if (cur < 0 || cur >= cmds.size())
-    return QString();
-
-  return cmds[cur]->getCurrentText();
+  return body->goToNextPath();
 }
 
-QString XWTikzForeach::getSelectedText()
+void XWTikzForeachCmd::goToOperationEnd()
 {
-  if (cur < 0 || cur >= cmds.size())
-    return QString();
-
-  return cmds[cur]->getSelectedText();
+  body->goToOperationEnd();
 }
 
-QString XWTikzForeach::getText()
+void XWTikzForeachCmd::goToOperationStart()
 {
-  QString ret = "\\foreach ";
-  QString tmp = variables.join("/");
-  ret += tmp;
-
-  tmp = options->getText();
-  ret += tmp;
-
-  ret += " in {";
-  tmp = list.join(",");
-  ret += tmp;
-  ret += "}\n";
-
-  if (cmds.size() == 1)
-  {
-    tmp = cmds[0]->getText();
-    ret += tmp;
-  }
-  else
-  {
-    ret += "  {\n";
-
-    for (int i = 0; i < cmds.size(); i++)
-    {
-      tmp = cmds[i]->getText();
-      ret += tmp;
-      ret += "\n";
-    }
-
-    ret += "  }\n";
-  }
-
-  return ret;
+  body->goToOperationStart();
 }
 
-QString XWTikzForeach::getTips(XWTikzState * state)
+void XWTikzForeachCmd::goToPathEnd()
 {
-  QString ret;
-  if (cur >= 0 && cur < cmds.size())
-  {
-    options->doCompute(state);
-    ret = cmds[cur]->getTips(state);
-  }
-
-  return ret;
+  body->goToPathEnd();
 }
 
-void XWTikzForeach::goToEnd()
+void XWTikzForeachCmd::goToPathStart()
 {
-  if (cmds.size() <= 0)
-    return ;
-
-  cur = cmds.size() - 1;
-  cmds[cur]->goToEnd();
+  body->goToPathStart();
 }
 
-bool XWTikzForeach::goToNext()
+bool XWTikzForeachCmd::goToPrevious()
 {
-  if (cur >= (cmds.size() - 1))
-    return false;
-
-  cur++;
-  cmds[cur]->goToStart();
-  return true;
+  return body->goToPrevious();
 }
 
-bool XWTikzForeach::goToNextOperation()
+bool XWTikzForeachCmd::goToPreviousOperation()
 {
-  if (cur < 0 || cur >= cmds.size())
-    return false;
-
-  if (!cmds[cur]->goToNext())
-    return goToNext();
-
-  return true;
+  return body->goToPreviousOperation();
 }
 
-bool XWTikzForeach::goToNextPath()
+bool XWTikzForeachCmd::goToPreviousPath()
 {
-  if (cur >= (cmds.size() - 1))
-    return false;
-
-  cur++;
-  cmds[cur]->goToStart();
-  return true;
+  return body->goToPreviousPath();
 }
 
-void XWTikzForeach::goToOperationEnd()
+void XWTikzForeachCmd::goToStart()
 {
-  if (cur < 0 || cur >= cmds.size())
-    return ;
-
-  cmds[cur]->goToOperationEnd();
+  body->goToStart();
 }
 
-void XWTikzForeach::goToOperationStart()
+bool XWTikzForeachCmd::hitTest(XWTikzState * state)
 {
-  if (cur < 0 || cur >= cmds.size())
-    return ;
-
-  cmds[cur]->goToOperationStart();
+  return body->hitTest(state);
 }
 
-void XWTikzForeach::goToPathEnd()
+bool XWTikzForeachCmd::insertText(XWTikzState * state)
 {
-  if (cur < 0 || cur >= cmds.size())
-    return ;
-
-  cmds[cur]->goToPathEnd();
+  return body->insertText(state);
 }
 
-void XWTikzForeach::goToPathStart()
+bool XWTikzForeachCmd::keyInput(XWTikzState * state)
 {
-  if (cur < 0 || cur >= cmds.size())
-    return ;
-
-  cmds[cur]->goToPathStart();
+  return body->keyInput(state);
 }
 
-bool XWTikzForeach::goToPrevious()
+bool XWTikzForeachCmd::newPar(XWTikzState * state)
 {
-  if (cur <= 0)
-    return false;
-
-  cur--;
-  cmds[cur]->goToEnd();
-  return true;
+  return body->newPar(state);
 }
 
-bool XWTikzForeach::goToPreviousOperation()
+bool XWTikzForeachCmd::paste(XWTikzState * state)
 {
-  if (cur < 0 || cur >= cmds.size())
-    return false;
-
-  if (!cmds[cur]->goToPrevious())
-    return goToPrevious();
-
-  return true;
+  return body->paste(state);
 }
 
-bool XWTikzForeach::goToPreviousPath()
+void XWTikzForeachCmd::scan(const QString & str, int & len, int & pos)
 {
-  if (cur <= 0)
-    return false;
-
-  cur--;
-  cmds[cur]->goToEnd();
-  return true;
-}
-
-void XWTikzForeach::goToStart()
-{
-  if (cmds.size() <= 0)
-    return ;
-
-  cur = 0;
-  cmds[cur]->goToStart();
-}
-
-bool XWTikzForeach::hitTest(XWTikzState * state)
-{
-  options->doCompute(state);
-  bool ret = false;
-  switch (graphic->getCurrentScope())
-  {
-    case XW_TIKZ_S_OPERATION:
-    case XW_TIKZ_S_PATH:
-      if (cur >= 0 && cur < cmds.size())
-        ret = cmds[cur]->hitTest(state);
-      break;
-
-    default:
-      cur = -1;
-      for (int i = 0; i < cmds.size(); i++)
-      {
-        ret = cmds[i]->hitTest(state);
-        if (ret)
-        {
-          cur = i;
-          break;
-        }
-      }
-      break;
-  }
-  return ret;
-}
-
-bool XWTikzForeach::insertText(XWTikzState * state)
-{
-  if (cur < 0 || cur >= cmds.size())
-    return false;
-
-  options->doCompute(state);
-  return cmds[cur]->insertText(state);
-}
-
-bool XWTikzForeach::keyInput(XWTikzState * state)
-{
-  if (cur < 0 || cur >= cmds.size())
-    return false;
-
-  options->doCompute(state);
-  return cmds[cur]->keyInput(state);
-}
-
-bool XWTikzForeach::newPar(XWTikzState * state)
-{
-  if (cur < 0 || cur >= cmds.size())
-    return false;
-
-  options->doCompute(state);
-  return cmds[cur]->newPar(state);
-}
-
-bool XWTikzForeach::paste(XWTikzState * state)
-{
-  if (cur < 0 || cur >= cmds.size())
-    return false;
-
-  options->doCompute(state);
-  return cmds[cur]->paste(state);
-}
-
-void XWTikzForeach::scan(const QString & str, int & len, int & pos)
-{
-  while (pos < len)
-  {
-    if (str[pos] == QChar('{'))
-      break;
-    else if (str[pos].isSpace() || str[pos] == QChar('/'))
-      pos++;
-    else if (str[pos] == QChar('\\'))
-    {
-      int i = pos;
-      while (str[pos].isLetter())
-        pos++;
-
-      QString v = str.mid(i,pos);
-      v = v.simplified();
-      variables << v;
-    }
-    else if (str[pos] == QChar('['))
-      options->scan(str,len,pos);
-    else if (str[pos] == QChar('i'))
-      pos += 2;
-  }
-
-  pos++;
-  int b = 0;
-  bool incoord = false;
-  int i = pos;
-  while (pos < len)
-  {
-    if (str[pos].isSpace())
-      pos++;
-    else 
-    {
-      if (str[pos] == QChar('}'))
-      {
-        b--;
-        if (b < 0)
-        {
-          QString v = str.mid(i,pos-i);
-          v = v.simplified();
-          list << v;
-          pos++;
-          break;
-        }
-      }
-      else if (str[pos] == QChar('('))
-        incoord = true;
-      else if (str[pos] == QChar(')'))
-        incoord = false;
-      else if (str[pos] == QChar('{'))
-        b++;
-      else if (str[pos] == QChar(','))
-      {
-        if (!incoord)
-        {
-          QString v = str.mid(i,pos-i);
-          v = v.simplified();
-          list << v;
-          i = pos + 1;          
-        }
-      }
-
-      pos++;
-    }
-  }
-
-  while (!str[pos].isSpace())
-    pos++;
-
-  if (str[pos] == QChar('{'))
-  {
-    pos++;
-    while (pos < len)
-    {
-      if (str[pos] == QChar('}'))
-      {
-        pos++;
-        break;
-      }
-      else if (str[pos].isSpace())
-        pos++;
-      else
-      {
-        QString key = XWTeXBox::scanControlSequence(str,len,pos);
-        int id = lookupPGFID(key);
-        if (id == PGFbegin)
-        {
-          key = XWTeXBox::scanEnviromentName(str,len,pos);
-          id = lookupPGFID(key);
-        }
-        XWTikzCommand * cmd = createPGFObject(graphic,0,id,this);
-        cmds << cmd;
-        cmd->scan(str,len,pos);
-      }
-    }
-  }
-  else
-  {
-    QString key = XWTeXBox::scanControlSequence(str,len,pos);
-    int id = lookupPGFID(key);
-    if (id == PGFbegin)
-    {
-      key = XWTeXBox::scanEnviromentName(str,len,pos);
-      id = lookupPGFID(key);
-    }
-    XWTikzCommand * cmd = createPGFObject(graphic,0,id,this);
-    cmds << cmd;
-    cmd->scan(str,len,pos);
-  }  
+  body->scan(str,len,pos);
 }
 
 XWTikzCoordinatePath::XWTikzCoordinatePath(XWTikzGraphic * graphicA,XWTikzScope *scopeA,QObject * parent)
@@ -4430,7 +4124,7 @@ void XWTikzSpy::doPath(XWTikzState * state, bool showpoint)
   XWTikzState * onstate = new XWTikzState(false,state);
   XWTikzState * instate = new XWTikzState(false,state);
   //on
-  state = state->save(false);
+  state = state->save();
   state->resetTransform();
   state->setOnNode(true);
   state->setColor(Qt::black);
@@ -4445,7 +4139,7 @@ void XWTikzSpy::doPath(XWTikzState * state, bool showpoint)
   state->setOuterYSep(0);
   options->doPath(state, showpoint);  
   graphic->doSpyNode(state);
-  state = state->save(false);
+  state = state->save();
   state->moveTo(on);
   state->copy(onstate);
   state->setClip(true);
@@ -4459,7 +4153,7 @@ void XWTikzSpy::doPath(XWTikzState * state, bool showpoint)
   state = state->restore();
 
   //in
-  state = state->save(false);
+  state = state->save();
   state->resetTransform();
   state->setOnNode(false);
   state->setColor(Qt::black);
@@ -4474,7 +4168,7 @@ void XWTikzSpy::doPath(XWTikzState * state, bool showpoint)
   state->setOuterYSep(0);
   options->doPath(state, showpoint);  
   graphic->doSpyNode(state);
-  state = state->save(false);
+  state = state->save();
   if (at)
     state->moveTo(at);
   else
@@ -4492,7 +4186,7 @@ void XWTikzSpy::doPath(XWTikzState * state, bool showpoint)
 
   if (at)
   {
-    state = state->save(false); 
+    state = state->save(); 
     XWPDFDriver*driverA = state->getDriver();
     onstate->transformNode();
     instate->transformNode();

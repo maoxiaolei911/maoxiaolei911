@@ -1015,7 +1015,7 @@ void XWTikzShape::circleShape(bool dopath)
   circleAnchor();
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     if (state->outerXSep < state->outerYSep)
       radius = radius - state->outerYSep;
     else
@@ -1052,7 +1052,7 @@ void XWTikzShape::rectangleShape(bool dopath)
     QPointF ll(xa,ya);
     QPointF ur(xb,yb);
 
-    state = state->save(false);
+    state = state->save();
     state->moveTo(ll);
     state->addRectangle(ll,ur);
     state = state->restore();

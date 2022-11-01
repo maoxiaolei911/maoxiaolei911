@@ -9,6 +9,9 @@ include(../dir.prj)
 
 HEADERS += $${XWTIKZSRCDIR}/XWTikzType.h \
            $${XWTIKZSRCDIR}/tikzcolor.h \
+					 $${XWTIKZSRCDIR}/setrandim.h \
+					 $${XWTIKZSRCDIR}/pstlabo.h \
+					 $${XWTIKZSRCDIR}/pstlaboWidget.h \
 					 $${XWTIKZSRCDIR}/XWTikzCommandDialog.h \
 					 $${XWTIKZSRCDIR}/XWTikzOperationDialog.h \
 					 $${XWTIKZSRCDIR}/XWTikzOptionDialog.h \
@@ -49,6 +52,9 @@ HEADERS += $${XWTIKZSRCDIR}/XWTikzType.h \
 					 $${XWTIKZSRCDIR}/XWTikzMainWindow.h
 
 SOURCES += $${XWTIKZSRCDIR}/tikzcolor.cpp \
+           $${XWTIKZSRCDIR}/setrandim.cpp \
+					 $${XWTIKZSRCDIR}/pstlabo.cpp \
+					 $${XWTIKZSRCDIR}/pstlaboWidget.cpp \
            $${XWTIKZSRCDIR}/XWTikzCommandDialog.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzOperationDialog.cpp \
 					 $${XWTIKZSRCDIR}/XWTikzOptionDialog.cpp \

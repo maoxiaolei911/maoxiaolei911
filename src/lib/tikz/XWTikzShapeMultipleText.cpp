@@ -176,7 +176,7 @@ void XWTikzShape::circleSolidusShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     if (state->outerXSep < state->outerYSep)
       radius = radius - state->outerYSep;
     else
@@ -195,7 +195,7 @@ void XWTikzShape::circleSolidusShape(bool dopath)
     tempdima -= 0.5 * state->lineWidth;
     x = centerPoint.x() - 0.437 * tempdima;
     y = centerPoint.y() - 0.437 * tempdima;
-    state = state->save(false);
+    state = state->save();
     state->moveTo(x,y);
     x = centerPoint.x() + 0.437 * tempdima;
     y = centerPoint.y() + 0.437 * tempdima;
@@ -404,7 +404,7 @@ void XWTikzShape::circleSplitShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     if (state->outerXSep < state->outerYSep)
       radius = radius - state->outerYSep;
     else
@@ -424,7 +424,7 @@ void XWTikzShape::circleSplitShape(bool dopath)
     tempdima -= 0.5 * state->lineWidth;
     x = centerPoint.x() - tempdima;
     y = centerPoint.y();
-    state = state->save(false);
+    state = state->save();
     state->moveTo(x,y);
     x = centerPoint.x() + tempdima;
     y = centerPoint.y();
@@ -608,7 +608,7 @@ void XWTikzShape::ellipseSplitShape(bool dopath)
     double tempdimb = y;
     QPointF a(tempdima,0);
     QPointF b(0,tempdimb);
-    state = state->save(false);
+    state = state->save();
     state->addEllipse(centerPoint,a,b);
     state->moveTo(centerPoint.x() - tempdima, centerPoint.y());
     state->lineTo(centerPoint.x() + tempdima, centerPoint.y());
@@ -932,7 +932,7 @@ void XWTikzShape::rectangleSplitShape(bool dopath)
   {
     if (state->rectangleSplitUseCustomFill)
     {
-      state = state->save(false);
+      state = state->save();
       if (state->rectangleSplitHorizontal)
       {
         QPointF bottomleft = southwest;
@@ -1027,7 +1027,7 @@ void XWTikzShape::rectangleSplitShape(bool dopath)
     northeast.setX(x);
     northeast.setY(y);
     QPointF p = southwest - northeast;
-    state = state->save(false);
+    state = state->save();
     state->rectangle(southwest, southwest.x() - northeast.x(), southwest.y() - northeast.y());
     if (state->rectangleSplitDrawSplits)
     {

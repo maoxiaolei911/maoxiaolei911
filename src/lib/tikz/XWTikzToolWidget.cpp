@@ -8,6 +8,7 @@
 #include "XWPDFDriver.h"
 #include "XWTikzState.h"
 #include "XWTikzGraphic.h"
+#include "pstlaboWidget.h"
 #include "XWTikzToolWidget.h"
 
 XWTikzToolBox::XWTikzToolBox(XWTikzGraphic * graphicA,QWidget * parent)
@@ -19,6 +20,9 @@ XWTikzToolBox::XWTikzToolBox(XWTikzGraphic * graphicA,QWidget * parent)
 
   widget = new XWTikzPathOperationWidget(graphicA,this);
   addItem(widget,tr("path operation"));
+
+  PSTLaboWidget * w = new PSTLaboWidget(graphicA,this);
+  addItem(w,tr("chemical"));
 }
 
 XWTikzToolsWidget::XWTikzToolsWidget(XWTikzGraphic * graphicA,QWidget * parent)

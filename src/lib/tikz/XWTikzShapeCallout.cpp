@@ -219,7 +219,7 @@ void XWTikzShape::ellipseCalloutShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     state->moveTo(calloutpointer);
     state->lineTo(aftercalloutpointer);
     if (aftercalloutangle < beforecalloutangle)
@@ -542,7 +542,7 @@ void XWTikzShape::rectangleCalloutShape(bool dopath)
       }
     }
 
-    state = state->save(false);
+    state = state->save();
     state->roundedCorners = 0;
     state->moveTo(beforecalloutpointer);
     state->lineTo(calloutpointer);

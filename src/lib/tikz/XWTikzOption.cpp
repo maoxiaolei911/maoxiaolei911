@@ -121,6 +121,10 @@ void XWTikzKey::doPath(XWTikzState * state, bool)
     default:
       break;
 
+    case PGFclip:
+      state->setClip(true);
+      break;
+
     case PGFsharpcorners:
       state->setRoundedCorners(0);
       break;

@@ -1819,7 +1819,7 @@ XWTikzEdgeFromParent::XWTikzEdgeFromParent(XWTikzGraphic * graphicA, QObject * p
 
 void XWTikzEdgeFromParent::doPath(XWTikzState * state, bool showpoint)
 {
-  state = state->save();
+  state = state->save(true);
   graphic->doEdgeFromParent(state);
   options->doPath(state,showpoint);
   graphic->doEdgeFromParentPath(state);

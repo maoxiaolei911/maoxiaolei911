@@ -2371,6 +2371,7 @@ void XWTIKZOptions::scan(const QString & str, int & len, int & pos)
         case PGFloopleft:
         case PGFloopbelow:
         case PGFchildrenaretokens:
+        case PGFclip:
           {
             XWTikzKey * k = new XWTikzKey(graphic,id,this);
             ops << k;

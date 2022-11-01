@@ -294,7 +294,7 @@ void XWTikzShape::cloudShape(bool dopath)
     double angle = 90 - anglestep / 2;
     x = centerPoint.x() + xinnerradius * cos(angle);
     y = centerPoint.y() + yinnerradius * sin(angle);
-    state = state->save(false);
+    state = state->save();
     state->moveTo(x,y);
     QPointF arcfirstpoint(x,y);
     QPointF arcendpoint = arcfirstpoint;
@@ -492,7 +492,7 @@ void XWTikzShape::correctForbiddenSignShape(bool dopath)
       radius = radius - state->outerYSep;
     else
       radius = radius - state->outerXSep;
-    state = state->save(false);
+    state = state->save();
     state->moveTo(centerPoint);
     state->addCircle(centerPoint,radius);
     state = state->restore();
@@ -503,7 +503,7 @@ void XWTikzShape::correctForbiddenSignShape(bool dopath)
     QPointF p2(-0.707107 * radius,0.707107 * radius);
     p1 = centerPoint + p1;
     p2 = centerPoint + p2;
-    state = state->save(false);
+    state = state->save();
     state->moveTo(p1);
     state->lineTo(p2);
     state = state->restore();
@@ -519,7 +519,7 @@ void XWTikzShape::forbiddenSignShape(bool dopath)
       radius = radius - state->outerYSep;
     else
       radius = radius - state->outerXSep;
-    state = state->save(false);
+    state = state->save();
     state->moveTo(centerPoint);
     state->addCircle(centerPoint,radius);
     state = state->restore();
@@ -530,7 +530,7 @@ void XWTikzShape::forbiddenSignShape(bool dopath)
     QPointF p2(0.707107 * radius,0.707107 * radius);
     p1 = centerPoint + p1;
     p2 = centerPoint + p2;
-    state = state->save(false);
+    state = state->save();
     state->moveTo(p1);
     state->lineTo(p2);
     state = state->restore();
@@ -696,7 +696,7 @@ void XWTikzShape::magneticTapeShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     state->shift(centerPoint.x(),centerPoint.y());
     x = radius * cos(tailangle);
     y = radius * sin(tailangle);
@@ -723,7 +723,7 @@ void XWTikzShape::magnifyingGlassShape(bool dopath)
       radius = radius - state->outerYSep;
     else
       radius = radius - state->outerXSep;
-    state = state->save(false);
+    state = state->save();
     state->moveTo(centerPoint);
     state->addCircle(centerPoint,radius); 
     
@@ -1325,7 +1325,7 @@ void XWTikzShape::signalShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     state->moveTo(north);
     state->lineTo(northeast);
     state->lineTo(east);
@@ -1607,7 +1607,7 @@ void XWTikzShape::starburstShape(bool dopath)
   {
     if (points.size() > 0)
     {
-      state = state->save(false);
+      state = state->save();
       state->moveTo(points[0]);
       for (int i = 1; i < points.size(); i++)
         state->lineTo(points[i]);
@@ -1960,7 +1960,7 @@ void XWTikzShape::tapeShape(bool dopath)
   {
     xc = bendxradius;
     yc = bendyradius;
-    state = state->save(false);
+    state = state->save();
     state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(-halfwidth,0);
     state->lineTo(-halfwidth,halfheight);

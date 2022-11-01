@@ -212,6 +212,40 @@ public slots:
   void addSpy();
   void addVHLines();
 
+  void insertBallon();
+  void insertBallonReflux();
+  void insertBecBunsen();
+  void insertBecBunsenGrille();
+  void insertBecher();
+  void insertBilles();
+  void insertBouchon();
+  void insertBulles();
+  void insertBULLES();
+  void insertBullesChampagne();
+  void insertBurette();
+  void insertClouFer();
+  void insertCoude();
+  void insertCoudeU();
+  void insertCoudeUB();
+  void insertDistillationFractionnee();
+  void insertDosageAimant();
+  void insertDosagePHmetre();
+  void insertCristallisoir();
+  void insertDroit();
+  void insertEntonnoir();
+  void insertEprouvette();
+  void insertErlen();
+  void insertFilaments();
+  void insertFiolejauge();
+  void insertFlacon();
+  void insertGrenailleZinc();
+  void insertPince();
+  void insertPipette();
+  void insertTournureCuivre();
+  void insertTubeEssais();
+  void insertTubeRecourbe();
+  void insertTubeRecourbeCourt();
+  void insertTubeEssaisDoubleTube();
   void initUnits();
 
   void newTikz();
@@ -222,6 +256,7 @@ public slots:
   void undo();
 
 private:
+  void insertSrc(const QString & src);
   void reset();
 
 private:

@@ -160,7 +160,7 @@ void XWTikzShape::circleeeShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     if (state->outerXSep < state->outerYSep)
       radius = radius - state->outerYSep;
     else
@@ -321,18 +321,18 @@ void XWTikzShape::directioneeShape(bool dopath)
     QPointF ll(xa,ya);
     QPointF ur(xb,yb);
 
-    state = state->save(false);
+    state = state->save();
     state->moveTo(southWest.x(), 0);
     state->lineTo(northEast.x(), 0);
     state->setDraw(true);
     state = state->restore();
 
-    state = state->save(false);
+    state = state->save();
     state->moveTo(ll);
     state->addRectangle(ll,ur);
     state = state->restore();
       
-    state = state->save(false);
+    state = state->save();
     XWTikzArrow arrow(PGFdirectionee);
     arrow.setup(state);
     arrow.draw(state);
@@ -506,7 +506,7 @@ void XWTikzShape::rectangleeeShape(bool dopath)
     QPointF ll(xa,ya);
     QPointF ur(xb,yb);
 
-    state = state->save(false);
+    state = state->save();
     state->moveTo(ll);
     state->addRectangle(ll,ur);
     state = state->restore();

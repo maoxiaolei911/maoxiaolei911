@@ -386,7 +386,7 @@ void XWTikzShape::andGateUSShape(bool dopath)
     double xc = halfwidth - outerxsep;
     double yc = halfheight - outerysep;
     xb = 0.333333 * xc;
-    state = state->save(false);
+    state = state->save();
     state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(xb, yc);
     state->setStartAngle(0);
@@ -406,7 +406,7 @@ void XWTikzShape::andGateUSShape(bool dopath)
       yc -= tempdima;
       if (state->inputs[i] == QChar('i'))
       {
-        state = state->save(false);
+        state = state->save();
         x = -1.16666 * halfside - 0.5 * state->lineWidth - invertedradius;
         y = yc;
         QPointF c(x, y);
@@ -953,7 +953,7 @@ void XWTikzShape::nandGateUSShape(bool dopath)
     double xc = halfwidth - outerxsep;
     double yc = halfheight - outerysep;
     xb = 0.333333 * xc;
-    state = state->save(false);
+    state = state->save();
     state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(xb, yc);
     state->setStartAngle(0);
@@ -973,7 +973,7 @@ void XWTikzShape::nandGateUSShape(bool dopath)
       yc -= tempdima;
       if (state->inputs[i] == QChar('i'))
       {
-        state = state->save(false);
+        state = state->save();
         x = -1.16666 * halfside - 0.5 * state->lineWidth - invertedradius;
         y = yc;
         QPointF c(x, y);
@@ -982,7 +982,7 @@ void XWTikzShape::nandGateUSShape(bool dopath)
       }
     }
 
-    state = state->save(false);
+    state = state->save();
     x = 1.33333 * xc + outerinvertedradius;
     y = 0;
     QPointF c(x,y);
@@ -1252,7 +1252,7 @@ void XWTikzShape::norGateUSShape(bool dopath)
   {
     double xc = halfwidth - outerxsep;
     double yc = halfheight - outerysep;
-    state = state->save(false);
+    state = state->save();
     state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(-0.16666 * xc, yc);
     yc *= 2;
@@ -1281,7 +1281,7 @@ void XWTikzShape::norGateUSShape(bool dopath)
     state->closePath();
     state = state->restore();
 
-    state = state->save(false);
+    state = state->save();
     x = -0.166666 * xc;
     yc *= 2;
     x += 0.866025 * yc;
@@ -1308,7 +1308,7 @@ void XWTikzShape::norGateUSShape(bool dopath)
         x = -1.166666 * ya - 0.866025 * xa + mathresult * yb - invertedradius;
         y = yc;
         QPointF c(x,y);
-        state = state->save(false);
+        state = state->save();
         state->addCircle(c,invertedradius);
         state = state->restore();
       }
@@ -1910,7 +1910,7 @@ void XWTikzShape::orGateUSShape(bool dopath)
   {
     double xc = halfwidth - outerxsep;
     double yc = halfheight - outerysep;
-    state = state->save(false);
+    state = state->save();
     state->shift(centerPoint.x(), centerPoint.y());
     state->moveTo(-0.16666 * xc, yc);
     yc *= 2;
@@ -1956,7 +1956,7 @@ void XWTikzShape::orGateUSShape(bool dopath)
         x = -1.166666 * ya - 0.866025 * xa + mathresult * yb - invertedradius;
         y = yc;
         QPointF c(x,y);
-        state = state->save(false);
+        state = state->save();
         state->addCircle(c,invertedradius);
         state = state->restore();
       }
@@ -2294,7 +2294,7 @@ void XWTikzShape::xorGateUSShape(bool dopath)
         x = -1.5 * ya - 0.866025 * xa + mathresult * yb - invertedradius;
         y = yc;
         QPointF c(x,y);
-        state = state->save(false);
+        state = state->save();
         state->addCircle(c,invertedradius);
         state = state->restore();
       }
@@ -2302,7 +2302,7 @@ void XWTikzShape::xorGateUSShape(bool dopath)
 
     xc = halfside;
     yc = halfside;
-    state = state->save(false);
+    state = state->save();
     state->moveTo(-1.5 * xc, -yc);
     yc *= 2;
     for (int i = 0; i < 60; i++)
@@ -2646,7 +2646,7 @@ void XWTikzShape::xnorGateUSShape(bool dopath)
         x = -1.5 * ya - 0.866025 * xa + mathresult * yb - invertedradius;
         y = yc;
         QPointF c(x,y);
-        state = state->save(false);
+        state = state->save();
         state->addCircle(c,invertedradius);
         state = state->restore();
       }
@@ -2654,7 +2654,7 @@ void XWTikzShape::xnorGateUSShape(bool dopath)
 
     xc = halfside;
     yc = halfside;
-    state = state->save(false);
+    state = state->save();
     state->moveTo(-1.5 * xc, -yc);
     yc *= 2;
     for (int i = 0; i < 60; i++)
@@ -2884,7 +2884,7 @@ void XWTikzShape::andGateCDHShape(bool dopath)
         x = -1.16666 * xa - 0.5 * state->lineWidth - invertedradius;
         y = yc;
         QPointF c(x,y);
-        state = state->save(false);
+        state = state->save();
         state->addCircle(c,invertedradius);
         state = state->restore();
       }
@@ -3116,7 +3116,7 @@ void XWTikzShape::nandGateCDHShape(bool dopath)
     x += outerinvertedradius;
     y = 0;
     QPointF b(x,y);
-    state = state->save(false);
+    state = state->save();
     state->addCircle(b,invertedradius);
     state = state->restore();
 
@@ -3131,7 +3131,7 @@ void XWTikzShape::nandGateCDHShape(bool dopath)
         x = -1.16666 * xa - 0.5 * state->lineWidth - invertedradius;
         y = yc;
         QPointF c(x,y);
-        state = state->save(false);
+        state = state->save();
         state->addCircle(c,invertedradius);
         state = state->restore();
       }

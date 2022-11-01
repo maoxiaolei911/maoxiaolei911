@@ -601,7 +601,7 @@ void XWTikzShape::chamferedRectangleShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     state->moveTo(beforenortheast);
     state->lineTo(northeast);
     state->lineTo(afternortheast);
@@ -632,7 +632,7 @@ void XWTikzShape::crossoutShape(bool dopath)
     double ya = southWest.y();
     double xb = northEast.x();
     double yb = northEast.y();
-    state = state->save(false);
+    state = state->save();
     state->moveTo(xa,ya);
     state->lineTo(xb,yb);
     state->moveTo(xa,yb);
@@ -1032,7 +1032,7 @@ void XWTikzShape::roundedRectangleShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     state->shift(centerPoint.x(),centerPoint.y());
     state->moveTo(0, halfheight);
     if (eastarc == PGFconcave)
@@ -1087,7 +1087,7 @@ void XWTikzShape::strikeoutShape(bool dopath)
   {
     doContent();
 
-    state = state->save(false);
+    state = state->save();
     state->moveTo(southWest);
     state->lineTo(northEast);
     state = state->restore();

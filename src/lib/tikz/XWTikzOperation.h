@@ -14,9 +14,11 @@
 
 class XWTikzState;
 class XWTikzGraphic;
+class XWTikzScope;
 class XWTikzCoord;
 class XWTIKZOptions;
 class XWTikzCoordinate;
+class XWTikzCommand;
 
 #define XW_TIKZ_COORD   -3
 #define XW_TIKZ_OPTIONS -4
@@ -679,6 +681,67 @@ private:
   int cur;
   XWTIKZOptions * options;
   QList<XWTikzOperation*> ops;
+};
+
+
+class XWTikzForeach : public XWTikzOperation
+{
+  Q_OBJECT
+
+public:
+  XWTikzForeach(XWTikzGraphic * graphicA,XWTikzScope *scopeA,QObject * parent = 0);
+
+  bool back(XWTikzState * state);
+
+  bool cut(XWTikzState * state);
+
+  bool del(XWTikzState * state);
+  void doCopy(XWTikzState * state);
+  void doOperation(XWTikzState * state, bool showpoint = false);
+  void doPath(XWTikzState * state, bool showpoint = false);
+  void doPathNoOptions(XWTikzState * state);
+  bool dropTo(XWTikzState * state);
+
+  int getAnchorPosition();
+  XWTikzOperation * getCurrentOperation();
+  XWTikzCoord * getCurrentPoint();
+  int getCursorPosition();
+  QString getCurrentText();
+  QString getSelectedText();
+  QString getText();
+  QString getTips(XWTikzState * state);
+  void goToEnd();
+  bool goToNext();
+  bool goToNextOperation();
+  bool goToNextPath();
+  void goToOperationEnd();  
+  void goToOperationStart();
+  void goToPathEnd();
+  void goToPathStart();
+  bool goToPrevious();
+  bool goToPreviousOperation();
+  bool goToPreviousPath();
+  void goToStart();
+
+  bool hitTest(XWTikzState * state);
+
+  bool insertText(XWTikzState * state);
+
+  bool keyInput(XWTikzState * state);
+
+  bool newPar(XWTikzState * state);
+
+  bool paste(XWTikzState * state);
+
+  void scan(const QString & str, int & len, int & pos);
+
+private:
+  XWTikzScope * scope;
+  XWTIKZOptions * options;
+  int cur;
+  QStringList variables;
+  QStringList list;
+  QList<XWTikzCommand*> cmds;
 };
 
 #endif //XWTIKZOPERATION_H

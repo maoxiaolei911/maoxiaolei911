@@ -263,7 +263,7 @@ void XWTikzShape::batteryIECShape(bool dopath)
     double xb = northEast.x() - state->outerXSep;
     double yb = northEast.y() - state->outerYSep;
 
-    state = state->save(false);
+    state = state->save();
     state->moveTo(xa, ya);
     state->lineTo(xa, yb);
     double yc = 0.25*yb - 0.25*ya;
@@ -430,7 +430,7 @@ void XWTikzShape::breakcontactIECShape(bool dopath)
     double ya = 0;
     double xb = x;
     double yb = y;
-    state = state->save(false);
+    state = state->save();
     state->moveTo(xa, ya);
     state->lineTo(xb, yb);
     double xc = 0.2 * xb - 0.2 * xa;
@@ -605,7 +605,7 @@ void XWTikzShape::breakdowndiodeIECShape(bool dopath)
     double xc = 0.5 * xa + 0.5 * xb;
     double yc = 0.5 * ya + 0.5 * yb;
 
-    state = state->save(false);
+    state = state->save();
     state->moveTo(xa, ya);
     state->lineTo(xc, yc);
     state->lineTo(xa, yb);
@@ -616,12 +616,12 @@ void XWTikzShape::breakdowndiodeIECShape(bool dopath)
     state->closePath();
     state = state->restore();
 
-    state = state->save(false);
+    state = state->save();
     state->moveTo(xa, yc);
     state->lineTo(xb, yc);
     state->setDraw(true);
     state = state->restore();
-    state = state->save(false);
+    state = state->save();
     state->shift(xc, yc);
     yc = 0.5 * yb - 0.5 * ya;
     state->scale(yc, yc);
@@ -795,7 +795,7 @@ void XWTikzShape::capacitorIECShape(bool dopath)
     double ya = southWest.y() + state->innerYSep;
     double xb = northEast.x() - state->outerXSep;
     double yb = northEast.y() - state->innerYSep;
-    state = state->save(false);
+    state = state->save();
     state->moveTo(xa, ya);
     state->lineTo(xa, yb);
     state->moveTo(xb, ya);
@@ -951,7 +951,7 @@ void XWTikzShape::genericcircleIECShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     if (state->outerXSep < state->outerYSep)
       radius = radius - state->outerYSep;
     else
@@ -969,7 +969,7 @@ void XWTikzShape::genericcircleIECShape(bool dopath)
     else
       tempdima -= xb;
     state->scale(tempdima, tempdima);
-    state = state->save(false);
+    state = state->save();
     doBeforeBackground();
     state = state->restore();
     doContent();
@@ -1137,7 +1137,7 @@ void XWTikzShape::genericdiodeIECShape(bool dopath)
     double yb = northEast.y() - state->outerYSep;
 
     xb -= 0.5 * state->lineWidth;
-    state = state->save(false);
+    state = state->save();
     state->moveTo(xa, ya);
     state->lineTo(xa, yb);
     double yc = 0.5 * ya + 0.5 * yb;
@@ -1149,12 +1149,12 @@ void XWTikzShape::genericdiodeIECShape(bool dopath)
     ya = southWest.y() + state->outerYSep;
     xb = northEast.x() - state->outerXSep;
     yb = northEast.y() - state->outerYSep;
-    state = state->save(false);
+    state = state->save();
     state->moveTo(xa, yc);
     state->lineTo(xb, yc);
     state->setDraw(true);
     state = state->restore();
-    state = state->save(false);
+    state = state->save();
     state->shift(xb, yc);
     yc = 0.5 * yb - 0.5 * ya;
     state->scale(yc, yc);
@@ -1324,7 +1324,7 @@ void XWTikzShape::groundIECShape(bool dopath)
     double ya = southWest.y() + state->innerYSep;
     double xb = northEast.x() - state->outerXSep;
     double yb = northEast.y() - state->innerYSep;
-    state = state->save(false);
+    state = state->save();
     state->moveTo(xa, ya);
     state->lineTo(xa, yb);
     xa = 0.5 * xa + 0.5 * xb;
@@ -1495,7 +1495,7 @@ void XWTikzShape::inductorIECShape(bool dopath)
     double xb = northEast.x() - state->outerXSep;
     double yb = northEast.y() - state->innerYSep;
     double xc = yb;
-    state = state->save(false);
+    state = state->save();
     state->moveTo(xa, ya);
     xb += 1;
     xa += 2 * xc;
@@ -1669,7 +1669,7 @@ void XWTikzShape::makecontactIECShape(bool dopath)
     double ya = 0;
     double xb = x;
     double yb = y;
-    state = state->save(false);
+    state = state->save();
     state->moveTo(xa, ya);
     state->lineTo(xb, yb);
     state = state->restore();
@@ -1834,7 +1834,7 @@ void XWTikzShape::varmakecontactIECShape(bool dopath)
     double xc = xa;
     double tempdima = 0.083333 * 2 * xb;
     tempdima += xa;
-    state = state->save(false);
+    state = state->save();
     QPointF c(xa, ya);
     state->addCircle(c, tempdima);
     QVector2D v(xa - xb, -yb);
@@ -2010,7 +2010,7 @@ void XWTikzShape::varresistorIECShape(bool dopath)
     double yc = 0.5 * ya + 0.5 * yb;
     double xc = -0.5 * ya + 0.5 * yb;
 
-    state = state->save(false);
+    state = state->save();
     state->moveTo(xa, yc);
     xb += 0.1;
     xa += 4 * xc;

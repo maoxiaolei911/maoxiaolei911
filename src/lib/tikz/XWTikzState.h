@@ -298,7 +298,7 @@ public:
   XWTikzState * restore();
   void restoreTransform() {transform=oldTransform;}
     
-  XWTikzState *save(bool ispathA = true);
+  XWTikzState *save(bool ispathA = false);
   XWTikzState *saveNode(XWTeXBox * boxA,int nt);
   void saveTransform() {oldTransform=transform;}
   void scale(double sx,double sy);

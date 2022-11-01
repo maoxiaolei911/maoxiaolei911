@@ -164,7 +164,7 @@ void XWTikzShape::andGateIECShape(bool dopath)
   {
     double xc = halfwidth - state->outerXSep;
     yc = halfheight - state->outerXSep;    
-    state = state->save(false);    
+    state = state->save();    
     state->shift(centerPoint.x(), centerPoint.y());
     QPointF ll(-xc, -yc);
     state->rectangle(ll,2 * xc, 2 * yc);
@@ -180,7 +180,7 @@ void XWTikzShape::andGateIECShape(bool dopath)
       yc -= tempdima;
       if (state->inputs[i] == QChar('i'))
       {
-        state = state->save(false);
+        state = state->save();
         QPointF c(xc, yc);
         state->addCircle(c,invertedradius);
         state = state->restore();
@@ -306,7 +306,7 @@ void XWTikzShape::nandGateIECShape(bool dopath)
   {
     double xc = halfwidth - state->outerXSep;
     yc = halfheight - state->outerXSep;
-    state = state->save(false);
+    state = state->save();
     state->shift(centerPoint.x(), centerPoint.y());
     QPointF ll(-xc, -yc);
     state->rectangle(ll,2 * xc, 2 * yc);
@@ -322,14 +322,14 @@ void XWTikzShape::nandGateIECShape(bool dopath)
       yc -= tempdima;
       if (state->inputs[i] == QChar('i'))
       {
-        state = state->save(false);
+        state = state->save();
         QPointF c(xc, yc);
         state->addCircle(c,invertedradius);
         state = state->restore();
       }
     }
 
-    state = state->save(false);
+    state = state->save();
     x = centerPoint.x() + halfwidth + invertedradius;
     y = centerPoint.y();
     QPointF c(x,y);
@@ -448,7 +448,7 @@ void XWTikzShape::norGateIECShape(bool dopath)
   {
     double xc = halfwidth - state->outerXSep;
     yc = halfheight - state->outerXSep;
-    state = state->save(false);
+    state = state->save();
     state->shift(centerPoint.x(), centerPoint.y());
     QPointF ll(-xc, -yc);
     state->rectangle(ll,2 * xc, 2 * yc);
@@ -464,14 +464,14 @@ void XWTikzShape::norGateIECShape(bool dopath)
       yc -= tempdima;
       if (state->inputs[i] == QChar('i'))
       {
-        state = state->save(false);
+        state = state->save();
         QPointF c(xc, yc);
         state->addCircle(c,invertedradius);
         state = state->restore();
       }
     }
 
-    state = state->save(false);
+    state = state->save();
     x = centerPoint.x() + halfwidth + invertedradius;
     y = centerPoint.y();
     QPointF c(x,y);

@@ -188,7 +188,7 @@ void XWTikzPlotMark::doHalfCircle(XWTikzState * stateA)
 {
   if (stateA->isMarkColorSet)
   {
-    stateA = stateA->save(false);
+    stateA = stateA->save();
     stateA->moveTo(-stateA->markSize,0);
     stateA->setStartAngle(180);
     stateA->setEndAngle(360);
@@ -207,7 +207,7 @@ void XWTikzPlotMark::doHalfCircle(XWTikzState * stateA)
 
 void XWTikzPlotMark::doHalfCircleStar(XWTikzState * stateA)
 {
-  stateA = stateA->save(false);
+  stateA = stateA->save();
   stateA->moveTo(stateA->markSize,0);
   stateA->setStartAngle(0);
   stateA->setEndAngle(180);
@@ -217,7 +217,7 @@ void XWTikzPlotMark::doHalfCircleStar(XWTikzState * stateA)
   stateA = stateA->restore();
   if (stateA->isMarkColorSet)
   {
-    stateA = stateA->save(false);
+    stateA = stateA->save();
     stateA->moveTo(-stateA->markSize,0);
     stateA->setStartAngle(180);
     stateA->setEndAngle(360);
@@ -233,7 +233,7 @@ void XWTikzPlotMark::doHalfCircleStar(XWTikzState * stateA)
 
 void XWTikzPlotMark::doHalfDiamondStar(XWTikzState * stateA)
 {
-  stateA = stateA->save(false);
+  stateA = stateA->save();
   stateA->moveTo(-0.75 * stateA->markSize,0);
   stateA->lineTo(0,-stateA->markSize);
   stateA->lineTo(0.75 * stateA->markSize,0);
@@ -242,7 +242,7 @@ void XWTikzPlotMark::doHalfDiamondStar(XWTikzState * stateA)
 
   if (stateA->isMarkColorSet)
   {
-    stateA = stateA->save(false);
+    stateA = stateA->save();
     stateA->moveTo(0.75 * stateA->markSize,0);
     stateA->lineTo(0,stateA->markSize);
     stateA->lineTo(-0.75 * stateA->markSize,0);
@@ -260,7 +260,7 @@ void XWTikzPlotMark::doHalfDiamondStar(XWTikzState * stateA)
 
 void XWTikzPlotMark::doHalfSquareLeftStar(XWTikzState * stateA)
 {
-  stateA = stateA->save(false);
+  stateA = stateA->save();
   stateA->moveTo(0,-stateA->markSize);
   stateA->lineTo(-stateA->markSize, 0);
   stateA->lineTo(0,stateA->markSize);
@@ -269,7 +269,7 @@ void XWTikzPlotMark::doHalfSquareLeftStar(XWTikzState * stateA)
 
   if (stateA->isMarkColorSet)
   {
-    stateA = stateA->save(false);
+    stateA = stateA->save();
     stateA->moveTo(0,-stateA->markSize);
     stateA->lineTo(stateA->markSize, 0);
     stateA->lineTo(0,stateA->markSize);
@@ -287,7 +287,7 @@ void XWTikzPlotMark::doHalfSquareLeftStar(XWTikzState * stateA)
 
 void XWTikzPlotMark::doHalfSquareRightStar(XWTikzState * stateA)
 {
-  stateA = stateA->save(false);
+  stateA = stateA->save();
   stateA->moveTo(0,-stateA->markSize);
   stateA->lineTo(stateA->markSize,0);
   stateA->lineTo(0,stateA->markSize);
@@ -296,7 +296,7 @@ void XWTikzPlotMark::doHalfSquareRightStar(XWTikzState * stateA)
 
   if (stateA->isMarkColorSet)
   {
-    stateA = stateA->save(false);
+    stateA = stateA->save();
     stateA->moveTo(0,-stateA->markSize);
     stateA->lineTo(-stateA->markSize,0);
     stateA->lineTo(0,stateA->markSize);
@@ -314,7 +314,7 @@ void XWTikzPlotMark::doHalfSquareRightStar(XWTikzState * stateA)
 
 void XWTikzPlotMark::doHalfSquareStar(XWTikzState * stateA)
 {
-  stateA = stateA->save(false);
+  stateA = stateA->save();
   stateA->moveTo(-stateA->markSize,0);
   stateA->lineTo(0,-stateA->markSize);
   stateA->lineTo(stateA->markSize,0);
@@ -323,7 +323,7 @@ void XWTikzPlotMark::doHalfSquareStar(XWTikzState * stateA)
 
   if (stateA->isMarkColorSet)
   {
-    stateA = stateA->save(false);
+    stateA = stateA->save();
     stateA->moveTo(stateA->markSize,0);
     stateA->lineTo(0,stateA->markSize);
     stateA->lineTo(-stateA->markSize,0);

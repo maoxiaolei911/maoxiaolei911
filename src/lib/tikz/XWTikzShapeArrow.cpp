@@ -1554,7 +1554,7 @@ southarrowtipanchor:
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     x = arrowboxcorner.x() - state->outerXSep;
     y = arrowboxcorner.y() - state->outerYSep;
     arrowboxcorner.setX(x);
@@ -2030,7 +2030,7 @@ void XWTikzShape::doubleArrowShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     state->shift(centerPoint.x(), centerPoint.y());
     state->rotate(rotate);
     state->moveTo(arrowtip);
@@ -2477,7 +2477,7 @@ void XWTikzShape::singleArrowShape(bool dopath)
 
   if (dopath)
   {
-    state = state->save(false);
+    state = state->save();
     state->shift(centerPoint.x(),centerPoint.y());
     state->rotate(rotate);
     state->moveTo(arrowtip);

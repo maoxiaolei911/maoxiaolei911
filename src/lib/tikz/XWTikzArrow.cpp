@@ -969,7 +969,7 @@ void XWTikzArrow::ClassicalTikZRightarrow(XWTikzState * state)
         {
           if (state->arrowReversed)
           {
-            state = state->save(false);
+            state = state->save();
             state->curveTo(0.066666*tempdima, 0.3125*tempdimb, 0.8*tempdima,0.03125*tempdimb, tempdima, 0.125*state->lineWidth);
             state->moveTo((double)0, 0.5 * tempdimb);
             state->curveTo(0.066666*tempdima,0.3125*tempdimb,0.8*tempdima,0.03125*tempdimb,tempdima,-0.125*state->lineWidth);
@@ -1868,7 +1868,7 @@ void XWTikzArrow::leftToReversedArrow(XWTikzState * state)
       double a = 0.28 + 0.3 * state->lineWidth;
       state->setDash(-1);
       state->setLineJoin(PGFround);
-      state = state->save(false);      
+      state = state->save();      
       state->setLineCap(PGFbutt);      
       state->moveTo(0.5*state->lineWidth, (double)0);
       state->lineTo(-0.1*state->lineWidth, 0);
@@ -2353,7 +2353,7 @@ void XWTikzArrow::rightToReversedArrow(XWTikzState * state)
       double a = 0.28 + 0.3 * state->lineWidth;
       state->setDash(-1);
       state->setLineJoin(PGFround);
-      state = state->save(false);      
+      state = state->save();      
       state->setLineCap(PGFbutt);      
       state->moveTo(0.5*state->lineWidth, (double)0);
       state->lineTo(-0.1*state->lineWidth, 0);

@@ -525,7 +525,6 @@ void XWTikzState::copy(XWTikzState * newstate,bool n)
 {
   newstate->graphic = graphic;
   newstate->driver = driver;
-  newstate->isPath = isPath;
   newstate->curLabel = curLabel++;
   newstate->circuitsSizeUnit = circuitsSizeUnit;
   newstate->pictureType = pictureType;
@@ -2376,7 +2375,7 @@ XWTikzState * XWTikzState::restore()
   if (driver)
   {
     flush();
-    if (!isClipSet)
+    if (!isPath)
       driver->grestore();
   }
   
@@ -2399,7 +2398,7 @@ void XWTikzState::rotate(double d)
 
 XWTikzState * XWTikzState::save(bool ispathA)
 {
-  if (driver && !isClipSet)
+  if (driver && !ispathA)
     driver->gsave();
     
   XWTikzState * newstate = new XWTikzState(ispathA);
