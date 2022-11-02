@@ -55,11 +55,6 @@ private:
   QMenu *editMenu;
   QMenu *viewMenu;
 
-  QAction * displayAct;
-  QAction * inlineAct;
-  QAction * insertAct;
-  QAction * replaceAct;
-
   QAction * openAct;
   QAction * saveAct;
   QAction * saveAsAct;

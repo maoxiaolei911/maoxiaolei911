@@ -133,18 +133,6 @@ void XWLaTeXFormularMainWindow::closeEvent(QCloseEvent *event)
 
 void XWLaTeXFormularMainWindow::createActions()
 {
-  displayAct = new  QAction(tr("Insert as display formular"), this);
-  connect(displayAct, SIGNAL(triggered()), this, SLOT(display()));
-
-  inlineAct = new  QAction(tr("Insert as inline formular"), this);
-  connect(inlineAct, SIGNAL(triggered()), this, SLOT(inlineFormular()));
-
-  insertAct = new  QAction(tr("Insert"), this);
-  connect(insertAct, SIGNAL(triggered()), this, SLOT(insert()));
-
-  replaceAct = new  QAction(tr("Replace"), this);
-  connect(replaceAct, SIGNAL(triggered()), this, SLOT(replace()));
-
   openAct = new  QAction(tr("&Open..."), this);
   openAct->setShortcuts(QKeySequence::Open);
   connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
@@ -157,13 +145,6 @@ void XWLaTeXFormularMainWindow::createActions()
   saveAsAct->setShortcuts(QKeySequence::SaveAs);
   connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
-  fileMenu->addAction(displayAct);
-  fileMenu->addAction(inlineAct);
-  fileMenu->addSeparator();
-  fileMenu->addAction(insertAct);
-  fileMenu->addAction(replaceAct);
-
-  fileMenu->addSeparator();
   fileMenu->addAction(openAct);
   fileMenu->addAction(saveAct);
   fileMenu->addAction(saveAsAct);
