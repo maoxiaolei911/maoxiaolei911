@@ -81,7 +81,7 @@ void XWTikzCoord::dragTo(XWTikzState * state)
 
 void XWTikzCoord::draw(XWTikzState * state)
 {
-  state = state->save(false);
+  state = state->save();
   QPointF c = getPoint(state);
   QPointF a(1.5,0);
   QPointF b(0,1.5);
@@ -1706,6 +1706,7 @@ void XWTikzCoord::scanComponent(const QString & str,
 
       i++;
     }
+    pos = i;
   }
 }
 

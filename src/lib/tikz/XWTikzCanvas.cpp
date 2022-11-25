@@ -78,7 +78,7 @@ void XWTikzCanvas::setZoomFactor(double f)
   if (zoomFactor != f)
   {
     zoomFactor = f;
-    update();
+    updateGraphicImage();
   }
 }
 
