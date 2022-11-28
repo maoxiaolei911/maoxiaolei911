@@ -1706,7 +1706,6 @@ void XWTikzCoord::scanComponent(const QString & str,
 
       i++;
     }
-    pos = i;
   }
 }
 
