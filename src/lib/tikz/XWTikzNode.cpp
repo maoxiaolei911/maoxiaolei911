@@ -754,11 +754,12 @@ bool XWTikzNode::dropTo(XWTikzState * state)
     ret = box->dropTo(mp.x(),mp.y());
   else
   {//从结点op移动到本节点
-    QString str = box->getSelected();
+    XWTikzNode * opn = (XWTikzNode*)(op);
+    QString str = opn->box->getSelected();
     if (!str.isEmpty())
     {
       QUndoCommand * cmd = new QUndoCommand;
-      if (!box->removeSelected(cmd))
+      if (!(opn->box->removeSelected(cmd)))
         delete cmd;
       else
       {

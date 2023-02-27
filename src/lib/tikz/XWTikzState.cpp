@@ -1236,8 +1236,6 @@ void XWTikzState::flush()
   {
     if (isUseAsBoundingBoxSet)
     {
-      computePath();
-
       operations.clear();
       points.clear();
       transform.reset();
@@ -2420,6 +2418,7 @@ XWTikzState * XWTikzState::saveNode(XWTeXBox * boxA,int nt)
   switch (nt)
   {
     default:
+      newstate->rootNode = rootNode;
       graphic->doEveryNode(newstate);
       graphic->doEveryShape(newstate);
       if (myNode && myNode->nodeType == XW_TIKZ_CHILD)
@@ -2431,26 +2430,35 @@ XWTikzState * XWTikzState::saveNode(XWTeXBox * boxA,int nt)
 
     case XW_TIKZ_LABEL:      
       graphic->doEveryLabel(newstate);
+      newstate->rootNode = rootNode;
       break;
 
     case XW_TIKZ_PIN:
       newstate->parentNode = myNode;
+      newstate->rootNode = rootNode;
       graphic->doEveryPin(newstate);
       break;
 
     case XW_TIKZ_CHILD:
       newstate->parentNode = myNode;
+      if (!parentNode)
+        newstate->rootNode = myNode;
+      else
+        newstate->rootNode = rootNode;
       newstate->level = level + 1; 
       newstate->currentChild = childrenNumber++;
+      newstate->shape = PGFcoordinate;
       graphic->doEveryChild(newstate);
       graphic->doEveryChildNode(newstate);
       break;
 
     case XW_TIKZ_INFO:
+      newstate->rootNode = rootNode;
       graphic->doEveryInfo(newstate);
       break;
 
     case XW_TIKZ_CIRCUIT_SYMBOL:
+      newstate->rootNode = rootNode;
       graphic->doEveryCircuitSymbol(newstate);
       break;
   }
@@ -5277,6 +5285,7 @@ void XWTikzState::init()
   myNode = 0;
   myBox = 0;
   parentNode = 0;
+  rootNode = 0;
   edgeFromParentFinished = false;
 }
 
@@ -6920,6 +6929,10 @@ void XWTikzState::transformChild()
   if (isTransformChildSet)
     return ;
 
+  shift(pathLast.x(),pathLast.y());
+  if (rootNode)
+    shift(rootNode->centerPos.x(),rootNode->centerPos.y());
+    
   double xc = 0.5 * siblingDistance * (childrenNumber + 1);
   double x = xc * cos(growLeft) + (siblingDistance * currentChild) * cos(growRight);
   double y = xc * sin(growLeft) + (siblingDistance * currentChild) * sin(growRight);

@@ -1181,6 +1181,7 @@ private:
   XWTeXBox *   myBox;
   XWTikzShape* myNode;
   XWTikzShape* parentNode;
+  XWTikzShape* rootNode;
   bool edgeFromParentFinished;
 
   XWTikzExpress  * position;
