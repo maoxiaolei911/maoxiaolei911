@@ -253,7 +253,7 @@
   (0,0) ..controls (-0.04,-0.083) and (-0.083,-0.22)  (0,-0.25) .. controls (0.083,-0.22) and (0.04,-0.083) (0,0);\n\
 \\fill[fill=orange!20] (-1,-1) rectangle (1,2);\n\
 \\end{scope}\n\
-\\draw (0,6) ellipse[x radius=0.15,y radius=0.05]\n\
+\\draw (0,6) ellipse[x radius=0.15,y radius=0.05];\n\
 \\foreach \\x in {0.5,1,1.5,2,2.5,3,3.5,4,4.5,5}\n\
   \\draw[line width=0.02] (0,\\x) --(0.1,\\x);\n\
 \\end{scope}\n"
@@ -294,7 +294,7 @@ XW_TIKZ_TUBEESSAIS_BOUCHON_\
 \\draw (-0.3,-3) --(-0.3,0);\n\
 \\draw (-0.2,-3) --(-0.2,0);\n\
 \\draw (0.25,-1) --(0.25,0);\n\
-\\draw (0.15,-1) --(0.15,0)\n\
+\\draw (0.15,-1) --(0.15,0);\n\
 \\end{scope}\n\
 XW_TIKZ_TUBEESSAIS_BOUCHON_\
 \\begin{scope}[xshift=0.2]\n\
@@ -548,7 +548,7 @@ XW_TIKZ_TUBEESSAIS_BOUCHON_\
 \\begin{scope}[xshift=0.75,yshift=0.75]\n\
 \\draw (0,0) circle[radius=0.5];\n\
 \\foreach \\i in {0,30,60,90,120,150,180}\n\
-  (0.55:\\i) --(0.65:\\i);\n\
+  \\draw (0.55:\\i) --(0.65:\\i);\n\
 \\draw[->] (0.65:180) --(0,0.45);\n\
 \\end{scope}\n\
 \\end{scope}\n"

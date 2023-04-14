@@ -165,7 +165,7 @@ QString clouFer(int c)
                         "\\foreach \\x/\\y/\\z in {%1}\n"
                         "  {\\draw[rorate=\\z,xshift=\\x,yshift=\\y,line width=0.1]\n"
                         "     (0,0.5) arc [radius=0.4,start angle=10,end angle=260];\n"
-                        "   \\draw[rorate=\\z,xshift=\\x,yshift=\\y] (-0.28,0.2) --(0.5,1)}\n"
+                        "   \\draw[rorate=\\z,xshift=\\x,yshift=\\y] (-0.28,0.2) --(0.5,1);}\n"
                         "\\end{scope}\n").arg(s);
 
  return fer;
