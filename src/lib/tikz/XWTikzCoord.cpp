@@ -1336,6 +1336,7 @@ void XWTikzCoord::scan(const QString & str, int & len, int & pos)
     scanKeyValue(str,len,pos,a,av);
     scanKeyValue(str,len,pos,r,rv);
     scanKeyValue(str,len,pos,z,zv);
+    pos++;
     if (a == "angle")
     {
       csc.cylindrical.angle = new XWTikzExpress(graphic,av,this);
@@ -1395,6 +1396,7 @@ void XWTikzCoord::scan(const QString & str, int & len, int & pos)
     scanKeyValue(str,len,pos,lo,lov);
     scanKeyValue(str,len,pos,la,lav);
     scanKeyValue(str,len,pos,ra,rav);
+    pos++;
     if (lo == "longitude" || lo == "angle")
     {
       csc.spherical.longitude = new XWTikzExpress(graphic,lov,this);
