@@ -269,10 +269,7 @@ void XWTikzCell::scan(const QString & str, int & len, int & pos)
       if (str[pos] == QChar('\\'))
       {
         if (str[pos+1] == QChar('\\'))
-        {
-          pos += 2;
           break;
-        }
 
         QString key = XWTeXBox::scanControlSequence(str,len,pos);
         int id = lookupPGFID(key);
@@ -524,6 +521,12 @@ void XWTikzRow::scan(const QString & str, int & len, int & pos)
       pos++;
     else
     {
+      if (str[pos] == QChar('\\') && str[pos+1] == QChar('\\'))
+      {
+        pos += 2;
+        break;
+      }
+
       XWTikzCell * col = new XWTikzCell(graphic,this);
       columns << col;
       col->scan(str,len,pos);
