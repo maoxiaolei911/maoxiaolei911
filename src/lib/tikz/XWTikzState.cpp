@@ -1869,34 +1869,16 @@ bool XWTikzState::hitTestCycle()
 
 bool XWTikzState::hitTestEllipse()
 {
-  QPointF c = coords.last()->getPoint(this);
-  QTransform itrans = transform.inverted();
-  QPointF p = itrans.map(mousePoint);
-  double y = yradius * sqrt(1 - (p.x()-c.x()) * (p.x()-c.x()) / (xradius*xradius));
-  double y0 = p.y();
-
-  p.setY(y + y0);
-  if (hitTestPoint(p))
-    return true;
-
-  p.setY(-y+y0);
-  return hitTestPoint(p);
+  points.clear();
+  addEllipse();
+  return hitTestLines();
 }
 
 bool XWTikzState::hitTestFunction(XWTikzCoord * exp)
 {
-  QStringList vars = exp->getVarNames();
-  if (!vars.isEmpty())
-  {
-    QString var = vars[0];
-    QTransform itrans = transform.inverted();
-    QPointF p = itrans.map(mousePoint);
-    values[var] = p.x();
-    QPointF r =  exp->getPoint(this);
-    return hitTestPoint(r);
-  }
-
-  return false;
+  points.clear();
+  addPlotFunction(exp);
+  return hitTestLines();
 }
 
 bool XWTikzState::hitTestGrid()
