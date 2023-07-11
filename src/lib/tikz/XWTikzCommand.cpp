@@ -670,9 +670,6 @@ void XWTikzPath::addLineTo()
 
 void XWTikzPath::addMoveTo()
 {
-  if (ops.size() == 0)
-    addMoveTo();
-
   XWTikzCoordDialog dlg(tr("Move to"));
   if (dlg.exec() == QDialog::Accepted)
   {
